@@ -1,5 +1,8 @@
 # cdx-pandoc
 
+[![CI](https://github.com/gvonness-apolitical/cdx-pandoc/actions/workflows/ci.yml/badge.svg)](https://github.com/gvonness-apolitical/cdx-pandoc/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE-MIT)
+
 Pandoc custom writer for [Codex Document Format](https://github.com/gvonness-apolitical/codex-file-format-spec) (`.cdx`) files.
 
 ## Overview
