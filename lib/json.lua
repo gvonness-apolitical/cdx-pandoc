@@ -104,7 +104,6 @@ function M.encode_array(arr, indent, pretty)
     end
 
     local parts = {}
-    local newline = pretty and "\n" or ""
     local spacing = pretty and string.rep("  ", indent + 1) or ""
     local close_spacing = pretty and string.rep("  ", indent) or ""
 
@@ -136,7 +135,6 @@ function M.encode_object(obj, indent, pretty)
     end
 
     local parts = {}
-    local newline = pretty and "\n" or ""
     local spacing = pretty and string.rep("  ", indent + 1) or ""
     local close_spacing = pretty and string.rep("  ", indent) or ""
 

@@ -273,8 +273,8 @@ function M.table_block(block)
 
     -- Handle Pandoc table structure
     -- Pandoc 2.17+ has different table structure
-    local caption = block.caption
-    local colspecs = block.colspecs
+    local _caption = block.caption   -- luacheck: ignore 211
+    local _colspecs = block.colspecs -- luacheck: ignore 211
     local thead = block.head
     local tbody = block.bodies
     local tfoot = block.foot
@@ -426,8 +426,8 @@ function M.definition_list(block)
 
         -- Definitions as subsequent paragraphs
         for _, def in ipairs(definitions or {}) do
-            for _, block in ipairs(M.convert(def)) do
-                table.insert(children, block)
+            for _, blk in ipairs(M.convert(def)) do
+                table.insert(children, blk)
             end
         end
 
