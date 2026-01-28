@@ -113,8 +113,7 @@ function Writer(doc, opts)
 
     -- Check if semantic extensions were used (citations or footnotes)
     local citation_keys = blocks.get_citation_keys()
-    local has_citations = false
-    for _ in pairs(citation_keys) do has_citations = true; break end
+    local has_citations = next(citation_keys) ~= nil
 
     if has_citations or has_footnotes then
         manifest.extensions = {{
