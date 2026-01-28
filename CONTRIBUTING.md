@@ -72,13 +72,16 @@ Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 cdx-pandoc/
 ├── codex.lua           # Main Pandoc custom writer
 ├── lib/                # Lua helper modules
-│   ├── content.lua     # Content block generation
-│   ├── metadata.lua    # Dublin Core metadata mapping
-│   └── archive.lua     # ZIP archive creation
+│   ├── blocks.lua      # Block type converters
+│   ├── inlines.lua     # Inline/text node converters
+│   ├── metadata.lua    # Dublin Core metadata extraction
+│   └── json.lua        # JSON encoding utilities
+├── scripts/
+│   └── pandoc-to-cdx.sh  # Full pipeline wrapper
 ├── tests/              # Test files
 │   ├── inputs/         # Test input documents
-│   └── expected/       # Expected outputs
-└── examples/           # Example conversions
+│   └── outputs/        # Generated test outputs
+└── Makefile
 ```
 
 ## Specification Reference
