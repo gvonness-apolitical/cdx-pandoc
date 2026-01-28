@@ -20,12 +20,7 @@ jobs:
         run: sudo luarocks install luacheck
 
       - name: Run luacheck
-        run: |
-          if ls *.lua lib/*.lua 2>/dev/null | head -1 > /dev/null; then
-            luacheck . --no-unused-args --no-max-line-length
-          else
-            echo "No Lua files to check yet"
-          fi
+        run: luacheck . --no-unused-args --no-max-line-length
 
   test:
     name: Test
@@ -41,28 +36,11 @@ jobs:
       - name: Verify Pandoc installation
         run: pandoc --version
 
-      - name: Run tests
-        run: |
-          if [ -f Makefile ]; then
-            make test
-          else
-            echo "No tests configured yet"
-          fi
+      - name: Run writer tests
+        run: make test
 
-  validate:
-    name: Validate Examples
-    runs-on: ubuntu-latest
-    if: false  # Enable when examples exist
-    steps:
-      - uses: actions/checkout@v4
+      - name: Validate JSON structure
+        run: make validate
 
-      - name: Install Pandoc
-        run: |
-          wget https://github.com/jgm/pandoc/releases/download/3.1.11/pandoc-3.1.11-1-amd64.deb
-          sudo dpkg -i pandoc-3.1.11-1-amd64.deb
-
-      - name: Convert example documents
-        run: |
-          for f in examples/inputs/*.md; do
-            pandoc "$f" -t codex.lua -o "${f%.md}.cdx"
-          done
+      - name: Run reader round-trip tests
+        run: make test-reader
