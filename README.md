@@ -4,106 +4,193 @@ Pandoc custom writer for [Codex Document Format](https://github.com/gvonness-apo
 
 ## Overview
 
-This project provides a Pandoc custom writer that enables conversion from any Pandoc-supported format (Markdown, LaTeX, Word, etc.) to the Codex Document Format. This allows academics, writers, and publishers to leverage their existing workflows while gaining Codex's benefits:
+This writer enables conversion from any Pandoc-supported format (Markdown, LaTeX, Word, etc.) to Codex Document Format. The conversion happens in two phases:
 
-- **Verifiable integrity** - Content-addressable document IDs
-- **Semantic structure** - Preserved headings, lists, tables, citations
-- **Machine readability** - JSON-based format with well-defined schemas
-- **Provenance tracking** - Hash chains for document history
+1. **Lua Writer** (`codex.lua`) - Converts Pandoc AST to Codex JSON structures
+2. **Packaging** - Shell wrapper creates the final .cdx ZIP archive
 
-## Installation
+## Requirements
 
-```bash
-# Clone the repository
-git clone https://github.com/gvonness-apolitical/cdx-pandoc.git
-
-# Add to Pandoc's data directory (optional)
-cp cdx-pandoc/codex.lua ~/.local/share/pandoc/writers/
-```
-
-### Prerequisites
-
-- [Pandoc](https://pandoc.org/installing.html) 3.0 or later
-- Lua 5.4 (bundled with Pandoc)
+- Pandoc 2.11+ (with Lua support)
+- jq (for JSON processing)
+- sha256sum or shasum (for hashing)
+- zip (for archive creation)
 
 ## Usage
 
-### Basic Conversion
+### Direct JSON Output
+
+Generate the intermediate JSON structure:
 
 ```bash
-# Convert Markdown to Codex
-pandoc document.md -t codex.lua -o document.cdx
-
-# Convert LaTeX to Codex
-pandoc paper.tex -t codex.lua -o paper.cdx
-
-# Convert Word to Codex
-pandoc report.docx -t codex.lua -o report.cdx
+pandoc input.md -t codex.lua -o output.json
 ```
 
-### With Metadata
+### Full Pipeline (Recommended)
+
+Create a complete .cdx archive:
 
 ```bash
-# Specify title and author
-pandoc document.md -t codex.lua \
-  --metadata title="My Document" \
-  --metadata author="Jane Doe" \
-  -o document.cdx
+./scripts/pandoc-to-cdx.sh input.md output.cdx
 ```
 
-### From YAML Front Matter
+### Supported Input Formats
 
+Any format Pandoc can read:
+- Markdown (.md)
+- LaTeX (.tex)
+- Microsoft Word (.docx)
+- EPUB (.epub)
+- HTML (.html)
+- reStructuredText (.rst)
+- And many more...
+
+## Features
+
+### Block Types Supported
+
+| Pandoc | Codex | Notes |
+|--------|-------|-------|
+| Para | paragraph | Text content |
+| Header | heading | Levels 1-6, preserves IDs |
+| BulletList | list (ordered=false) | Nested lists supported |
+| OrderedList | list (ordered=true) | Start number preserved |
+| CodeBlock | codeBlock | Language preserved |
+| BlockQuote | blockquote | Nested content |
+| HorizontalRule | horizontalRule | Thematic break |
+| Table | table | Headers and cells |
+| Div | (unwrapped) | Contents extracted |
+
+### Inline Formatting
+
+| Pandoc | Codex Mark |
+|--------|------------|
+| Strong | bold |
+| Emph | italic |
+| Code | code |
+| Link | link (with href, title) |
+| Strikeout | strikethrough |
+| Underline | underline |
+| Superscript | superscript |
+| Subscript | subscript |
+
+### Metadata Mapping
+
+The writer extracts Dublin Core metadata from Pandoc YAML front matter:
+
+| Pandoc | Dublin Core |
+|--------|-------------|
+| title | title |
+| author | creator |
+| date | date |
+| abstract | description |
+| keywords | subject |
+| lang | language |
+| publisher | publisher |
+| rights | rights |
+
+## Output Structure
+
+The writer produces a JSON structure with three sections:
+
+```json
+{
+  "manifest": {
+    "codex": "0.1",
+    "id": "pending",
+    "state": "draft",
+    "created": "2025-01-28T10:00:00Z",
+    "modified": "2025-01-28T10:00:00Z",
+    "content": {
+      "path": "content/document.json",
+      "hash": "sha256:..."
+    },
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json"
+    }
+  },
+  "content": {
+    "version": "0.1",
+    "blocks": [...]
+  },
+  "dublin_core": {
+    "version": "1.1",
+    "terms": {...}
+  }
+}
+```
+
+The packaging script extracts these into the proper Codex directory structure.
+
+## Development
+
+### Running Tests
+
+```bash
+make test          # Run JSON output tests
+make validate      # Validate JSON structure
+make test-cdx      # Run full pipeline tests
+```
+
+### Project Structure
+
+```
+cdx-pandoc/
+├── codex.lua           # Main Pandoc custom writer
+├── lib/
+│   ├── blocks.lua      # Block type converters
+│   ├── inlines.lua     # Inline/text node converters
+│   ├── metadata.lua    # Dublin Core extraction
+│   └── json.lua        # JSON encoding utilities
+├── scripts/
+│   └── pandoc-to-cdx.sh  # Full pipeline wrapper
+├── tests/
+│   ├── inputs/         # Test input files
+│   └── outputs/        # Generated test outputs
+├── Makefile
+└── README.md
+```
+
+## Examples
+
+### Basic Markdown
+
+Input (`document.md`):
 ```markdown
 ---
-title: My Academic Paper
-author:
-  - Jane Doe
-  - John Smith
+title: My Document
+author: Jane Doe
 date: 2025-01-28
-abstract: This paper explores...
-keywords:
-  - research
-  - methodology
 ---
 
 # Introduction
 
-Your content here...
+This is a **simple** example with *formatting*.
 ```
 
-## Supported Features
+Convert:
+```bash
+./scripts/pandoc-to-cdx.sh document.md document.cdx
+```
 
-| Pandoc Element | Codex Mapping |
-|---------------|---------------|
-| Paragraphs | `paragraph` block |
-| Headings | `heading` block (levels 1-6) |
-| Bullet lists | `list` block (unordered) |
-| Numbered lists | `list` block (ordered) |
-| Code blocks | `code_block` block |
-| Block quotes | `blockquote` block |
-| Tables | `table` block |
-| Images | `image` block + asset embedding |
-| Math (LaTeX) | `math` block |
-| Links | Inline marks |
-| Bold/Italic | Inline marks |
-| Citations | `citation` extension (with citeproc) |
+### From LaTeX
 
-## Metadata Mapping
+```bash
+./scripts/pandoc-to-cdx.sh paper.tex paper.cdx
+```
 
-Pandoc metadata is mapped to Dublin Core:
+### From Word
 
-| Pandoc | Dublin Core |
-|--------|-------------|
-| `title` | `dc:title` |
-| `author` | `dc:creator` |
-| `date` | `dc:date` |
-| `abstract` | `dc:description` |
-| `keywords` | `dc:subject` |
-| `lang` | `dc:language` |
+```bash
+./scripts/pandoc-to-cdx.sh report.docx report.cdx
+```
 
-## Examples
+## Limitations
 
-See the [examples/](examples/) directory for sample conversions.
+- Images are referenced but not embedded (future enhancement)
+- Math blocks are converted to code format (LaTeX preserved)
+- Citations are rendered inline (bibliography extension planned)
+- Complex table formatting may be simplified
 
 ## Related Projects
 
