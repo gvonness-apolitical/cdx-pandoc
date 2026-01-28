@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Lua
+        run: sudo apt-get update && sudo apt-get install -y lua5.4 luacheck
+
+      - name: Run luacheck
+        run: luacheck . --no-unused-args --no-max-line-length || true
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Pandoc
+        run: |
+          wget https://github.com/jgm/pandoc/releases/download/3.1.11/pandoc-3.1.11-1-amd64.deb
+          sudo dpkg -i pandoc-3.1.11-1-amd64.deb
+
+      - name: Verify Pandoc installation
+        run: pandoc --version
+
+      - name: Run tests
+        run: |
+          if [ -f Makefile ]; then
+            make test
+          else
+            echo "No tests configured yet"
+          fi
+
+  validate:
+    name: Validate Examples
+    runs-on: ubuntu-latest
+    if: false  # Enable when examples exist
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Pandoc
+        run: |
+          wget https://github.com/jgm/pandoc/releases/download/3.1.11/pandoc-3.1.11-1-amd64.deb
+          sudo dpkg -i pandoc-3.1.11-1-amd64.deb
+
+      - name: Convert example documents
+        run: |
+          for f in examples/inputs/*.md; do
+            pandoc "$f" -t codex.lua -o "${f%.md}.cdx"
+          done

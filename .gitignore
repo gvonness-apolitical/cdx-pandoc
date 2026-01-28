@@ -1,0 +1,21 @@
+# Output files
+*.cdx
+output/
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test artifacts
+test-output/
+tmp/
+
+# Claude Code
+.claude
