@@ -13,11 +13,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Lua
-        run: sudo apt-get update && sudo apt-get install -y lua5.4 luacheck
+      - name: Install Lua and Luarocks
+        run: sudo apt-get update && sudo apt-get install -y lua5.4 luarocks
+
+      - name: Install luacheck
+        run: sudo luarocks install luacheck
 
       - name: Run luacheck
-        run: luacheck . --no-unused-args --no-max-line-length || true
+        run: |
+          if ls *.lua lib/*.lua 2>/dev/null | head -1 > /dev/null; then
+            luacheck . --no-unused-args --no-max-line-length
+          else
+            echo "No Lua files to check yet"
+          fi
 
   test:
     name: Test
