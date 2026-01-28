@@ -98,8 +98,30 @@ function Writer(doc, opts)
     -- Convert blocks
     local content = create_content(doc.blocks)
 
+    -- Append accumulated footnotes as semantic:footnote blocks
+    local footnotes = inlines.get_footnotes()
+    local has_footnotes = #footnotes > 0
+    if has_footnotes then
+        local footnote_blocks = blocks.convert_footnotes(footnotes)
+        for _, fb in ipairs(footnote_blocks) do
+            table.insert(content.blocks, fb)
+        end
+    end
+
     -- Create manifest
     local manifest = create_manifest()
+
+    -- Check if semantic extensions were used (citations or footnotes)
+    local citation_keys = blocks.get_citation_keys()
+    local has_citations = next(citation_keys) ~= nil
+
+    if has_citations or has_footnotes then
+        manifest.extensions = {{
+            id = "codex.semantic",
+            version = "0.1",
+            required = false
+        }}
+    end
 
     -- Combine into output structure
     local output = {

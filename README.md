@@ -45,6 +45,18 @@ Any format Pandoc can read:
 - reStructuredText (.rst)
 - And many more...
 
+## Reading Codex Documents
+
+Convert Codex JSON back to any Pandoc-supported output format:
+
+```bash
+pandoc -f cdx-reader.lua output.json -o document.md
+pandoc -f cdx-reader.lua output.json -o document.tex
+pandoc -f cdx-reader.lua output.json -o document.html
+```
+
+The reader handles core block types (paragraphs, headings, lists, code blocks, blockquotes, tables, math, images). Extension blocks (`semantic:citation`, `semantic:footnote`) are silently skipped.
+
 ## Features
 
 ### Block Types Supported
@@ -59,7 +71,14 @@ Any format Pandoc can read:
 | BlockQuote | blockquote | Nested content |
 | HorizontalRule | horizontalRule | Thematic break |
 | Table | table | Headers and cells |
+| Math (display) | math | LaTeX format, display=true |
+| Math (inline) | math | LaTeX format, display=false; splits paragraph |
+| Cite | semantic:citation | ref, prefix, suffix, suppressAuthor |
+| Note | semantic:footnote | Superscript ref + block content |
+| Image | image | src, alt, title, width, height |
+| Figure | image | Extracts image with caption |
 | Div | (unwrapped) | Contents extracted |
+| Div#refs | semantic:bibliography | Citeproc bibliography entries |
 
 ### Inline Formatting
 
@@ -130,23 +149,27 @@ The packaging script extracts these into the proper Codex directory structure.
 make test          # Run JSON output tests
 make validate      # Validate JSON structure
 make test-cdx      # Run full pipeline tests
+make test-reader   # Test round-trip (JSON → markdown)
 ```
 
 ### Project Structure
 
 ```
 cdx-pandoc/
-├── codex.lua           # Main Pandoc custom writer
+├── codex.lua              # Main Pandoc custom writer
+├── cdx-reader.lua         # Codex → Pandoc reader
 ├── lib/
-│   ├── blocks.lua      # Block type converters
-│   ├── inlines.lua     # Inline/text node converters
-│   ├── metadata.lua    # Dublin Core extraction
-│   └── json.lua        # JSON encoding utilities
+│   ├── blocks.lua         # Writer: block type converters
+│   ├── inlines.lua        # Writer: inline/text node converters
+│   ├── metadata.lua       # Writer: Dublin Core extraction
+│   ├── json.lua           # Writer: JSON encoding utilities
+│   ├── reader_blocks.lua  # Reader: block type reverse mapping
+│   └── reader_inlines.lua # Reader: mark → inline wrapping
 ├── scripts/
-│   └── pandoc-to-cdx.sh  # Full pipeline wrapper
+│   └── pandoc-to-cdx.sh   # Full pipeline wrapper
 ├── tests/
-│   ├── inputs/         # Test input files
-│   └── outputs/        # Generated test outputs
+│   ├── inputs/            # Test input files
+│   └── outputs/           # Generated test outputs
 ├── Makefile
 └── README.md
 ```
@@ -187,10 +210,10 @@ Convert:
 
 ## Limitations
 
-- Images are referenced but not embedded (future enhancement)
-- Math blocks are converted to code format (LaTeX preserved)
-- Citations are rendered inline (bibliography extension planned)
+- Images are referenced by path but not embedded in the archive (future enhancement)
 - Complex table formatting may be simplified
+- Citations require `--citeproc` flag for bibliography generation; without it, only inline citation blocks are emitted
+- Footnote content is appended as blocks at the end of the document
 
 ## Related Projects
 
