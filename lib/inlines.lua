@@ -22,6 +22,15 @@ local function deep_copy(t)
     return copy
 end
 
+-- Check if a class list contains a specific class
+function M.has_class(classes, class_name)
+    if not classes then return false end
+    for _, c in ipairs(classes) do
+        if c == class_name then return true end
+    end
+    return false
+end
+
 -- Check if two marks are equal
 local function marks_equal(m1, m2)
     if type(m1) ~= type(m2) then
@@ -50,6 +59,12 @@ local function marks_equal(m1, m2)
                 if ref ~= m2.refs[i] then return false end
             end
             return true
+        end
+        if m1.type == "entity" then
+            return m1.uri == m2.uri and m1.entityType == m2.entityType
+        end
+        if m1.type == "glossary" then
+            return m1.ref == m2.ref
         end
     end
     return false
@@ -256,15 +271,77 @@ function M.convert_inline(inline, marks)
         return M.flatten(inline.content, marks)
 
     elseif tag == "Span" then
-        -- Span with ID becomes anchor mark
         local attr = inline.attr or {}
         local identifier = attr.identifier or (attr[1] or "")
+        local classes = attr.classes or (attr[2] or {})
+        local attributes = attr.attributes or (attr[3] or {})
+
+        -- Normalize classes to table
+        if type(classes) == "string" then
+            classes = {classes}
+        end
+
+        -- Check for semantic classes
+        local new_marks = deep_copy(marks)
+        local has_semantic_mark = false
+
+        -- Check for entity class: [text]{.entity uri="..." entityType="..."}
+        if M.has_class(classes, "entity") then
+            local entity_mark = {type = "entity"}
+            if attributes.uri then
+                entity_mark.uri = attributes.uri
+            end
+            if attributes.entityType then
+                entity_mark.entityType = attributes.entityType
+            elseif attributes["entity-type"] then
+                entity_mark.entityType = attributes["entity-type"]
+            end
+            if attributes.source then
+                entity_mark.source = attributes.source
+            end
+            table.insert(new_marks, entity_mark)
+            has_semantic_mark = true
+        end
+
+        -- Check for glossary class: [text]{.glossary ref="term-id"}
+        if M.has_class(classes, "glossary") then
+            local glossary_mark = {type = "glossary"}
+            if attributes.ref then
+                glossary_mark.ref = attributes.ref
+            else
+                -- Auto-generate ref from content
+                local text = pandoc.utils.stringify(inline.content)
+                glossary_mark.ref = "term-" .. text:lower():gsub("%s+", "-"):gsub("[^%w%-]", "")
+            end
+            table.insert(new_marks, glossary_mark)
+            has_semantic_mark = true
+        end
+
+        -- Check for measurement class: [42.5 kg]{.measurement value="42.5" unit="kg"}
+        if M.has_class(classes, "measurement") then
+            -- Return a measurement sentinel for block-level handling
+            local text = pandoc.utils.stringify(inline.content)
+            local value = tonumber(attributes.value) or tonumber(text:match("([%d%.]+)"))
+            local unit = attributes.unit or text:match("%d+%.?%d*%s*(%a+)")
+            return {{
+                type = "measurement_sentinel",
+                value = value,
+                unit = unit,
+                text = text
+            }}
+        end
+
+        -- Span with ID becomes anchor mark
         if identifier and identifier ~= "" then
-            local new_marks = deep_copy(marks)
             table.insert(new_marks, {type = "anchor", id = identifier})
+            has_semantic_mark = true
+        end
+
+        if has_semantic_mark then
             return M.flatten(inline.content, new_marks)
         end
-        -- Span without ID - just process content
+
+        -- Span without semantic info - just process content
         return M.flatten(inline.content, marks)
 
     elseif tag == "Note" then

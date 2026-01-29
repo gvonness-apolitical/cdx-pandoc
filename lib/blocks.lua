@@ -189,6 +189,21 @@ function M.convert_sentinel(node)
         }}
     elseif node.type == "image_sentinel" then
         return {{type = "image", src = node.src, alt = node.alt, title = node.title}}
+    elseif node.type == "measurement_sentinel" then
+        local measurement = {
+            type = "semantic:measurement",
+            value = node.value,
+            unit = node.unit
+        }
+        -- Add schema.org QuantitativeValue if we have valid data
+        if node.value and node.unit then
+            measurement.schema = {
+                ["@type"] = "QuantitativeValue",
+                value = node.value,
+                unitText = node.unit
+            }
+        end
+        return {measurement}
     else
         return {}
     end
@@ -467,48 +482,58 @@ function M.table_cell(cell)
     return result
 end
 
--- Convert DefinitionList
+-- Convert DefinitionList to semantic:term blocks (glossary terms)
 function M.definition_list(block)
-    local items = {}
+    local terms = {}
 
     for _, entry in ipairs(block.content) do
-        local term = entry[1]
+        local term_inlines = entry[1]
         local definitions = entry[2]
 
-        -- Create a list item with term as bold + definitions
-        local children = {}
+        -- Extract term text
+        local term_text = pandoc.utils.stringify(term_inlines)
+        local term_id = "term-" .. term_text:lower():gsub("%s+", "-"):gsub("[^%w%-]", "")
 
-        -- Term as bold paragraph
-        if term then
-            local term_nodes = inlines.convert(term)
-            -- Make term bold
-            for _, node in ipairs(term_nodes) do
-                node.marks = node.marks or {}
-                table.insert(node.marks, 1, "bold")
-            end
-            table.insert(children, {
-                type = "paragraph",
-                children = term_nodes
-            })
-        end
-
-        -- Definitions as subsequent paragraphs
+        -- Extract definition text (combine all definitions)
+        local def_parts = {}
         for _, def in ipairs(definitions or {}) do
-            for _, blk in ipairs(M.convert(def)) do
-                table.insert(children, blk)
+            table.insert(def_parts, pandoc.utils.stringify(def))
+        end
+        local definition = table.concat(def_parts, " ")
+
+        -- Check for "see also" references in the definition
+        local see_refs = {}
+        local see_pattern = "[Ss]ee%s+also:?%s*([^%.]+)"
+        local see_match = definition:match(see_pattern)
+        if see_match then
+            for ref in see_match:gmatch("([^,;]+)") do
+                local ref_trimmed = ref:match("^%s*(.-)%s*$")
+                if ref_trimmed and ref_trimmed ~= "" then
+                    local ref_id = "term-" .. ref_trimmed:lower():gsub("%s+", "-"):gsub("[^%w%-]", "")
+                    table.insert(see_refs, ref_id)
+                end
             end
+            -- Remove the "see also" part from definition
+            definition = definition:gsub(see_pattern .. "%.?%s*", "")
         end
 
-        table.insert(items, {
-            type = "listItem",
-            children = children
-        })
+        local term_block = {
+            type = "semantic:term",
+            id = term_id,
+            term = term_text,
+            definition = definition
+        }
+
+        if #see_refs > 0 then
+            term_block.see = see_refs
+        end
+
+        table.insert(terms, term_block)
     end
 
     return {
-        type = "list",
-        ordered = false,
-        children = items
+        multi = true,
+        blocks = terms
     }
 end
 
