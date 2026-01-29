@@ -6,9 +6,6 @@ local M = {}
 -- Inlines module (will be set by init)
 local inlines = nil
 
--- Track citation keys used in the document
-M._citation_keys = {}
-
 -- Set the inlines module reference
 function M.set_inlines(inlines_module)
     inlines = inlines_module
@@ -190,37 +187,11 @@ function M.convert_sentinel(node)
             format = "latex",
             value = node.text
         }}
-    elseif node.type == "citation_sentinel" then
-        return M.convert_citation_sentinel(node)
     elseif node.type == "image_sentinel" then
         return {{type = "image", src = node.src, alt = node.alt, title = node.title}}
     else
         return {}
     end
-end
-
--- Convert a citation sentinel to semantic:citation block(s)
-function M.convert_citation_sentinel(node)
-    local result = {}
-    for _, cite in ipairs(node.citations) do
-        M._citation_keys[cite.id] = true
-        local block = {
-            type = "semantic:citation",
-            ref = cite.id,
-        }
-        if cite.prefix and cite.prefix ~= "" then block.prefix = cite.prefix end
-        if cite.suffix and cite.suffix ~= "" then block.suffix = cite.suffix end
-        if cite.mode == "SuppressAuthor" then block.suppressAuthor = true end
-        table.insert(result, block)
-    end
-    return result
-end
-
--- Get citation keys collected during conversion and reset tracker
-function M.get_citation_keys()
-    local keys = M._citation_keys
-    M._citation_keys = {}
-    return keys
 end
 
 -- Convert Header to heading

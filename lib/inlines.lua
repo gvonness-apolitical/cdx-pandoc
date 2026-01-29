@@ -7,6 +7,9 @@ local M = {}
 M._footnotes = {}
 M._footnote_counter = 0
 
+-- Citation refs accumulator
+M._citation_refs = {}
+
 -- Deep copy a table
 local function deep_copy(t)
     if type(t) ~= "table" then
@@ -36,6 +39,17 @@ local function marks_equal(m1, m2)
         end
         if m1.type == "anchor" then
             return m1.id == m2.id
+        end
+        if m1.type == "footnote" then
+            return m1.number == m2.number and m1.id == m2.id
+        end
+        if m1.type == "citation" then
+            -- Citations with same refs are equal for merging purposes
+            if #m1.refs ~= #m2.refs then return false end
+            for i, ref in ipairs(m1.refs) do
+                if ref ~= m2.refs[i] then return false end
+            end
+            return true
         end
     end
     return false
@@ -191,16 +205,51 @@ function M.convert_inline(inline, marks)
         return nodes
 
     elseif tag == "Cite" then
-        local citations = {}
+        -- Build citation mark with refs and optional metadata
+        local refs = {}
+        local locator = nil
+        local prefix = nil
+        local suffix = nil
+        local suppress_author = false
+
         for _, c in ipairs(inline.citations) do
-            table.insert(citations, {
-                id = c.id,
-                mode = c.mode,
-                prefix = c.prefix and pandoc.utils.stringify(c.prefix) or nil,
-                suffix = c.suffix and pandoc.utils.stringify(c.suffix) or nil,
-            })
+            table.insert(refs, c.id)
+            -- Track citation refs for extension detection
+            M._citation_refs[c.id] = true
+            -- Capture metadata from first citation
+            if not prefix and c.prefix then
+                local p = pandoc.utils.stringify(c.prefix)
+                if p ~= "" then prefix = p end
+            end
+            if not suffix and c.suffix then
+                local s = pandoc.utils.stringify(c.suffix)
+                if s ~= "" then
+                    -- Check if suffix contains page numbers (common pattern)
+                    local page_match = s:match("^%s*p%.?%s*(%d+[%-–]?%d*)") or
+                                       s:match("^%s*pp%.?%s*(%d+[%-–]?%d*)")
+                    if page_match then
+                        locator = page_match
+                    else
+                        suffix = s
+                    end
+                end
+            end
+            if c.mode == "SuppressAuthor" then
+                suppress_author = true
+            end
         end
-        return {{type = "citation_sentinel", citations = citations, value = ""}}
+
+        -- Create citation mark
+        local citation_mark = {type = "citation", refs = refs}
+        if locator then citation_mark.locator = locator end
+        if prefix then citation_mark.prefix = prefix end
+        if suffix then citation_mark.suffix = suffix end
+        if suppress_author then citation_mark.suppressAuthor = true end
+
+        -- Apply citation mark to the citation content
+        local new_marks = deep_copy(marks)
+        table.insert(new_marks, citation_mark)
+        return M.flatten(inline.content, new_marks)
 
     elseif tag == "SmallCaps" then
         -- SmallCaps not supported in Codex, render as-is
@@ -221,12 +270,15 @@ function M.convert_inline(inline, marks)
     elseif tag == "Note" then
         M._footnote_counter = M._footnote_counter + 1
         local fn_num = M._footnote_counter
+        local fn_id = "fn-" .. fn_num
         table.insert(M._footnotes, {
             number = fn_num,
+            id = fn_id,
             content = inline.content
         })
+        -- Use footnote mark instead of superscript
         local new_marks = deep_copy(marks)
-        table.insert(new_marks, "superscript")
+        table.insert(new_marks, {type = "footnote", number = fn_num, id = fn_id})
         return {M.text_node(tostring(fn_num), new_marks)}
 
     else
@@ -329,6 +381,13 @@ function M.get_footnotes()
     M._footnotes = {}
     M._footnote_counter = 0
     return fns
+end
+
+-- Retrieve accumulated citation refs and reset state
+function M.get_citation_refs()
+    local refs = M._citation_refs
+    M._citation_refs = {}
+    return refs
 end
 
 return M
