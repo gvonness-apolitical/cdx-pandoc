@@ -239,4 +239,119 @@ function M.default_metadata()
     }
 end
 
+-- Map Dublin Core type to schema.org type
+local function dc_type_to_schema_type(dc_type)
+    local mapping = {
+        Text = "Article",
+        Article = "Article",
+        Book = "Book",
+        Report = "Report",
+        Thesis = "Thesis",
+        Dataset = "Dataset",
+        Software = "SoftwareSourceCode",
+        Image = "ImageObject",
+        Sound = "AudioObject",
+        MovingImage = "VideoObject",
+        Collection = "Collection",
+    }
+    return mapping[dc_type] or "CreativeWork"
+end
+
+-- Generate JSON-LD metadata from Dublin Core
+-- @param dublin_core Dublin Core metadata table
+-- @return JSON-LD metadata table or nil
+function M.generate_jsonld(dublin_core)
+    if not dublin_core or not dublin_core.terms then
+        return nil
+    end
+
+    local terms = dublin_core.terms
+
+    -- Build the JSON-LD object
+    local jsonld = {
+        ["@context"] = "https://schema.org/",
+        ["@type"] = dc_type_to_schema_type(terms.type),
+        name = terms.title
+    }
+
+    -- Add author(s)
+    if terms.creator then
+        if type(terms.creator) == "table" then
+            -- Multiple authors
+            local authors = {}
+            for _, name in ipairs(terms.creator) do
+                table.insert(authors, {
+                    ["@type"] = "Person",
+                    name = name
+                })
+            end
+            jsonld.author = authors
+        else
+            -- Single author
+            jsonld.author = {
+                ["@type"] = "Person",
+                name = terms.creator
+            }
+        end
+    end
+
+    -- Add date published
+    if terms.date then
+        jsonld.datePublished = terms.date
+    end
+
+    -- Add description/abstract
+    if terms.description then
+        jsonld.description = terms.description
+    end
+
+    -- Add keywords
+    if terms.subject then
+        if type(terms.subject) == "table" then
+            jsonld.keywords = table.concat(terms.subject, ", ")
+        else
+            jsonld.keywords = terms.subject
+        end
+    end
+
+    -- Add language
+    if terms.language then
+        jsonld.inLanguage = terms.language
+    end
+
+    -- Add publisher
+    if terms.publisher then
+        jsonld.publisher = {
+            ["@type"] = "Organization",
+            name = terms.publisher
+        }
+    end
+
+    -- Add license/rights
+    if terms.rights then
+        jsonld.license = terms.rights
+    end
+
+    -- Add identifier (DOI, ISBN, etc.)
+    if terms.identifier then
+        -- Check if it's a DOI
+        if terms.identifier:match("^10%.") or terms.identifier:match("doi:") then
+            local doi = terms.identifier:gsub("^doi:", ""):gsub("^https?://doi%.org/", "")
+            jsonld.identifier = {
+                ["@type"] = "PropertyValue",
+                propertyID = "DOI",
+                value = doi
+            }
+        elseif terms.identifier:match("^%d%d%d%-%d") or terms.identifier:match("^ISBN") then
+            -- ISBN
+            local isbn = terms.identifier:gsub("^ISBN[:%s]*", "")
+            jsonld.isbn = isbn
+        else
+            jsonld.identifier = terms.identifier
+        end
+    end
+
+    return jsonld
+end
+
 return M
