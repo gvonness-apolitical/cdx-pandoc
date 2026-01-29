@@ -54,6 +54,8 @@ function M.convert_node(node)
     local has_anchor = nil
     local has_footnote = nil
     local has_citation = nil
+    local has_entity = nil
+    local has_glossary = nil
     local other_marks = {}
 
     for _, mark in ipairs(marks) do
@@ -68,6 +70,10 @@ function M.convert_node(node)
             has_footnote = mark
         elseif mark_type == "citation" then
             has_citation = mark
+        elseif mark_type == "entity" then
+            has_entity = mark
+        elseif mark_type == "glossary" then
+            has_glossary = mark
         else
             table.insert(other_marks, mark_type)
         end
@@ -156,6 +162,32 @@ function M.convert_node(node)
         if anchor_id ~= "" then
             inline = pandoc.Span({inline}, pandoc.Attr(anchor_id))
         end
+    end
+
+    -- Wrap in Span with entity class if entity mark present
+    if has_entity then
+        local attrs = {}
+        if type(has_entity) == "table" then
+            if has_entity.uri then
+                attrs.uri = has_entity.uri
+            end
+            if has_entity.entityType then
+                attrs.entityType = has_entity.entityType
+            end
+            if has_entity.source then
+                attrs.source = has_entity.source
+            end
+        end
+        inline = pandoc.Span({inline}, pandoc.Attr("", {"entity"}, attrs))
+    end
+
+    -- Wrap in Span with glossary class if glossary mark present
+    if has_glossary then
+        local attrs = {}
+        if type(has_glossary) == "table" and has_glossary.ref then
+            attrs.ref = has_glossary.ref
+        end
+        inline = pandoc.Span({inline}, pandoc.Attr("", {"glossary"}, attrs))
     end
 
     return {inline}

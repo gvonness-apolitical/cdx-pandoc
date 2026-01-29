@@ -80,6 +80,13 @@ function M.convert_block(block)
         return nil
     elseif btype == "semantic:ref" then
         return M.semantic_ref(block)
+    elseif btype == "semantic:term" then
+        return M.semantic_term(block)
+    elseif btype == "semantic:measurement" then
+        return M.semantic_measurement(block)
+    elseif btype == "semantic:glossary" or btype == "semantic:bibliography" then
+        -- Placeholder blocks - skip (content rendered elsewhere)
+        return nil
     elseif btype:match("^semantic:") or btype:match("^forms:") or btype:match("^collaboration:") then
         -- Other extension blocks — silently skip
         io.stderr:write("cdx-reader: skipping extension block: " .. btype .. "\n")
@@ -266,6 +273,62 @@ function M.semantic_ref(block)
     -- Create a link to the target
     local link = pandoc.Link(inlines, target, "")
     return pandoc.Para({link})
+end
+
+-- Semantic term block (glossary definition) -> DefinitionList item
+function M.semantic_term(block)
+    local term = block.term or ""
+    local definition = block.definition or ""
+
+    -- Add "see also" references if present
+    if block.see and #block.see > 0 then
+        local see_terms = {}
+        for _, ref in ipairs(block.see) do
+            -- Convert term-id back to readable form
+            local readable = ref:gsub("^term%-", ""):gsub("%-", " ")
+            table.insert(see_terms, readable)
+        end
+        definition = definition .. " See also: " .. table.concat(see_terms, ", ") .. "."
+    end
+
+    -- Create a DefinitionList with single item
+    local term_inlines = {pandoc.Str(term)}
+    local def_blocks = {pandoc.Plain({pandoc.Str(definition)})}
+
+    return pandoc.DefinitionList({
+        {term_inlines, {def_blocks}}
+    })
+end
+
+-- Semantic measurement block -> Span with measurement class
+function M.semantic_measurement(block)
+    local value = block.value
+    local unit = block.unit or ""
+
+    -- Build display text
+    local text = ""
+    if value then
+        text = tostring(value)
+        if unit ~= "" then
+            text = text .. " " .. unit
+        end
+    end
+
+    -- Create Span with measurement class and attributes
+    local attrs = {}
+    if value then
+        attrs.value = tostring(value)
+    end
+    if unit ~= "" then
+        attrs.unit = unit
+    end
+
+    local span = pandoc.Span(
+        {pandoc.Str(text)},
+        pandoc.Attr("", {"measurement"}, attrs)
+    )
+
+    return pandoc.Para({span})
 end
 
 return M

@@ -14,11 +14,13 @@ cdx-pandoc provides solid coverage of core document elements. Phase 1 and Phase 
 - ✅ JSON-LD metadata generation from Dublin Core
 - ✅ Cross-reference support (semantic:ref reader, link marks for internal refs)
 
-**Remaining (Phase 3+)**:
+**Completed (Phase 3)**:
+- ✅ Glossary support (semantic:term blocks, glossary marks)
+- ✅ Entity linking (entity marks with Wikidata URIs)
+- ✅ Measurements (semantic:measurement blocks)
+
+**Remaining (Phase 4+)**:
 - Bibliography CSL metadata preservation (requires citeproc integration)
-- Glossary support (semantic:term)
-- Entity linking
-- Measurements
 
 ---
 
@@ -78,7 +80,7 @@ Reader converts citation marks back to Pandoc `Cite` elements.
 
 ---
 
-### 1.3 Entity Mark (MEDIUM PRIORITY)
+### 1.3 Entity Mark ✅ COMPLETED
 
 **cdx-core spec**:
 ```json
@@ -89,15 +91,23 @@ Reader converts citation marks back to Pandoc `Cite` elements.
 }
 ```
 
-**cdx-pandoc current**: Not supported
+**cdx-pandoc implementation**:
+```json
+{
+  "type": "text",
+  "value": "Albert Einstein",
+  "marks": [{ "type": "entity", "uri": "https://www.wikidata.org/wiki/Q937", "entityType": "Person" }]
+}
+```
 
-**Gap**: No mechanism to annotate named entities with knowledge base links. Academic documents often need entity disambiguation.
-
-**Pandoc source**: Could potentially use `Span` with custom attributes like `[Albert Einstein]{.entity uri="..."}`
+**Status**: ✅ Implemented in `lib/inlines.lua`. Entity marks are generated from Pandoc Spans with `.entity` class:
+- `[text]{.entity uri="..." entityType="..." source="..."}`
+- Supports `uri`, `entityType`, and optional `source` attributes
+- Reader converts back to Span with entity class and attributes
 
 ---
 
-### 1.4 Glossary Mark (MEDIUM PRIORITY)
+### 1.4 Glossary Mark ✅ COMPLETED
 
 **cdx-core spec**:
 ```json
@@ -108,9 +118,19 @@ Reader converts citation marks back to Pandoc `Cite` elements.
 }
 ```
 
-**cdx-pandoc current**: Not supported
+**cdx-pandoc implementation**:
+```json
+{
+  "type": "text",
+  "value": "CRDT",
+  "marks": [{ "type": "glossary", "ref": "term-crdt" }]
+}
+```
 
-**Gap**: No support for glossary term references within text.
+**Status**: ✅ Implemented in `lib/inlines.lua`. Glossary marks are generated from Pandoc Spans with `.glossary` class:
+- `[text]{.glossary ref="term-id"}` - explicit reference
+- `[text]{.glossary}` - auto-generates ref from text content
+- Reader converts back to Span with glossary class and ref attribute
 
 ---
 
@@ -136,7 +156,7 @@ Reader converts citation marks back to Pandoc `Cite` elements.
 
 ---
 
-### 2.2 semantic:term (Glossary Definition) (MEDIUM PRIORITY)
+### 2.2 semantic:term (Glossary Definition) ✅ COMPLETED
 
 **cdx-core spec**:
 ```json
@@ -149,13 +169,25 @@ Reader converts citation marks back to Pandoc `Cite` elements.
 }
 ```
 
-**cdx-pandoc current**: Not supported
+**cdx-pandoc implementation**:
+```json
+{
+  "type": "semantic:term",
+  "id": "term-crdt",
+  "term": "CRDT",
+  "definition": "Conflict-free Replicated Data Type - a data structure...",
+  "see": ["term-eventual-consistency"]
+}
+```
 
-**Gap**: Definition lists are converted to regular lists with bold terms, losing the semantic structure needed for glossary generation.
+**Status**: ✅ Implemented in `lib/blocks.lua`. Pandoc DefinitionList is converted to semantic:term blocks:
+- Auto-generates `id` from term text (e.g., "term-crdt")
+- Extracts "See also:" references into `see` array
+- Reader converts back to DefinitionList with "See also:" appended
 
 ---
 
-### 2.3 semantic:glossary (Glossary Block) (LOW PRIORITY)
+### 2.3 semantic:glossary (Glossary Block) (DEFERRED)
 
 **cdx-core spec**:
 ```json
@@ -166,11 +198,13 @@ Reader converts citation marks back to Pandoc `Cite` elements.
 }
 ```
 
-**cdx-pandoc current**: Not supported
+**cdx-pandoc current**: Not implemented (placeholder block, reader skips)
+
+**Note**: This is an auto-generated container block that collects semantic:term entries. Not typically needed for Pandoc round-trip.
 
 ---
 
-### 2.4 semantic:measurement (LOW PRIORITY)
+### 2.4 semantic:measurement ✅ COMPLETED
 
 **cdx-core spec**:
 ```json
@@ -182,7 +216,21 @@ Reader converts citation marks back to Pandoc `Cite` elements.
 }
 ```
 
-**cdx-pandoc current**: Not supported
+**cdx-pandoc implementation**:
+```json
+{
+  "type": "semantic:measurement",
+  "value": 42.5,
+  "unit": "kg",
+  "schema": { "@type": "QuantitativeValue", "value": 42.5, "unitText": "kg" }
+}
+```
+
+**Status**: ✅ Implemented in `lib/inlines.lua` and `lib/blocks.lua`. Measurements are generated from Pandoc Spans with `.measurement` class:
+- `[42.5 kg]{.measurement value="42.5" unit="kg"}`
+- Auto-extracts value/unit from text if attributes not provided
+- Generates schema.org QuantitativeValue metadata
+- Reader converts back to Span with measurement class and attributes
 
 ---
 
@@ -289,10 +337,9 @@ Reader converts citation marks back to Pandoc `Cite` elements.
 
 **Status**: ✅ Implemented in `lib/reader_blocks.lua`. `semantic:ref` blocks are converted to Pandoc Link elements with the target URL.
 
-### 5.4 Glossary Terms (LOW PRIORITY)
+### 5.4 Glossary Terms ✅ COMPLETED
 
-**Current**: `semantic:term` blocks are skipped
-**Needed**: Convert to definition lists or custom Pandoc elements
+**Status**: ✅ Implemented in `lib/reader_blocks.lua`. `semantic:term` blocks are converted to Pandoc DefinitionList elements with "See also:" references appended to definitions.
 
 ---
 
@@ -311,11 +358,11 @@ Reader converts citation marks back to Pandoc `Cite` elements.
 6. ✅ **Reader: cross-refs** - Convert semantic:ref back to Pandoc links
 7. ✅ **JSON-LD metadata** - Generate schema.org metadata from Dublin Core
 
-### Phase 3: Advanced Semantic Features (DEFERRED)
+### Phase 3: Advanced Semantic Features ✅ COMPLETED
 
-8. **Glossary support** - Definition lists → semantic:term
-9. **Entity linking** - Custom Span attributes → entity marks
-10. **Measurements** - Custom notation → semantic:measurement
+8. ✅ **Glossary support** - Definition lists → semantic:term; Span .glossary → glossary marks
+9. ✅ **Entity linking** - Span .entity attributes → entity marks with Wikidata URIs
+10. ✅ **Measurements** - Span .measurement → semantic:measurement with schema.org metadata
 
 ---
 
@@ -366,6 +413,6 @@ Missing test coverage:
 | Bibliography | Full CSL JSON | rendered text only | ⏳ Pending |
 | Cross-references | semantic:ref | link marks + reader | ✅ Done |
 | JSON-LD | Full | Generated from DC | ✅ Done |
-| Glossary | Full | None | 📋 Phase 3 |
-| Entity linking | Full | None | 📋 Phase 3 |
-| Measurements | Full | None | 📋 Phase 3 |
+| Glossary | Full | semantic:term + marks | ✅ Done |
+| Entity linking | Full | entity marks | ✅ Done |
+| Measurements | Full | semantic:measurement | ✅ Done |
