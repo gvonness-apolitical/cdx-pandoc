@@ -78,6 +78,8 @@ function M.convert_block(block)
     elseif btype == "semantic:footnote" then
         -- Footnotes are pre-processed and handled via inline references
         return nil
+    elseif btype == "semantic:ref" then
+        return M.semantic_ref(block)
     elseif btype:match("^semantic:") or btype:match("^forms:") or btype:match("^collaboration:") then
         -- Other extension blocks — silently skip
         io.stderr:write("cdx-reader: skipping extension block: " .. btype .. "\n")
@@ -249,6 +251,21 @@ function M.image_block(block)
 
     local img = pandoc.Image(alt_inlines, src, title)
     return pandoc.Figure(pandoc.Plain({img}))
+end
+
+-- Semantic reference block (cross-references)
+function M.semantic_ref(block)
+    local target = block.target or ""
+    local inlines = reader_inlines.convert(block.children or {})
+
+    -- If no display text, use the target as text
+    if #inlines == 0 then
+        inlines = {pandoc.Str(target)}
+    end
+
+    -- Create a link to the target
+    local link = pandoc.Link(inlines, target, "")
+    return pandoc.Para({link})
 end
 
 return M

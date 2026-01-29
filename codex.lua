@@ -95,6 +95,9 @@ function Writer(doc, opts)
     -- Extract metadata
     local dublin_core = metadata.extract(doc.meta) or metadata.default_metadata()
 
+    -- Generate JSON-LD from Dublin Core
+    local jsonld = metadata.generate_jsonld(dublin_core)
+
     -- Convert blocks
     local content = create_content(doc.blocks)
 
@@ -110,6 +113,11 @@ function Writer(doc, opts)
 
     -- Create manifest
     local manifest = create_manifest()
+
+    -- Add JSON-LD reference to manifest if generated
+    if jsonld then
+        manifest.metadata.jsonLd = "metadata/jsonld.json"
+    end
 
     -- Check if semantic extensions were used (citations or footnotes)
     local citation_refs = inlines.get_citation_refs()
@@ -129,6 +137,11 @@ function Writer(doc, opts)
         content = content,
         dublin_core = dublin_core
     }
+
+    -- Add JSON-LD if generated
+    if jsonld then
+        output.jsonld = jsonld
+    end
 
     -- Return pretty-printed JSON
     return json.pretty(output)
