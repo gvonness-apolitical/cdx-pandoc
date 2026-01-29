@@ -48,11 +48,12 @@ function M.convert_node(node)
 
     local marks = node.marks or {}
 
-    -- Start with the text content
-    -- Handle Code mark specially — it wraps text as pandoc.Code
+    -- Categorize marks by type
     local has_code = false
     local has_link = nil
     local has_anchor = nil
+    local has_footnote = nil
+    local has_citation = nil
     local other_marks = {}
 
     for _, mark in ipairs(marks) do
@@ -63,12 +64,63 @@ function M.convert_node(node)
             has_link = mark
         elseif mark_type == "anchor" then
             has_anchor = mark
+        elseif mark_type == "footnote" then
+            has_footnote = mark
+        elseif mark_type == "citation" then
+            has_citation = mark
         else
             table.insert(other_marks, mark_type)
         end
     end
 
-    -- Build the inline element
+    -- Handle footnote marks - convert to Pandoc Note
+    if has_footnote then
+        local fn_num = has_footnote.number
+        if fn_num and M._footnotes and M._footnotes[fn_num] then
+            return {M._footnotes[fn_num]}
+        end
+        -- Fallback: if no footnote content found, return as superscript
+        return {pandoc.Superscript({pandoc.Str(text)})}
+    end
+
+    -- Handle citation marks - convert to Pandoc Cite
+    if has_citation then
+        local refs = has_citation.refs or {}
+        local citations = {}
+        for _, ref in ipairs(refs) do
+            -- Create citation with id and mode
+            local mode = "NormalCitation"
+            if has_citation.suppressAuthor then
+                mode = "SuppressAuthor"
+            end
+            local citation = pandoc.Citation(ref, mode)
+            -- Set prefix if present
+            if has_citation.prefix then
+                citation.prefix = {pandoc.Str(has_citation.prefix)}
+            end
+            -- Set suffix from locator and/or suffix
+            local suffix_text = ""
+            if has_citation.locator then
+                suffix_text = "p. " .. has_citation.locator
+            end
+            if has_citation.suffix then
+                if suffix_text ~= "" then
+                    suffix_text = suffix_text .. " " .. has_citation.suffix
+                else
+                    suffix_text = has_citation.suffix
+                end
+            end
+            if suffix_text ~= "" then
+                citation.suffix = {pandoc.Str(suffix_text)}
+            end
+            table.insert(citations, citation)
+        end
+        -- Create Cite element with the text content
+        local content = {pandoc.Str(text)}
+        return {pandoc.Cite(content, citations)}
+    end
+
+    -- Build the inline element for regular text
     local inline
     if has_code then
         inline = pandoc.Code(text)
@@ -103,24 +155,6 @@ function M.convert_node(node)
         end
         if anchor_id ~= "" then
             inline = pandoc.Span({inline}, pandoc.Attr(anchor_id))
-        end
-    end
-
-    -- Check for footnote reference (superscript number matching a footnote)
-    if M._footnotes and next(M._footnotes) then
-        local is_superscript = false
-        for _, mark_type in ipairs(other_marks) do
-            if mark_type == "superscript" then
-                is_superscript = true
-                break
-            end
-        end
-        if is_superscript then
-            local num = tonumber(text)
-            if num and M._footnotes[num] then
-                -- Replace with Note containing footnote content
-                return {M._footnotes[num]}
-            end
         end
     end
 
