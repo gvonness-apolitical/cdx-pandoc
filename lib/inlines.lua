@@ -28,12 +28,14 @@ local function marks_equal(m1, m2)
         return m1 == m2
     end
     if type(m1) == "table" then
-        -- Compare link marks
         if m1.type ~= m2.type then
             return false
         end
         if m1.type == "link" then
             return m1.href == m2.href and m1.title == m2.title
+        end
+        if m1.type == "anchor" then
+            return m1.id == m2.id
         end
     end
     return false
@@ -205,7 +207,15 @@ function M.convert_inline(inline, marks)
         return M.flatten(inline.content, marks)
 
     elseif tag == "Span" then
-        -- Span - just process content
+        -- Span with ID becomes anchor mark
+        local attr = inline.attr or {}
+        local identifier = attr.identifier or (attr[1] or "")
+        if identifier and identifier ~= "" then
+            local new_marks = deep_copy(marks)
+            table.insert(new_marks, {type = "anchor", id = identifier})
+            return M.flatten(inline.content, new_marks)
+        end
+        -- Span without ID - just process content
         return M.flatten(inline.content, marks)
 
     elseif tag == "Note" then

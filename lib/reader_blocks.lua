@@ -9,14 +9,38 @@ function M.set_inlines(mod)
     reader_inlines = mod
 end
 
+-- Pre-process blocks to extract footnotes before main conversion
+-- Returns a table: { [number] = pandoc.Note(...), ... }
+function M.extract_footnotes(blocks)
+    local footnotes = {}
+    for _, block in ipairs(blocks) do
+        if block.type == "semantic:footnote" then
+            local num = block.number
+            if num then
+                local note_blocks = {}
+                if block.content then
+                    -- Simple text content
+                    table.insert(note_blocks, pandoc.Para({pandoc.Str(block.content)}))
+                elseif block.children then
+                    -- Complex block content
+                    note_blocks = M.convert(block.children)
+                end
+                footnotes[num] = pandoc.Note(note_blocks)
+            end
+        end
+    end
+    return footnotes
+end
+
 -- Convert an array of Codex blocks to Pandoc blocks
 function M.convert(blocks)
     local result = {}
     for _, block in ipairs(blocks) do
         local converted = M.convert_block(block)
         if converted then
-            if type(converted) == "table" and converted.tag then
-                -- Single Pandoc element
+            -- Check if it's a single Pandoc element (has t or tag field)
+            -- Pandoc elements are userdata with t/tag accessors
+            if converted.t or converted.tag then
                 table.insert(result, converted)
             elseif type(converted) == "table" and #converted > 0 then
                 -- Array of Pandoc elements
@@ -51,8 +75,11 @@ function M.convert_block(block)
         return M.math_block(block)
     elseif btype == "image" then
         return M.image_block(block)
+    elseif btype == "semantic:footnote" then
+        -- Footnotes are pre-processed and handled via inline references
+        return nil
     elseif btype:match("^semantic:") or btype:match("^forms:") or btype:match("^collaboration:") then
-        -- Extension blocks — silently skip
+        -- Other extension blocks — silently skip
         io.stderr:write("cdx-reader: skipping extension block: " .. btype .. "\n")
         return nil
     elseif btype == "listItem" or btype == "tableRow" or btype == "tableCell" then

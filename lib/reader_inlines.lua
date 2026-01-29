@@ -14,6 +14,9 @@ local mark_wrappers = {
     subscript = function(inlines) return pandoc.Subscript(inlines) end,
 }
 
+-- Footnote storage (set externally by reader_blocks)
+M._footnotes = {}
+
 -- Convert an array of Codex text nodes to Pandoc inlines
 function M.convert(nodes)
     local result = {}
@@ -49,6 +52,7 @@ function M.convert_node(node)
     -- Handle Code mark specially — it wraps text as pandoc.Code
     local has_code = false
     local has_link = nil
+    local has_anchor = nil
     local other_marks = {}
 
     for _, mark in ipairs(marks) do
@@ -57,6 +61,8 @@ function M.convert_node(node)
             has_code = true
         elseif mark_type == "link" then
             has_link = mark
+        elseif mark_type == "anchor" then
+            has_anchor = mark
         else
             table.insert(other_marks, mark_type)
         end
@@ -89,6 +95,35 @@ function M.convert_node(node)
         inline = pandoc.Link({inline}, href, title)
     end
 
+    -- Wrap in Span with ID if anchor mark present
+    if has_anchor then
+        local anchor_id = ""
+        if type(has_anchor) == "table" then
+            anchor_id = has_anchor.id or ""
+        end
+        if anchor_id ~= "" then
+            inline = pandoc.Span({inline}, pandoc.Attr(anchor_id))
+        end
+    end
+
+    -- Check for footnote reference (superscript number matching a footnote)
+    if M._footnotes and next(M._footnotes) then
+        local is_superscript = false
+        for _, mark_type in ipairs(other_marks) do
+            if mark_type == "superscript" then
+                is_superscript = true
+                break
+            end
+        end
+        if is_superscript then
+            local num = tonumber(text)
+            if num and M._footnotes[num] then
+                -- Replace with Note containing footnote content
+                return {M._footnotes[num]}
+            end
+        end
+    end
+
     return {inline}
 end
 
@@ -100,6 +135,17 @@ function M.get_mark_type(mark)
         return mark.type or "unknown"
     end
     return "unknown"
+end
+
+-- Set footnotes for reference resolution
+-- footnotes is a table: { [number] = pandoc.Note(...), ... }
+function M.set_footnotes(footnotes)
+    M._footnotes = footnotes or {}
+end
+
+-- Clear footnotes after processing
+function M.clear_footnotes()
+    M._footnotes = {}
 end
 
 return M
