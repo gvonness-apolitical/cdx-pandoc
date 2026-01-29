@@ -609,15 +609,59 @@ function M.image(img, caption)
     return result
 end
 
+-- Check if footnote content is simple (single paragraph with plain text only)
+local function is_simple_footnote(blocks)
+    if #blocks ~= 1 then return false end
+    local block = blocks[1]
+    local tag = block.t or block.tag
+    if tag ~= "Para" and tag ~= "Plain" then return false end
+
+    local content = block.content or block.c
+    if not content then return false end
+
+    for _, inline in ipairs(content) do
+        local inline_tag = inline.t or inline.tag
+        if inline_tag ~= "Str" and inline_tag ~= "Space" and inline_tag ~= "SoftBreak" then
+            return false
+        end
+    end
+    return true
+end
+
+-- Extract plain text from simple footnote content
+local function extract_plain_text(blocks)
+    local block = blocks[1]
+    local content = block.content or block.c
+    local parts = {}
+    for _, inline in ipairs(content) do
+        local tag = inline.t or inline.tag
+        if tag == "Str" then
+            table.insert(parts, inline.text)
+        elseif tag == "Space" or tag == "SoftBreak" then
+            table.insert(parts, " ")
+        end
+    end
+    return table.concat(parts)
+end
+
 -- Convert accumulated footnotes to semantic:footnote blocks
 function M.convert_footnotes(footnotes)
     local result = {}
     for _, fn in ipairs(footnotes) do
-        table.insert(result, {
+        local footnote_block = {
             type = "semantic:footnote",
             number = fn.number,
-            children = M.convert(fn.content)
-        })
+            id = "fn-" .. fn.number
+        }
+
+        -- Use 'content' for simple text footnotes, 'children' for complex ones
+        if is_simple_footnote(fn.content) then
+            footnote_block.content = extract_plain_text(fn.content)
+        else
+            footnote_block.children = M.convert(fn.content)
+        end
+
+        table.insert(result, footnote_block)
     end
     return result
 end

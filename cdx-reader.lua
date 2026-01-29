@@ -91,8 +91,15 @@ function Reader(input, opts)
     local content = parsed.content or parsed
     local raw_blocks = content.blocks or {}
 
+    -- Pre-process footnotes and register with inlines module
+    local footnotes = reader_blocks.extract_footnotes(raw_blocks)
+    reader_inlines.set_footnotes(footnotes)
+
     -- Convert blocks
     local pandoc_blocks = reader_blocks.convert(raw_blocks)
+
+    -- Clear footnotes after processing
+    reader_inlines.clear_footnotes()
 
     -- Reconstruct metadata
     local meta = reconstruct_metadata(parsed.dublin_core)
