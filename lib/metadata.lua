@@ -66,7 +66,64 @@ local function meta_to_array(value)
     return nil
 end
 
--- Extract author(s) - can be string or array
+-- Extract a single author object (handles both simple strings and structured metadata)
+-- Returns { name = "...", orcid = "..." } or just { name = "..." }
+local function extract_single_author(author_meta)
+    if not author_meta then
+        return nil
+    end
+
+    local t = author_meta.t or author_meta.tag
+
+    -- Check if it's a structured author (MetaMap with name/orcid fields)
+    if t == "MetaMap" or (type(author_meta) == "table" and author_meta.name) then
+        local author_obj = {}
+
+        -- Extract name
+        local name = author_meta.name
+        if name then
+            author_obj.name = meta_to_string(name)
+        end
+
+        -- Extract ORCID
+        local orcid = author_meta.orcid or author_meta.ORCID
+        if orcid then
+            local orcid_str = meta_to_string(orcid)
+            if orcid_str then
+                -- Normalize ORCID: remove URL prefix if present
+                orcid_str = orcid_str:gsub("^https?://orcid%.org/", "")
+                author_obj.orcid = orcid_str
+            end
+        end
+
+        -- Extract affiliation if present
+        local affiliation = author_meta.affiliation
+        if affiliation then
+            author_obj.affiliation = meta_to_string(affiliation)
+        end
+
+        -- Extract email if present
+        local email = author_meta.email
+        if email then
+            author_obj.email = meta_to_string(email)
+        end
+
+        if author_obj.name then
+            return author_obj
+        end
+    end
+
+    -- Fall back to simple string extraction
+    local name_str = meta_to_string(author_meta)
+    if name_str then
+        return { name = name_str }
+    end
+
+    return nil
+end
+
+-- Extract author(s) - can be string, array, or structured objects with ORCID
+-- Returns array of author objects: [{ name: "...", orcid?: "..." }, ...]
 local function extract_authors(meta)
     local author = meta.author
 
@@ -76,21 +133,45 @@ local function extract_authors(meta)
 
     local t = author.t or author.tag
 
-    if t == "MetaList" then
+    if t == "MetaList" or (type(author) == "table" and #author > 0) then
         local authors = {}
         for _, a in ipairs(author) do
-            local str = meta_to_string(a)
-            if str then
-                table.insert(authors, str)
+            local author_obj = extract_single_author(a)
+            if author_obj then
+                table.insert(authors, author_obj)
             end
         end
-        if #authors == 1 then
-            return authors[1]
-        elseif #authors > 1 then
+        if #authors > 0 then
             return authors
         end
     else
-        return meta_to_string(author)
+        -- Single author
+        local author_obj = extract_single_author(author)
+        if author_obj then
+            return { author_obj }
+        end
+    end
+
+    return nil
+end
+
+-- Get simple creator names for Dublin Core (backwards compatible)
+local function get_creator_names(authors)
+    if not authors then
+        return nil
+    end
+
+    local names = {}
+    for _, a in ipairs(authors) do
+        if a.name then
+            table.insert(names, a.name)
+        end
+    end
+
+    if #names == 1 then
+        return names[1]
+    elseif #names > 1 then
+        return names
     end
 
     return nil
@@ -152,9 +233,13 @@ function M.extract(meta)
     end
 
     -- Creator/Author (required)
-    local creator = extract_authors(meta)
-    if creator then
-        terms.creator = creator
+    -- Extract structured author data (with ORCID support)
+    local authors = extract_authors(meta)
+    if authors then
+        -- Store simple names in creator for DC compatibility
+        terms.creator = get_creator_names(authors)
+        -- Store full structured data in creators for extended metadata
+        terms.creators = authors
     end
 
     -- Date
@@ -274,8 +359,39 @@ function M.generate_jsonld(dublin_core)
         name = terms.title
     }
 
-    -- Add author(s)
-    if terms.creator then
+    -- Add author(s) with ORCID support
+    if terms.creators then
+        -- Use structured author data with ORCID
+        local authors = {}
+        for _, author in ipairs(terms.creators) do
+            local author_obj = {
+                ["@type"] = "Person",
+                name = author.name
+            }
+            -- Add ORCID as @id (schema.org standard for person identifiers)
+            if author.orcid then
+                author_obj["@id"] = "https://orcid.org/" .. author.orcid
+            end
+            -- Add affiliation if present
+            if author.affiliation then
+                author_obj.affiliation = {
+                    ["@type"] = "Organization",
+                    name = author.affiliation
+                }
+            end
+            -- Add email if present
+            if author.email then
+                author_obj.email = author.email
+            end
+            table.insert(authors, author_obj)
+        end
+        if #authors == 1 then
+            jsonld.author = authors[1]
+        else
+            jsonld.author = authors
+        end
+    elseif terms.creator then
+        -- Fallback to simple creator names
         if type(terms.creator) == "table" then
             -- Multiple authors
             local authors = {}
