@@ -19,8 +19,8 @@ cdx-pandoc provides solid coverage of core document elements. Phase 1 and Phase 
 - ✅ Entity linking (entity marks with Wikidata URIs)
 - ✅ Measurements (semantic:measurement blocks)
 
-**Remaining (Phase 4+)**:
-- Bibliography CSL metadata preservation (requires citeproc integration)
+**Completed (Phase 4)**:
+- ✅ Bibliography CSL metadata preservation (extracts from YAML references)
 
 ---
 
@@ -236,7 +236,7 @@ Reader converts citation marks back to Pandoc `Cite` elements.
 
 ## 3. Bibliography - Gaps
 
-### 3.1 Full CSL JSON Structure (HIGH PRIORITY)
+### 3.1 Full CSL JSON Structure ✅ COMPLETED
 
 **cdx-core spec** (bibliography.json):
 ```json
@@ -258,7 +258,7 @@ Reader converts citation marks back to Pandoc `Cite` elements.
 }
 ```
 
-**cdx-pandoc current** (from citeproc #refs div):
+**cdx-pandoc implementation**:
 ```json
 {
   "type": "semantic:bibliography",
@@ -266,16 +266,26 @@ Reader converts citation marks back to Pandoc `Cite` elements.
   "entries": [
     {
       "id": "smith2024",
-      "entryType": "other",
-      "title": "Smith, J. (2024). Advances in..."  // Rendered text only
+      "type": "article-journal",
+      "title": "Advances in Document Processing",
+      "author": [{ "family": "Smith", "given": "John" }],
+      "issued": { "year": 2024, "month": 3, "day": 15 },
+      "container-title": "Journal of Digital Documents",
+      "volume": "15",
+      "DOI": "10.1234/jdd.2024.001",
+      "renderedText": "Smith, John. 2024. \"Advances in Document Processing.\" ..."
     }
   ]
 }
 ```
 
-**Gap**: Only captures rendered bibliography text, not structured metadata. Loses all author, date, DOI, volume data.
-
-**Fix needed**: Parse Pandoc's internal citation data (available via `--citeproc` references) to extract full CSL metadata.
+**Status**: ✅ Implemented in `lib/bibliography.lua`. CSL metadata is extracted from `doc.meta.references`:
+- Full author information (family/given or literal for organizations)
+- Issued dates (year, month, day from date-parts)
+- DOI, ISBN, URL, volume, issue, page, publisher, etc.
+- Entry type mapped to CSL types (article-journal, book, report, etc.)
+- Style detected from `csl` or `citation-style` metadata fields
+- Falls back to rendered text only if CSL metadata not available
 
 ---
 
@@ -349,7 +359,7 @@ Reader converts citation marks back to Pandoc `Cite` elements.
 
 1. ✅ **Footnote marks** - Generate `Mark::Footnote` with number/id instead of superscript
 2. ✅ **Citation marks** - Convert Pandoc Cite to citation marks on text (not blocks)
-3. ⏳ **Bibliography preservation** - Extract full CSL metadata from Pandoc (requires --citeproc integration)
+3. ✅ **Bibliography preservation** - Extract full CSL metadata from YAML references
 4. ✅ **Reader: citations** - Restore citation marks to Pandoc Cite elements
 
 ### Phase 2: Cross-References & Metadata ✅ COMPLETED
@@ -410,7 +420,7 @@ Missing test coverage:
 | Footnote marks | Mark::Footnote | Mark::Footnote | ✅ Done |
 | Footnote blocks | Full | Full | ✅ Done |
 | Citation marks | mark on text | mark on text | ✅ Done |
-| Bibliography | Full CSL JSON | rendered text only | ⏳ Pending |
+| Bibliography | Full CSL JSON | Full CSL + rendered | ✅ Done |
 | Cross-references | semantic:ref | link marks + reader | ✅ Done |
 | JSON-LD | Full | Generated from DC | ✅ Done |
 | Glossary | Full | semantic:term + marks | ✅ Done |
