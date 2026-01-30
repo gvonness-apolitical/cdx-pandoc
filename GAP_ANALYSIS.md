@@ -1,11 +1,11 @@
 # cdx-pandoc Gap Analysis for Academic Workflows
 
-**Date**: 2026-01-29
+**Date**: 2026-01-30
 **Comparison**: cdx-core (Rust) vs cdx-pandoc (Lua)
 
 ## Executive Summary
 
-cdx-pandoc provides solid coverage of core document elements. Phase 1 and Phase 2 improvements have been completed, addressing footnote marks, citation marks, JSON-LD metadata, and cross-reference support. Remaining work focuses on bibliography metadata preservation and advanced semantic features.
+cdx-pandoc provides comprehensive coverage of core document elements and academic metadata. All planned phases have been completed.
 
 **Completed (Phase 1-2)**:
 - ✅ Footnote marks with number/id fields
@@ -21,6 +21,7 @@ cdx-pandoc provides solid coverage of core document elements. Phase 1 and Phase 
 
 **Completed (Phase 4)**:
 - ✅ Bibliography CSL metadata preservation (extracts from YAML references)
+- ✅ ORCID support for author identifiers
 
 ---
 
@@ -326,10 +327,55 @@ Reader converts citation marks back to Pandoc `Cite` elements.
 
 ---
 
-### 4.2 ORCID Support (LOW PRIORITY)
+### 4.2 ORCID Support ✅ COMPLETED
 
-**cdx-core**: Authors can have ORCID identifiers
-**cdx-pandoc**: Not extracted from Pandoc metadata
+**cdx-core spec**:
+```json
+{
+  "author": {
+    "@type": "Person",
+    "@id": "https://orcid.org/0000-0002-1825-0097",
+    "name": "Jane Smith"
+  }
+}
+```
+
+**cdx-pandoc implementation**:
+```yaml
+# Input (Pandoc YAML)
+author:
+  - name: Jane Smith
+    orcid: 0000-0002-1825-0097
+    affiliation: University of Example
+```
+
+```json
+// Output (Dublin Core)
+{
+  "creator": ["Jane Smith"],
+  "creators": [{
+    "name": "Jane Smith",
+    "orcid": "0000-0002-1825-0097",
+    "affiliation": "University of Example"
+  }]
+}
+
+// Output (JSON-LD)
+{
+  "author": {
+    "@type": "Person",
+    "@id": "https://orcid.org/0000-0002-1825-0097",
+    "name": "Jane Smith",
+    "affiliation": { "@type": "Organization", "name": "University of Example" }
+  }
+}
+```
+
+**Status**: ✅ Implemented in `lib/metadata.lua`. Structured author metadata extracted:
+- ORCID identifiers (normalized, URL prefix stripped)
+- Affiliation as organization
+- Email address
+- Dublin Core `creator` for backwards compatibility, `creators` for structured data
 
 ---
 
@@ -404,7 +450,9 @@ Missing test coverage:
 ### cdx-core Version Alignment
 - Current cdx-pandoc targets cdx-core spec v0.1
 - Footnote mark format aligned as of 2026-01-29
-- Citation mark format NOT yet aligned (blocks vs marks)
+- Citation mark format aligned as of 2026-01-29 (marks on text nodes)
+- Bibliography CSL format aligned as of 2026-01-30
+- ORCID support added as of 2026-01-30
 
 ---
 
@@ -426,3 +474,4 @@ Missing test coverage:
 | Glossary | Full | semantic:term + marks | ✅ Done |
 | Entity linking | Full | entity marks | ✅ Done |
 | Measurements | Full | semantic:measurement | ✅ Done |
+| ORCID | Author identifiers | @id in JSON-LD | ✅ Done |
