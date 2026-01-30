@@ -199,6 +199,10 @@ function M.extract(meta)
     if not meta then
         return nil
     end
+    if type(meta) ~= "table" then
+        io.stderr:write("Warning: metadata.extract() expected table, got " .. type(meta) .. "\n")
+        return nil
+    end
 
     local terms = {}
 
