@@ -6,9 +6,21 @@ local M = {}
 -- Inlines module (will be set by init)
 local inlines = nil
 
+-- Bibliography context (set by codex.lua before conversion)
+local bib_context = {
+    csl_entries = {},
+    style = "unknown"
+}
+
 -- Set the inlines module reference
 function M.set_inlines(inlines_module)
     inlines = inlines_module
+end
+
+-- Set bibliography context (CSL entries and style)
+function M.set_bibliography_context(csl_entries, style)
+    bib_context.csl_entries = csl_entries or {}
+    bib_context.style = style or "unknown"
 end
 
 -- Convert a list of Pandoc blocks to Codex blocks
@@ -663,25 +675,42 @@ function M.convert_footnotes(footnotes)
 end
 
 -- Convert citeproc #refs Div to a bibliography block
+-- Uses CSL entries from bib_context when available, falls back to rendered text
 function M.bibliography_from_refs(block)
     local entries = {}
     for _, child in ipairs(block.content) do
         if child.t == "Div" then
             local entry_id = child.attr and (child.attr.identifier or child.attr[1]) or ""
-            local text = pandoc.utils.stringify(child)
+            local rendered_text = pandoc.utils.stringify(child)
             if entry_id ~= "" then
-                table.insert(entries, {
-                    id = entry_id:gsub("^ref%-", ""),
-                    entryType = "other",
-                    title = text,
-                })
+                local clean_id = entry_id:gsub("^ref%-", "")
+
+                -- Check if we have CSL metadata for this entry
+                local csl_entry = bib_context.csl_entries[clean_id]
+
+                if csl_entry then
+                    -- Use full CSL metadata, add rendered text
+                    local entry = {}
+                    for k, v in pairs(csl_entry) do
+                        entry[k] = v
+                    end
+                    entry.renderedText = rendered_text
+                    table.insert(entries, entry)
+                else
+                    -- Fallback to rendered text only
+                    table.insert(entries, {
+                        id = clean_id,
+                        type = "other",
+                        renderedText = rendered_text,
+                    })
+                end
             end
         end
     end
     if #entries > 0 then
         return {
             type = "semantic:bibliography",
-            style = "apa",
+            style = bib_context.style ~= "unknown" and bib_context.style or "apa",
             entries = entries,
         }
     end

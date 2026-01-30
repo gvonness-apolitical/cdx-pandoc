@@ -43,6 +43,7 @@ local json = load_lib("json")
 local inlines = load_lib("inlines")
 local blocks = load_lib("blocks")
 local metadata = load_lib("metadata")
+local bibliography = load_lib("bibliography")
 
 -- Initialize blocks module with inlines reference
 blocks.set_inlines(inlines)
@@ -97,6 +98,13 @@ function Writer(doc, opts)
 
     -- Generate JSON-LD from Dublin Core
     local jsonld = metadata.generate_jsonld(dublin_core)
+
+    -- Extract CSL bibliography entries and detect style
+    local csl_entries = bibliography.extract_from_meta(doc.meta)
+    local citation_style = bibliography.detect_style(doc.meta)
+
+    -- Set bibliography context for block conversion
+    blocks.set_bibliography_context(csl_entries, citation_style)
 
     -- Convert blocks
     local content = create_content(doc.blocks)
