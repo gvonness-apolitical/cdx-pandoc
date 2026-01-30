@@ -68,21 +68,7 @@ Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 
 ## Architecture Overview
 
-```
-cdx-pandoc/
-├── codex.lua           # Main Pandoc custom writer
-├── lib/                # Lua helper modules
-│   ├── blocks.lua      # Block type converters
-│   ├── inlines.lua     # Inline/text node converters
-│   ├── metadata.lua    # Dublin Core metadata extraction
-│   └── json.lua        # JSON encoding utilities
-├── scripts/
-│   └── pandoc-to-cdx.sh  # Full pipeline wrapper
-├── tests/              # Test files
-│   ├── inputs/         # Test input documents
-│   └── outputs/        # Generated test outputs
-└── Makefile
-```
+See the [Project Structure section in README.md](README.md#project-structure) for file organization and module descriptions.
 
 ## Specification Reference
 
