@@ -260,6 +260,10 @@ function M.extract_from_meta(meta)
     if not meta then
         return {}
     end
+    if type(meta) ~= "table" then
+        io.stderr:write("Warning: bibliography.extract_from_meta() expected table, got " .. type(meta) .. "\n")
+        return {}
+    end
 
     local references = meta.references
     if not references then
@@ -290,6 +294,9 @@ end
 -- @return Style name string (e.g., "apa", "chicago", "ieee") or "unknown"
 function M.detect_style(meta)
     if not meta then
+        return "unknown"
+    end
+    if type(meta) ~= "table" then
         return "unknown"
     end
 

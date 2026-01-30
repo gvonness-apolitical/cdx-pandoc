@@ -452,6 +452,14 @@ end
 -- @param ctx Optional context for state accumulation (defaults to global)
 -- @return Array of Codex text nodes
 function M.convert(inlines, ctx)
+    if not inlines then
+        return {}
+    end
+    if type(inlines) ~= "table" then
+        io.stderr:write("Warning: inlines.convert() expected table, got " .. type(inlines) .. "\n")
+        return {}
+    end
+
     ctx = ctx or M._default_context
     local flat = M.flatten(inlines, nil, ctx)
     return M.merge_adjacent(flat)

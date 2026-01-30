@@ -27,6 +27,14 @@ end
 -- @param blocks Pandoc block list
 -- @return Array of Codex blocks
 function M.convert(blocks)
+    if not blocks then
+        return {}
+    end
+    if type(blocks) ~= "table" then
+        io.stderr:write("Warning: blocks.convert() expected table, got " .. type(blocks) .. "\n")
+        return {}
+    end
+
     local result = {}
 
     for _, block in ipairs(blocks) do
