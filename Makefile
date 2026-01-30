@@ -56,9 +56,12 @@ tests/outputs/%.cdx: tests/inputs/%.md $(WRITER) lib/*.lua scripts/pandoc-to-cdx
 	@./scripts/pandoc-to-cdx.sh $< $@
 
 # Run unit tests
+# Use lua5.4 on Linux (CI), lua on macOS
+LUA := $(shell command -v lua5.4 2>/dev/null || command -v lua 2>/dev/null || echo lua)
+
 test-unit:
 	@echo "Running unit tests..."
-	@lua tests/unit/test_json.lua
+	@$(LUA) tests/unit/test_json.lua
 
 # Run all tests
 test: test-unit test-json

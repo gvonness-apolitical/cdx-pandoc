@@ -81,13 +81,7 @@ test.assert_eq('[1,"two",true]', json.compact({1, "two", true}))
 
 -- Test object encoding
 test.test("encode empty object")
--- Note: {a = nil} is effectively an empty table, which is_array() sees as an empty array
--- Use a real empty object by creating a table with string keys that we then set to values
-local empty_obj = {}
-empty_obj["_placeholder"] = 1
-empty_obj["_placeholder"] = nil
--- Actually, is_array checks for sequential keys, so we need a non-array empty table
--- The simplest way is to test with an actual object that has keys
+-- Note: {} is seen as an empty array by is_array() since it has no keys
 test.assert_eq("[]", json.compact({}))
 
 test.test("encode simple object")
