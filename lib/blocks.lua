@@ -368,8 +368,6 @@ function M.table_block(block)
 
     -- Handle Pandoc table structure
     -- Pandoc 2.17+ has different table structure
-    local _caption = block.caption   -- luacheck: ignore 211
-    local _colspecs = block.colspecs -- luacheck: ignore 211
     local thead = block.head
     local tbody = block.bodies
     local tfoot = block.foot

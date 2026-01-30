@@ -59,13 +59,8 @@ function M.extract_authors(author_list)
 
     local authors = {}
 
-    -- Handle MetaList or plain table
-    local items = author_list
-    if author_list.t == "MetaList" then
-        items = author_list
-    end
-
-    for _, author in ipairs(items) do
+    -- Handle MetaList or plain table (both iterate the same way)
+    for _, author in ipairs(author_list) do
         local author_obj = {}
 
         -- Always use meta_to_string to ensure we get plain strings
@@ -117,16 +112,9 @@ function M.extract_date(date_val)
 
     if date_parts then
         -- date-parts is an array of arrays: [[2024, 3, 15]]
-        local parts = date_parts
-        if date_parts.t == "MetaList" then
-            parts = date_parts
-        end
-
-        if #parts > 0 then
-            local first_date = parts[1]
-            if first_date.t == "MetaList" then
-                first_date = first_date
-            end
+        -- Both MetaList and plain tables iterate the same way
+        if #date_parts > 0 then
+            local first_date = date_parts[1]
 
             if #first_date >= 1 then
                 local year = first_date[1]
