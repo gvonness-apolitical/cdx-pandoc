@@ -58,7 +58,7 @@ pandoc -f cdx-reader.lua output.json -o document.tex
 pandoc -f cdx-reader.lua output.json -o document.html
 ```
 
-The reader handles core block types (paragraphs, headings, lists, code blocks, blockquotes, tables, math, images). Extension blocks (`semantic:citation`, `semantic:footnote`) are silently skipped.
+The reader handles core block types (paragraphs, headings, lists, code blocks, blockquotes, tables, math, images). Semantic blocks like `semantic:term`, `semantic:measurement`, and `semantic:ref` are converted to their closest Pandoc equivalents. Footnotes are restored via inline references. Extension blocks without equivalents (e.g., `semantic:bibliography`, `semantic:glossary`) are skipped.
 
 ## Features
 
@@ -76,7 +76,7 @@ The reader handles core block types (paragraphs, headings, lists, code blocks, b
 | Table | table | Headers and cells |
 | Math (display) | math | LaTeX format, display=true |
 | Math (inline) | math | LaTeX format, display=false; splits paragraph |
-| Cite | semantic:citation | ref, prefix, suffix, suppressAuthor |
+| Cite | citation mark | refs, locator, prefix, suffix, suppressAuthor |
 | Note | semantic:footnote | Superscript ref + block content |
 | Image | image | src, alt, title, width, height |
 | Figure | image | Extracts image with caption |
