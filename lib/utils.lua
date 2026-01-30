@@ -12,6 +12,16 @@ function M.meta_to_string(value)
         return nil
     end
 
+    -- Handle plain strings first
+    if type(value) == "string" then
+        return value
+    end
+
+    -- Only tables can have Pandoc type tags
+    if type(value) ~= "table" then
+        return nil
+    end
+
     local t = value.t or value.tag
 
     if t == "MetaString" then
@@ -20,9 +30,8 @@ function M.meta_to_string(value)
         return pandoc.utils.stringify(value)
     elseif t == "MetaBlocks" then
         return pandoc.utils.stringify(value)
-    elseif type(value) == "string" then
-        return value
-    elseif type(value) == "table" and not t then
+    elseif not t then
+        -- Table without type tag - try stringify if available
         if pandoc and pandoc.utils and pandoc.utils.stringify then
             return pandoc.utils.stringify(value)
         end

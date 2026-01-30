@@ -62,6 +62,7 @@ LUA := $(shell command -v lua5.4 2>/dev/null || command -v lua 2>/dev/null || ec
 test-unit:
 	@echo "Running unit tests..."
 	@$(LUA) tests/unit/test_json.lua
+	@$(LUA) tests/unit/test_lib_utils.lua
 
 # Run all tests
 test: test-unit test-json
