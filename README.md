@@ -96,6 +96,47 @@ The reader handles core block types (paragraphs, headings, lists, code blocks, b
 | Superscript | superscript |
 | Subscript | subscript |
 
+### Semantic Spans
+
+Pandoc spans with special classes are converted to semantic marks:
+
+#### Entity Linking
+
+Link text to knowledge bases (Wikidata, DBpedia, etc.):
+
+```markdown
+[Albert Einstein]{.entity uri="https://www.wikidata.org/wiki/Q937" entityType="Person"}
+
+[Large Hadron Collider]{.entity uri="https://www.wikidata.org/wiki/Q83492" entityType="Place" source="Wikidata"}
+```
+
+Produces an `entity` mark with `uri`, `entityType`, and optional `source` fields.
+
+#### Glossary References
+
+Reference terms defined in a glossary:
+
+```markdown
+We discuss [CRDT]{.glossary ref="term-crdt"} technologies.
+
+<!-- Auto-generated ref from text: -->
+[eventual consistency]{.glossary}
+```
+
+Produces a `glossary` mark with `ref` field pointing to a `semantic:term` block ID.
+
+#### Measurements
+
+Annotate numeric measurements with units:
+
+```markdown
+The sample weighed [42.5 kg]{.measurement value="42.5" unit="kg"}.
+
+Temperature reached [100 °C]{.measurement value="100" unit="°C"}.
+```
+
+Produces a `semantic:measurement` block with `value`, `unit`, and schema.org `QuantitativeValue` metadata.
+
 ### Metadata Mapping
 
 The writer extracts Dublin Core metadata from Pandoc YAML front matter:
@@ -217,6 +258,44 @@ Convert:
 - Complex table formatting may be simplified
 - Citations require `--citeproc` flag for bibliography generation; without it, only inline citation blocks are emitted
 - Footnote content is appended as blocks at the end of the document
+
+## Troubleshooting
+
+### "Cannot find library" error
+
+Ensure you're running pandoc from the project root directory, or that the `lib/` directory is in the same location as `codex.lua`.
+
+### Citations not appearing in bibliography
+
+Add the `--citeproc` flag to enable Pandoc's citation processor:
+
+```bash
+pandoc input.md --citeproc -t codex.lua -o output.json
+```
+
+### Empty or missing metadata
+
+Ensure your document has YAML frontmatter with at least a `title` field:
+
+```markdown
+---
+title: My Document
+---
+```
+
+### Math not rendering as expected
+
+Display math should use double dollar signs or the equation environment:
+
+```markdown
+$$E = mc^2$$
+```
+
+Inline math uses single dollar signs: `$x = y$`
+
+### Reader round-trip loses semantic data
+
+The reader converts Codex back to standard Pandoc elements. Some semantic information (entity URIs, measurement schemas) is preserved in span attributes, but extension blocks like `semantic:bibliography` are skipped as they have no direct Pandoc equivalent.
 
 ## Related Projects
 

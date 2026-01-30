@@ -1,0 +1,49 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+## [Unreleased]
+
+### Changed
+- Fixed README inaccuracies about reader behavior and citation output format
+- Removed duplicated project structure from CONTRIBUTING.md
+
+## [0.4.0] - 2025-01-28
+
+### Added
+- ORCID support for author identifiers in metadata
+- Full CSL metadata extraction for bibliography entries
+- `semantic:bibliography` block with structured entry data (title, authors, DOI, URL, etc.)
+- Citation style detection from document metadata
+
+## [0.3.0] - 2025-01-27
+
+### Added
+- Entity linking via `[text]{.entity uri="..." entityType="..."}` spans
+- Glossary term definitions via definition lists (`Term\n:   Definition`)
+- Glossary references via `[text]{.glossary ref="term-id"}` spans
+- Measurement annotations via `[value unit]{.measurement value="..." unit="..."}`
+- Schema.org `QuantitativeValue` metadata for measurements
+
+## [0.2.0] - 2025-01-26
+
+### Added
+- JSON-LD metadata generation from Dublin Core
+- Cross-reference support via anchor marks (`[text]{#id}`)
+- `semantic:ref` blocks for internal document links
+
+### Changed
+- Improved footnote handling with proper `footnote` marks instead of superscript
+
+## [0.1.0] - 2025-01-25
+
+### Added
+- Initial Pandoc custom writer for Codex format
+- Block types: paragraph, heading, list, codeBlock, blockquote, table, math, image, horizontalRule
+- Inline marks: bold, italic, code, link, strikethrough, underline, superscript, subscript
+- Dublin Core metadata extraction from YAML frontmatter
+- Pandoc reader for Codex JSON back to any output format
+- Full pipeline script for creating `.cdx` archives
+- Integration test suite with 12 test cases
