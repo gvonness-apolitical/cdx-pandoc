@@ -1,6 +1,10 @@
 -- lib/bibliography.lua
 -- Extract CSL JSON metadata from Pandoc document references
 
+-- Load shared utilities
+local utils = dofile((PANDOC_SCRIPT_FILE and (PANDOC_SCRIPT_FILE:match("(.*/)" ) or "") or "") .. "lib/utils.lua")
+local meta_to_string = utils.meta_to_string
+
 local M = {}
 
 -- Map CSL types to Codex entry types
@@ -22,31 +26,6 @@ M.TYPE_MAP = {
     ["interview"] = "interview",
     ["personal_communication"] = "personal_communication",
 }
-
--- Helper to extract string from Pandoc MetaValue
-local function meta_to_string(value)
-    if not value then
-        return nil
-    end
-
-    local t = value.t or value.tag
-
-    if t == "MetaString" then
-        return value.text or value[1]
-    elseif t == "MetaInlines" then
-        return pandoc.utils.stringify(value)
-    elseif t == "MetaBlocks" then
-        return pandoc.utils.stringify(value)
-    elseif type(value) == "string" then
-        return value
-    elseif type(value) == "table" and not t then
-        if pandoc and pandoc.utils and pandoc.utils.stringify then
-            return pandoc.utils.stringify(value)
-        end
-    end
-
-    return nil
-end
 
 -- Extract author list from CSL author format
 -- CSL uses: { family: "Smith", given: "John" } or { literal: "Organization" }

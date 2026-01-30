@@ -1,6 +1,10 @@
 -- lib/inlines.lua
 -- Convert Pandoc inline elements to Codex text nodes
 
+-- Load shared utilities
+local utils = dofile((PANDOC_SCRIPT_FILE and (PANDOC_SCRIPT_FILE:match("(.*/)" ) or "") or "") .. "lib/utils.lua")
+local deep_copy = utils.deep_copy
+
 local M = {}
 
 -- Footnote accumulator
@@ -9,18 +13,6 @@ M._footnote_counter = 0
 
 -- Citation refs accumulator
 M._citation_refs = {}
-
--- Deep copy a table
-local function deep_copy(t)
-    if type(t) ~= "table" then
-        return t
-    end
-    local copy = {}
-    for k, v in pairs(t) do
-        copy[k] = deep_copy(v)
-    end
-    return copy
-end
 
 -- Check if a class list contains a specific class
 function M.has_class(classes, class_name)
