@@ -7,12 +7,27 @@ local deep_copy = utils.deep_copy
 
 local M = {}
 
--- Footnote accumulator
-M._footnotes = {}
-M._footnote_counter = 0
+-- Default context (global mutable state for backward compatibility)
+M._default_context = {
+    footnotes = {},
+    footnote_counter = 0,
+    citation_refs = {}
+}
 
--- Citation refs accumulator
-M._citation_refs = {}
+-- Create a new isolated context for testing
+-- @return Context table with empty state
+function M.new_context()
+    return {
+        footnotes = {},
+        footnote_counter = 0,
+        citation_refs = {}
+    }
+end
+
+-- Reset the default context (for test isolation)
+function M.reset_context()
+    M._default_context = M.new_context()
+end
 
 -- Check if a class list contains a specific class
 function M.has_class(classes, class_name)
@@ -95,13 +110,15 @@ end
 -- Flatten nested inlines into text nodes with marks
 -- @param inlines Pandoc inline list
 -- @param marks Current mark stack
+-- @param ctx Optional context for state accumulation (defaults to global)
 -- @return Array of text nodes {type="text", value=string, marks=array}
-function M.flatten(inlines, marks)
+function M.flatten(inlines, marks, ctx)
     marks = marks or {}
+    ctx = ctx or M._default_context
     local result = {}
 
     for _, inline in ipairs(inlines) do
-        local nodes = M.convert_inline(inline, marks)
+        local nodes = M.convert_inline(inline, marks, ctx)
         for _, node in ipairs(nodes) do
             table.insert(result, node)
         end
@@ -113,9 +130,11 @@ end
 -- Convert a single inline element to text nodes
 -- @param inline Pandoc inline element
 -- @param marks Current marks stack
+-- @param ctx Optional context for state accumulation (defaults to global)
 -- @return Array of text nodes
-function M.convert_inline(inline, marks)
+function M.convert_inline(inline, marks, ctx)
     marks = marks or {}
+    ctx = ctx or M._default_context
     local tag = inline.t or inline.tag
 
     if tag == "Str" then
@@ -134,32 +153,32 @@ function M.convert_inline(inline, marks)
     elseif tag == "Strong" then
         local new_marks = deep_copy(marks)
         table.insert(new_marks, "bold")
-        return M.flatten(inline.content, new_marks)
+        return M.flatten(inline.content, new_marks, ctx)
 
     elseif tag == "Emph" then
         local new_marks = deep_copy(marks)
         table.insert(new_marks, "italic")
-        return M.flatten(inline.content, new_marks)
+        return M.flatten(inline.content, new_marks, ctx)
 
     elseif tag == "Strikeout" then
         local new_marks = deep_copy(marks)
         table.insert(new_marks, "strikethrough")
-        return M.flatten(inline.content, new_marks)
+        return M.flatten(inline.content, new_marks, ctx)
 
     elseif tag == "Underline" then
         local new_marks = deep_copy(marks)
         table.insert(new_marks, "underline")
-        return M.flatten(inline.content, new_marks)
+        return M.flatten(inline.content, new_marks, ctx)
 
     elseif tag == "Superscript" then
         local new_marks = deep_copy(marks)
         table.insert(new_marks, "superscript")
-        return M.flatten(inline.content, new_marks)
+        return M.flatten(inline.content, new_marks, ctx)
 
     elseif tag == "Subscript" then
         local new_marks = deep_copy(marks)
         table.insert(new_marks, "subscript")
-        return M.flatten(inline.content, new_marks)
+        return M.flatten(inline.content, new_marks, ctx)
 
     elseif tag == "Code" then
         local new_marks = deep_copy(marks)
@@ -177,7 +196,7 @@ function M.convert_inline(inline, marks)
             link_mark.title = inline.title
         end
         table.insert(new_marks, link_mark)
-        return M.flatten(inline.content, new_marks)
+        return M.flatten(inline.content, new_marks, ctx)
 
     elseif tag == "Image" then
         return {{
@@ -205,7 +224,7 @@ function M.convert_inline(inline, marks)
         local quote_char = inline.quotetype == "DoubleQuote" and '"' or "'"
         local nodes = {}
         table.insert(nodes, M.text_node(quote_char, marks))
-        for _, node in ipairs(M.flatten(inline.content, marks)) do
+        for _, node in ipairs(M.flatten(inline.content, marks, ctx)) do
             table.insert(nodes, node)
         end
         table.insert(nodes, M.text_node(quote_char, marks))
@@ -222,7 +241,7 @@ function M.convert_inline(inline, marks)
         for _, c in ipairs(inline.citations) do
             table.insert(refs, c.id)
             -- Track citation refs for extension detection
-            M._citation_refs[c.id] = true
+            ctx.citation_refs[c.id] = true
             -- Capture metadata from first citation
             if not prefix and c.prefix then
                 local p = pandoc.utils.stringify(c.prefix)
@@ -256,11 +275,11 @@ function M.convert_inline(inline, marks)
         -- Apply citation mark to the citation content
         local new_marks = deep_copy(marks)
         table.insert(new_marks, citation_mark)
-        return M.flatten(inline.content, new_marks)
+        return M.flatten(inline.content, new_marks, ctx)
 
     elseif tag == "SmallCaps" then
         -- SmallCaps not supported in Codex, render as-is
-        return M.flatten(inline.content, marks)
+        return M.flatten(inline.content, marks, ctx)
 
     elseif tag == "Span" then
         local attr = inline.attr or {}
@@ -330,17 +349,17 @@ function M.convert_inline(inline, marks)
         end
 
         if has_semantic_mark then
-            return M.flatten(inline.content, new_marks)
+            return M.flatten(inline.content, new_marks, ctx)
         end
 
         -- Span without semantic info - just process content
-        return M.flatten(inline.content, marks)
+        return M.flatten(inline.content, marks, ctx)
 
     elseif tag == "Note" then
-        M._footnote_counter = M._footnote_counter + 1
-        local fn_num = M._footnote_counter
+        ctx.footnote_counter = ctx.footnote_counter + 1
+        local fn_num = ctx.footnote_counter
         local fn_id = "fn-" .. fn_num
-        table.insert(M._footnotes, {
+        table.insert(ctx.footnotes, {
             number = fn_num,
             id = fn_id,
             content = inline.content
@@ -353,7 +372,7 @@ function M.convert_inline(inline, marks)
     else
         -- Unknown inline type - try to stringify if possible
         if inline.content then
-            return M.flatten(inline.content, marks)
+            return M.flatten(inline.content, marks, ctx)
         else
             return {}
         end
@@ -438,24 +457,32 @@ end
 -- Convert a list of Pandoc inlines to Codex text nodes
 -- This is the main entry point
 -- @param inlines Pandoc inline list
+-- @param ctx Optional context for state accumulation (defaults to global)
 -- @return Array of Codex text nodes
-function M.convert(inlines)
-    local flat = M.flatten(inlines)
+function M.convert(inlines, ctx)
+    ctx = ctx or M._default_context
+    local flat = M.flatten(inlines, nil, ctx)
     return M.merge_adjacent(flat)
 end
 
 -- Retrieve accumulated footnotes and reset state
-function M.get_footnotes()
-    local fns = M._footnotes
-    M._footnotes = {}
-    M._footnote_counter = 0
+-- @param ctx Optional context (defaults to global)
+-- @return Array of footnote objects
+function M.get_footnotes(ctx)
+    ctx = ctx or M._default_context
+    local fns = ctx.footnotes
+    ctx.footnotes = {}
+    ctx.footnote_counter = 0
     return fns
 end
 
 -- Retrieve accumulated citation refs and reset state
-function M.get_citation_refs()
-    local refs = M._citation_refs
-    M._citation_refs = {}
+-- @param ctx Optional context (defaults to global)
+-- @return Table of citation ref IDs
+function M.get_citation_refs(ctx)
+    ctx = ctx or M._default_context
+    local refs = ctx.citation_refs
+    ctx.citation_refs = {}
     return refs
 end
 
