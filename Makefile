@@ -9,7 +9,7 @@ TEST_INPUTS := $(wildcard tests/inputs/*.md)
 TEST_OUTPUTS := $(patsubst tests/inputs/%.md,tests/outputs/%.json,$(TEST_INPUTS))
 TEST_CDX := $(patsubst tests/inputs/%.md,tests/outputs/%.cdx,$(TEST_INPUTS))
 
-.PHONY: all test clean test-json test-cdx test-reader help check-deps
+.PHONY: all test clean test-json test-cdx test-reader test-unit help check-deps
 
 all: test
 
@@ -17,7 +17,8 @@ help:
 	@echo "Codex Pandoc Writer"
 	@echo ""
 	@echo "Targets:"
-	@echo "  test         Run all tests (JSON output)"
+	@echo "  test         Run all tests (unit + JSON output)"
+	@echo "  test-unit    Run Lua unit tests"
 	@echo "  test-cdx     Run full pipeline tests (creates .cdx files)"
 	@echo "  test-reader  Test round-trip (JSON → Pandoc → markdown)"
 	@echo "  clean        Remove generated files"
@@ -54,8 +55,13 @@ tests/outputs/%.cdx: tests/inputs/%.md $(WRITER) lib/*.lua scripts/pandoc-to-cdx
 	@echo "Creating CDX: $< -> $@"
 	@./scripts/pandoc-to-cdx.sh $< $@
 
+# Run unit tests
+test-unit:
+	@echo "Running unit tests..."
+	@lua tests/unit/test_json.lua
+
 # Run all tests
-test: test-json
+test: test-unit test-json
 	@echo ""
 	@echo "All tests passed!"
 
