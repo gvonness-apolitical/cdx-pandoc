@@ -6,14 +6,13 @@ local M = {}
 
 -- Module references (set by init)
 local reader_blocks = nil
-local reader_inlines = nil
 
 function M.set_reader_blocks(mod)
     reader_blocks = mod
 end
 
-function M.set_reader_inlines(mod)
-    reader_inlines = mod
+function M.set_reader_inlines(_mod)
+    -- Reserved for future use (e.g. inline-level academic marks)
 end
 
 -- Convert an academic:* block to Pandoc block(s)

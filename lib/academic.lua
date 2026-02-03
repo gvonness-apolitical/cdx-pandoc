@@ -5,11 +5,19 @@
 local M = {}
 
 -- Module references (set by init)
-local inlines = nil
 local blocks = nil
 
-function M.set_inlines(mod)
-    inlines = mod
+-- Helper: check if class list contains a class
+local function has_class_in(classes, class_name)
+    if not classes then return false end
+    for _, c in ipairs(classes) do
+        if c == class_name then return true end
+    end
+    return false
+end
+
+function M.set_inlines(_mod)
+    -- Reserved for future use (e.g. inline-level academic marks)
 end
 
 function M.set_blocks(mod)
@@ -480,13 +488,5 @@ function M.detect_latex_env(text)
     return nil
 end
 
--- Helper: check if class list contains a class
-function has_class_in(classes, class_name)
-    if not classes then return false end
-    for _, c in ipairs(classes) do
-        if c == class_name then return true end
-    end
-    return false
-end
 
 return M
