@@ -138,12 +138,19 @@ local function has_class(classes, class_name)
     return false
 end
 
+-- Admonition variant set
+local admonition_classes = {
+    note = true, warning = true, tip = true,
+    danger = true, important = true, caution = true
+}
+
 -- Process Div blocks with structured dispatch
--- Routes to bibliography, glossary, or fallback unwrap
+-- Routes to bibliography, glossary, admonitions, or fallback unwrap
 function M.div_block(block)
     local attr = block.attr or {}
     local id = attr.identifier or (attr[1] or "")
     local classes = attr.classes or (attr[2] or {})
+    local attributes = attr.attributes or (attr[3] or {})
 
     -- Bibliography Div from citeproc
     if id == "refs" then
@@ -155,14 +162,61 @@ function M.div_block(block)
         return M.glossary_div(block)
     end
 
-    -- Subfigure Div inside a figure — handled by figure()
-    -- (shouldn't reach here directly, but guard against it)
+    -- Admonition Divs
+    for _, cls in ipairs(classes) do
+        if admonition_classes[cls] then
+            return M.admonition(block, cls, attributes)
+        end
+    end
 
     -- Fallback: unwrap Div contents
     return {
         multi = true,
         blocks = M.convert(block.content)
     }
+end
+
+-- Convert an admonition Div to an admonition block
+function M.admonition(block, variant, attributes)
+    local content = block.content or {}
+    local title = nil
+
+    -- Extract title from first heading or title attribute
+    if attributes and attributes.title then
+        title = attributes.title
+    end
+
+    local body_blocks = {}
+    for i, child in ipairs(content) do
+        local tag = child.t or child.tag
+        -- If the first block is a heading, use it as the title
+        if i == 1 and tag == "Header" and not title then
+            title = pandoc.utils.stringify(child.content)
+        else
+            local converted = M.convert_block(child)
+            if converted then
+                if converted.multi then
+                    for _, b in ipairs(converted.blocks) do
+                        table.insert(body_blocks, b)
+                    end
+                else
+                    table.insert(body_blocks, converted)
+                end
+            end
+        end
+    end
+
+    local result = {
+        type = "admonition",
+        variant = variant,
+        children = body_blocks
+    }
+
+    if title then
+        result.title = title
+    end
+
+    return result
 end
 
 -- Convert Para/Plain to paragraph (sentinel-aware)

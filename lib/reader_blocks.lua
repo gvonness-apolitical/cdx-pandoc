@@ -88,6 +88,10 @@ function M.convert_block(block)
     elseif btype == "figcaption" then
         -- Sub-block type handled by figure converter
         return nil
+    elseif btype == "admonition" then
+        return M.admonition(block)
+    elseif btype == "measurement" then
+        return M.semantic_measurement(block)
     elseif btype == "semantic:ref" then
         return M.semantic_ref(block)
     elseif btype == "semantic:term" then
@@ -355,6 +359,20 @@ function M.definition_list(block)
     end
 
     return nil
+end
+
+-- Admonition block → Pandoc Div with variant class
+function M.admonition(block)
+    local variant = block.variant or "note"
+    local title = block.title
+    local content = M.convert(block.children or {})
+
+    -- If title present, prepend as a heading
+    if title then
+        table.insert(content, 1, pandoc.Header(3, {pandoc.Str(title)}))
+    end
+
+    return pandoc.Div(content, pandoc.Attr("", {variant}))
 end
 
 -- Semantic reference block (cross-references)
