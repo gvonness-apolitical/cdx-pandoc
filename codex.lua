@@ -46,12 +46,20 @@ local metadata = load_lib("metadata")
 local bibliography = load_lib("bibliography")
 local academic = load_lib("academic")
 
+-- Extension tracker
+local extensions_used = {}
+local function track_extension(ext_id)
+    extensions_used[ext_id] = true
+end
+
 -- Initialize blocks module with inlines reference
 blocks.set_inlines(inlines)
+blocks.set_extension_tracker(track_extension)
 
 -- Initialize academic module
 academic.set_inlines(inlines)
 academic.set_blocks(blocks)
+academic.set_extension_tracker(track_extension)
 blocks.set_academic(academic)
 
 -- Spec version
@@ -99,6 +107,9 @@ end
 -- Main writer function
 -- Pandoc calls this with the full document
 function Writer(doc, opts)
+    -- Reset extension tracker
+    extensions_used = {}
+
     -- Extract metadata
     local dublin_core = metadata.extract(doc.meta) or metadata.default_metadata()
 
@@ -133,16 +144,30 @@ function Writer(doc, opts)
         manifest.metadata.jsonLd = "metadata/jsonld.json"
     end
 
-    -- Check if semantic extensions were used (citations or footnotes)
+    -- Track semantic extension usage from citations/footnotes
     local citation_refs = inlines.get_citation_refs()
     local has_citations = next(citation_refs) ~= nil
-
     if has_citations or has_footnotes then
-        manifest.extensions = {{
-            id = "codex.semantic",
-            version = "0.1",
-            required = false
-        }}
+        track_extension("codex.semantic")
+    end
+
+    -- Build extensions list from tracker
+    if next(extensions_used) then
+        local ext_list = {}
+        -- Sort for deterministic output
+        local ext_ids = {}
+        for ext_id, _ in pairs(extensions_used) do
+            table.insert(ext_ids, ext_id)
+        end
+        table.sort(ext_ids)
+        for _, ext_id in ipairs(ext_ids) do
+            table.insert(ext_list, {
+                id = ext_id,
+                version = "0.1",
+                required = false
+            })
+        end
+        manifest.extensions = ext_list
     end
 
     -- Combine into output structure
