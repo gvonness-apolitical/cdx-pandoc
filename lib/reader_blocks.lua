@@ -58,74 +58,74 @@ function M.convert(blocks)
     return result
 end
 
+-- Reader block handler dispatch table
+local reader_block_handlers = {}
+
+reader_block_handlers["paragraph"] = function(block) return M.paragraph(block) end
+reader_block_handlers["heading"] = function(block) return M.heading(block) end
+reader_block_handlers["codeBlock"] = function(block) return M.code_block(block) end
+reader_block_handlers["blockquote"] = function(block) return M.blockquote(block) end
+reader_block_handlers["list"] = function(block) return M.list(block) end
+reader_block_handlers["horizontalRule"] = function() return pandoc.HorizontalRule() end
+reader_block_handlers["table"] = function(block) return M.table_block(block) end
+reader_block_handlers["math"] = function(block) return M.math_block(block) end
+reader_block_handlers["image"] = function(block) return M.image_block(block) end
+reader_block_handlers["figure"] = function(block) return M.figure_block(block) end
+reader_block_handlers["definitionList"] = function(block) return M.definition_list(block) end
+reader_block_handlers["admonition"] = function(block) return M.admonition(block) end
+reader_block_handlers["measurement"] = function(block) return M.semantic_measurement(block) end
+reader_block_handlers["semantic:ref"] = function(block) return M.semantic_ref(block) end
+reader_block_handlers["semantic:term"] = function(block) return M.semantic_term(block) end
+reader_block_handlers["semantic:measurement"] = function(block) return M.semantic_measurement(block) end
+
+-- Types that are intentionally skipped (handled elsewhere or sub-blocks)
+local skip_types = {
+    ["semantic:footnote"] = true,
+    ["definitionItem"] = true,
+    ["definitionTerm"] = true,
+    ["definitionDescription"] = true,
+    ["figcaption"] = true,
+    ["listItem"] = true,
+    ["tableRow"] = true,
+    ["tableCell"] = true,
+    ["semantic:glossary"] = true,
+    ["semantic:bibliography"] = true,
+}
+
 -- Convert a single Codex block to Pandoc block(s)
 function M.convert_block(block)
     local btype = block.type or ""
 
-    if btype == "paragraph" then
-        return M.paragraph(block)
-    elseif btype == "heading" then
-        return M.heading(block)
-    elseif btype == "codeBlock" then
-        return M.code_block(block)
-    elseif btype == "blockquote" then
-        return M.blockquote(block)
-    elseif btype == "list" then
-        return M.list(block)
-    elseif btype == "horizontalRule" then
-        return pandoc.HorizontalRule()
-    elseif btype == "table" then
-        return M.table_block(block)
-    elseif btype == "math" then
-        return M.math_block(block)
-    elseif btype == "image" then
-        return M.image_block(block)
-    elseif btype == "semantic:footnote" then
-        -- Footnotes are pre-processed and handled via inline references
+    -- Check handler table first
+    local handler = reader_block_handlers[btype]
+    if handler then
+        return handler(block)
+    end
+
+    -- Skip known sub-block/placeholder types
+    if skip_types[btype] then
         return nil
-    elseif btype == "figure" then
-        return M.figure_block(block)
-    elseif btype == "definitionList" then
-        return M.definition_list(block)
-    elseif btype == "definitionItem" or btype == "definitionTerm" or btype == "definitionDescription" then
-        -- Sub-block types handled by their parent converter
-        return nil
-    elseif btype == "figcaption" then
-        -- Sub-block type handled by figure converter
-        return nil
-    elseif btype == "admonition" then
-        return M.admonition(block)
-    elseif btype == "measurement" then
-        return M.semantic_measurement(block)
-    elseif btype == "semantic:ref" then
-        return M.semantic_ref(block)
-    elseif btype == "semantic:term" then
-        return M.semantic_term(block)
-    elseif btype == "semantic:measurement" then
-        return M.semantic_measurement(block)
-    elseif btype == "semantic:glossary" or btype == "semantic:bibliography" then
-        -- Placeholder blocks - skip (content rendered elsewhere)
-        return nil
-    elseif btype:match("^academic:") then
-        -- Academic extension blocks
+    end
+
+    -- Academic extension blocks
+    if btype:match("^academic:") then
         if reader_academic then
             return reader_academic.convert_block(block)
         end
         io.stderr:write("cdx-reader: skipping academic block (no reader_academic): " .. btype .. "\n")
         return nil
-    elseif btype:match("^semantic:") or btype:match("^forms:") or btype:match("^collaboration:") then
-        -- Other extension blocks — silently skip
+    end
+
+    -- Other extension blocks
+    if btype:match("^semantic:") or btype:match("^forms:") or btype:match("^collaboration:") then
         io.stderr:write("cdx-reader: skipping extension block: " .. btype .. "\n")
         return nil
-    elseif btype == "listItem" or btype == "tableRow" or btype == "tableCell" then
-        -- Sub-block types handled by their parent converter
-        return nil
-    else
-        if btype ~= "" then
-            io.stderr:write("cdx-reader: unknown block type: " .. btype .. "\n")
-        end
-        return nil
     end
+
+    if btype ~= "" then
+        io.stderr:write("cdx-reader: unknown block type: " .. btype .. "\n")
+    end
+    return nil
 end
 
 -- Paragraph

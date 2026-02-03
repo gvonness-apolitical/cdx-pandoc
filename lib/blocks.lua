@@ -70,79 +70,56 @@ function M.convert(blocks)
     return result
 end
 
+-- Block handler dispatch table
+local block_handlers = {}
+
+block_handlers.Para = function(block) return M.paragraph(block) end
+block_handlers.Plain = function(block) return M.paragraph(block) end
+block_handlers.Header = function(block) return M.heading(block) end
+block_handlers.BulletList = function(block) return M.bullet_list(block) end
+block_handlers.OrderedList = function(block) return M.ordered_list(block) end
+block_handlers.CodeBlock = function(block) return M.code_block(block) end
+block_handlers.BlockQuote = function(block) return M.blockquote(block) end
+block_handlers.HorizontalRule = function(block) return M.horizontal_rule(block) end
+block_handlers.Table = function(block) return M.table_block(block) end
+block_handlers.Div = function(block) return M.div_block(block) end
+block_handlers.DefinitionList = function(block) return M.definition_list(block) end
+block_handlers.Figure = function(block) return M.figure(block) end
+
+block_handlers.RawBlock = function(block)
+    return {
+        type = "codeBlock",
+        children = {
+            {type = "text", value = block.text}
+        }
+    }
+end
+
+block_handlers.LineBlock = function(block)
+    local paragraphs = {}
+    for _, line in ipairs(block.content) do
+        table.insert(paragraphs, {
+            type = "paragraph",
+            children = inlines.convert(line)
+        })
+    end
+    return {
+        multi = true,
+        blocks = paragraphs
+    }
+end
+
 -- Convert a single Pandoc block to a Codex block
 -- @param block Pandoc block element
 -- @return Codex block table or nil
 function M.convert_block(block)
     local tag = block.t or block.tag
-
-    if tag == "Para" then
-        return M.paragraph(block)
-
-    elseif tag == "Plain" then
-        -- Plain is like Para but without surrounding paragraph tags
-        return M.paragraph(block)
-
-    elseif tag == "Header" then
-        return M.heading(block)
-
-    elseif tag == "BulletList" then
-        return M.bullet_list(block)
-
-    elseif tag == "OrderedList" then
-        return M.ordered_list(block)
-
-    elseif tag == "CodeBlock" then
-        return M.code_block(block)
-
-    elseif tag == "BlockQuote" then
-        return M.blockquote(block)
-
-    elseif tag == "HorizontalRule" then
-        return M.horizontal_rule(block)
-
-    elseif tag == "Table" then
-        return M.table_block(block)
-
-    elseif tag == "Div" then
-        return M.div_block(block)
-
-    elseif tag == "RawBlock" then
-        -- Raw block - treat as code block with no language
-        return {
-            type = "codeBlock",
-            children = {
-                {type = "text", value = block.text}
-            }
-        }
-
-    elseif tag == "LineBlock" then
-        -- Line block - convert each line to paragraph
-        local paragraphs = {}
-        for _, line in ipairs(block.content) do
-            table.insert(paragraphs, {
-                type = "paragraph",
-                children = inlines.convert(line)
-            })
-        end
-        return {
-            multi = true,
-            blocks = paragraphs
-        }
-
-    elseif tag == "DefinitionList" then
-        -- Definition list - convert to regular list with term+definition
-        return M.definition_list(block)
-
-    elseif tag == "Figure" then
-        -- Figure - extract image and caption
-        return M.figure(block)
-
-    else
-        -- Unknown block type - skip with warning
-        io.stderr:write("Warning: Unknown block type: " .. (tag or "nil") .. "\n")
-        return nil
+    local handler = block_handlers[tag]
+    if handler then
+        return handler(block)
     end
+    io.stderr:write("Warning: Unknown block type: " .. (tag or "nil") .. "\n")
+    return nil
 end
 
 -- Check if a class list contains a specific class

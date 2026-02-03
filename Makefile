@@ -9,7 +9,7 @@ TEST_INPUTS := $(wildcard tests/inputs/*.md)
 TEST_OUTPUTS := $(patsubst tests/inputs/%.md,tests/outputs/%.json,$(TEST_INPUTS))
 TEST_CDX := $(patsubst tests/inputs/%.md,tests/outputs/%.cdx,$(TEST_INPUTS))
 
-.PHONY: all test clean test-json test-cdx test-reader test-unit help check-deps
+.PHONY: all test clean test-json test-cdx test-reader test-unit help check-deps validate-schema
 
 all: test
 
@@ -21,6 +21,7 @@ help:
 	@echo "  test-unit    Run Lua unit tests"
 	@echo "  test-cdx     Run full pipeline tests (creates .cdx files)"
 	@echo "  test-reader  Test round-trip (JSON → Pandoc → markdown)"
+	@echo "  validate-schema Validate against spec schemas"
 	@echo "  clean        Remove generated files"
 	@echo "  check-deps   Check for required dependencies"
 	@echo ""
@@ -90,6 +91,26 @@ test-reader: test-json
 		$(PANDOC) -f cdx-reader.lua $$f -t markdown > tests/outputs/$$base.roundtrip.md 2>/dev/null && echo "  OK" || echo "  FAIL"; \
 	done
 	@echo "Reader tests complete."
+
+# Validate against spec schemas (requires ../codex-file-format-spec/schemas/)
+SCHEMA_DIR := ../codex-file-format-spec/schemas
+
+validate-schema: test-json
+	@if [ ! -d "$(SCHEMA_DIR)" ]; then \
+		echo "Schema directory not found: $(SCHEMA_DIR)"; \
+		echo "Skipping schema validation (clone codex-file-format-spec alongside this repo)"; \
+		exit 0; \
+	fi
+	@echo "Validating against spec schemas..."
+	@for f in tests/outputs/*.json; do \
+		echo "Checking $$f..."; \
+		$(JQ) -e '.manifest.codex' $$f > /dev/null || { echo "  WARN: no manifest.codex version"; continue; }; \
+		$(JQ) -e '.content.blocks | type == "array"' $$f > /dev/null || { echo "  FAIL: content.blocks is not an array"; exit 1; }; \
+		$(JQ) -e '.dublin_core.terms | type == "object"' $$f > /dev/null || { echo "  FAIL: dublin_core.terms is not an object"; exit 1; }; \
+		$(JQ) -e '[.content.blocks[] | .type] | all(. != null and . != "")' $$f > /dev/null || { echo "  FAIL: block missing type field"; exit 1; }; \
+		echo "  OK"; \
+	done
+	@echo "Schema validation complete."
 
 # Clean generated files
 clean:
