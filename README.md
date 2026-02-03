@@ -58,7 +58,7 @@ pandoc -f cdx-reader.lua output.json -o document.tex
 pandoc -f cdx-reader.lua output.json -o document.html
 ```
 
-The reader handles core block types (paragraphs, headings, lists, code blocks, blockquotes, tables, math, images). Semantic blocks like `semantic:term`, `semantic:measurement`, and `semantic:ref` are converted to their closest Pandoc equivalents. Footnotes are restored via inline references. Extension blocks without equivalents (e.g., `semantic:bibliography`, `semantic:glossary`) are skipped.
+The reader handles core block types (paragraphs, headings, lists, code blocks, blockquotes, tables, math, images, figures, definition lists, admonitions) and academic extension blocks (theorems, proofs, exercises, algorithms, abstracts, equation groups). Semantic blocks like `semantic:term`, `semantic:measurement`, and `semantic:ref` are converted to their closest Pandoc equivalents. Footnotes are restored via inline references. Extension blocks without equivalents (e.g., `semantic:bibliography`, `semantic:glossary`) are skipped.
 
 ## Features
 
@@ -75,13 +75,23 @@ The reader handles core block types (paragraphs, headings, lists, code blocks, b
 | HorizontalRule | horizontalRule | Thematic break |
 | Table | table | Headers and cells |
 | Math (display) | math | LaTeX format, display=true |
-| Math (inline) | math | LaTeX format, display=false; splits paragraph |
+| Math (inline) | math mark | LaTeX format on text node |
+| DefinitionList | definitionList | Core block with term/description items |
+| DefinitionList (.glossary) | semantic:term | Glossary Div context only |
 | Cite | citation mark | refs, locator, prefix, suffix, suppressAuthor |
 | Note | semantic:footnote | Superscript ref + block content |
 | Image | image | src, alt, title, width, height |
-| Figure | image | Extracts image with caption |
-| Div | (unwrapped) | Contents extracted |
+| Figure | figure | Container with image children + figcaption |
+| Div (.note/.warning/...) | admonition | variant, optional title |
+| Div (.theorem/.lemma/...) | academic:theorem | variant, id, number, title |
+| Div (.proof) | academic:proof | of, method |
+| Div (.exercise) | academic:exercise | difficulty, hints, solution |
+| Div (.exercise-set) | academic:exercise-set | title, preamble, exercises |
+| Div (.algorithm) | academic:algorithm | title, pseudocode lines |
+| Div (.abstract) | academic:abstract | keywords, sections |
+| DisplayMath (aligned) | academic:equation-group | Auto-detected align/gather/split |
 | Div#refs | semantic:bibliography | Citeproc bibliography entries |
+| Div | (unwrapped) | Contents extracted |
 
 ### Inline Formatting
 
@@ -91,6 +101,10 @@ The reader handles core block types (paragraphs, headings, lists, code blocks, b
 | Emph | italic |
 | Code | code |
 | Link | link (with href, title) |
+| Link (#thm-*, #lem-*, ...) | theorem-ref |
+| Link (#eq-*) | equation-ref |
+| Link (#alg-*) | algorithm-ref |
+| Math (inline) | math (format: latex) |
 | Strikeout | strikethrough |
 | Underline | underline |
 | Superscript | superscript |
@@ -136,6 +150,56 @@ Temperature reached [100 °C]{.measurement value="100" unit="°C"}.
 ```
 
 Produces a `semantic:measurement` block with `value`, `unit`, and schema.org `QuantitativeValue` metadata.
+
+### Academic Extension Blocks
+
+Use Pandoc fenced Divs to produce academic block types:
+
+```markdown
+::: {.theorem #thm-max title="Maximum Principle"}
+Let $u$ be harmonic on $\Omega$. Then $u$ attains its max on the boundary.
+:::
+
+::: {.proof of="thm-max" method="contradiction"}
+Suppose $u$ attains maximum at interior point...
+:::
+
+::: {.exercise #ex-1 difficulty="medium"}
+Find the derivative of $f(x) = x^2 + 1$.
+
+::: {.hint}
+Use the power rule.
+:::
+
+::: {.solution visibility="hidden"}
+$f'(x) = 2x$
+:::
+:::
+
+::: {.algorithm #alg-sort title="QuickSort"}
+```algorithm
+function QuickSort(A, lo, hi)
+  ...
+end function
+```
+:::
+
+::: {.abstract}
+This paper presents a novel approach.
+
+::: {.keywords}
+machine learning, document formats
+:::
+:::
+```
+
+Theorem variant classes: `theorem`, `lemma`, `proposition`, `corollary`, `definition`, `conjecture`, `remark`, `example`.
+
+Admonition classes: `note`, `warning`, `tip`, `danger`, `important`, `caution`.
+
+Aligned LaTeX environments (`\begin{align}`, `\begin{gather}`, `\begin{split}`) in display math are automatically detected and converted to `academic:equation-group` blocks.
+
+Cross-references to academic blocks use standard Markdown links with `#`-prefixed IDs (e.g., `[Theorem 1](#thm-max)`). Links targeting `#thm-*`, `#lem-*`, `#eq-*`, `#alg-*`, etc. are converted to typed reference marks (`theorem-ref`, `equation-ref`, `algorithm-ref`).
 
 ### Metadata Mapping
 
@@ -190,30 +254,37 @@ The packaging script extracts these into the proper Codex directory structure.
 ### Running Tests
 
 ```bash
-make test          # Run JSON output tests
-make validate      # Validate JSON structure
-make test-cdx      # Run full pipeline tests
-make test-reader   # Test round-trip (JSON → markdown)
+make test             # Run all tests (unit + JSON output)
+make test-unit        # Run Lua unit tests
+make validate         # Validate JSON structure
+make validate-schema  # Validate against spec schemas
+make test-cdx         # Run full pipeline tests
+make test-reader      # Test round-trip (JSON → markdown)
 ```
 
 ### Project Structure
 
 ```
 cdx-pandoc/
-├── codex.lua              # Main Pandoc custom writer
-├── cdx-reader.lua         # Codex → Pandoc reader
+├── codex.lua               # Main Pandoc custom writer
+├── cdx-reader.lua          # Codex → Pandoc reader
 ├── lib/
-│   ├── blocks.lua         # Writer: block type converters
-│   ├── inlines.lua        # Writer: inline/text node converters
-│   ├── metadata.lua       # Writer: Dublin Core extraction
-│   ├── json.lua           # Writer: JSON encoding utilities
-│   ├── reader_blocks.lua  # Reader: block type reverse mapping
-│   └── reader_inlines.lua # Reader: mark → inline wrapping
+│   ├── blocks.lua          # Writer: block type converters
+│   ├── inlines.lua         # Writer: inline/text node converters
+│   ├── academic.lua        # Writer: academic extension blocks
+│   ├── metadata.lua        # Writer: Dublin Core extraction
+│   ├── bibliography.lua    # Writer: CSL bibliography extraction
+│   ├── json.lua            # JSON encoding utilities
+│   ├── utils.lua           # Shared utility functions
+│   ├── reader_blocks.lua   # Reader: block type reverse mapping
+│   ├── reader_inlines.lua  # Reader: mark → inline wrapping
+│   └── reader_academic.lua # Reader: academic block reverse mapping
 ├── scripts/
-│   └── pandoc-to-cdx.sh   # Full pipeline wrapper
+│   └── pandoc-to-cdx.sh    # Full pipeline wrapper
 ├── tests/
-│   ├── inputs/            # Test input files
-│   └── outputs/           # Generated test outputs
+│   ├── inputs/             # Test input files (27 cases)
+│   ├── outputs/            # Generated test outputs
+│   └── unit/               # Lua unit tests
 ├── Makefile
 └── README.md
 ```
@@ -258,6 +329,7 @@ Convert:
 - Complex table formatting may be simplified
 - Citations require `--citeproc` flag for bibliography generation; without it, only inline citation blocks are emitted
 - Footnote content is appended as blocks at the end of the document
+- SVG, barcode, and signature blocks have no natural Pandoc mapping and are not supported
 
 ## Troubleshooting
 
@@ -291,11 +363,16 @@ Display math should use double dollar signs or the equation environment:
 $$E = mc^2$$
 ```
 
-Inline math uses single dollar signs: `$x = y$`
+Inline math uses single dollar signs: `$x = y$`. Inline math is preserved as a `math` mark on text nodes (stays inside the paragraph). Display math produces a block-level `math` block. Aligned LaTeX environments (`align`, `gather`, `split`) are automatically detected and converted to `academic:equation-group` blocks.
 
 ### Reader round-trip loses semantic data
 
-The reader converts Codex back to standard Pandoc elements. Some semantic information (entity URIs, measurement schemas) is preserved in span attributes, but extension blocks like `semantic:bibliography` are skipped as they have no direct Pandoc equivalent.
+The reader converts Codex back to standard Pandoc elements. Most block types survive round-trip faithfully:
+
+- **Core blocks**: paragraphs, headings, lists, tables, code, math, images, figures, definition lists, admonitions all round-trip cleanly.
+- **Academic blocks**: theorems (variant, id, title), proofs (of, method), exercises (difficulty, hints, solutions), algorithms (title, pseudocode), abstracts (keywords), and equation groups (reconstructed LaTeX environments) all survive via Pandoc Div attributes.
+- **Semantic blocks**: `semantic:term` round-trips via DefinitionList, `semantic:measurement` via Span attributes. `semantic:bibliography` and `semantic:glossary` are skipped as they have no direct Pandoc equivalent.
+- **Inline marks**: formatting, links, math, citations, footnotes, entity URIs, and academic cross-references all survive round-trip.
 
 ## Related Projects
 

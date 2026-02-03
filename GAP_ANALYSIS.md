@@ -1,27 +1,23 @@
-# cdx-pandoc Gap Analysis for Academic Workflows
+# cdx-pandoc Gap Analysis
 
-**Date**: 2026-01-30
+**Date**: 2026-02-03
 **Comparison**: cdx-core (Rust) vs cdx-pandoc (Lua)
 
 ## Executive Summary
 
-cdx-pandoc provides comprehensive coverage of core document elements and academic metadata. All planned phases have been completed.
+cdx-pandoc provides comprehensive coverage of core document elements, semantic extensions, and the academic extension (`codex.academic`). All planned phases have been completed.
 
-**Completed (Phase 1-2)**:
-- ✅ Footnote marks with number/id fields
-- ✅ Citation marks on text nodes (not separate blocks)
-- ✅ Reader support for footnotes and citations
-- ✅ JSON-LD metadata generation from Dublin Core
-- ✅ Cross-reference support (semantic:ref reader, link marks for internal refs)
+**Core blocks**: paragraph, heading, list, codeBlock, blockquote, horizontalRule, table, math, image, figure, definitionList, admonition.
 
-**Completed (Phase 3)**:
-- ✅ Glossary support (semantic:term blocks, glossary marks)
-- ✅ Entity linking (entity marks with Wikidata URIs)
-- ✅ Measurements (semantic:measurement blocks)
+**Semantic extension** (`codex.semantic`): footnotes, citations, bibliography, glossary terms, entity linking, measurements, cross-references.
 
-**Completed (Phase 4)**:
-- ✅ Bibliography CSL metadata preservation (extracts from YAML references)
-- ✅ ORCID support for author identifiers
+**Academic extension** (`codex.academic`): theorems (8 variants), proofs, exercises with hints/solutions, exercise sets, algorithms, abstracts with keywords, equation groups, academic cross-references (theorem-ref, equation-ref, algorithm-ref).
+
+**Inline marks**: bold, italic, code, link, strikethrough, underline, superscript, subscript, math, footnote, citation, entity, glossary, theorem-ref, equation-ref, algorithm-ref.
+
+**Metadata**: Dublin Core extraction, JSON-LD generation, ORCID support, CSL bibliography preservation.
+
+**Dynamic extension tracking**: manifest `extensions` field automatically populated based on block types used.
 
 ---
 
@@ -135,317 +131,116 @@ Reader converts citation marks back to Pandoc `Cite` elements.
 
 ---
 
-## 2. Block Types - Gaps
+## 2. Block Types
 
-### 2.1 semantic:ref (Cross-References) ✅ COMPLETED
+### 2.1 Core Block Types ✅ ALL COMPLETED
 
-**cdx-core spec**:
-```json
-{
-  "type": "semantic:ref",
-  "target": "#section-3",
-  "format": "Section {number}",
-  "children": [{ "type": "text", "value": "Section 3" }]
-}
-```
+| Block Type | Pandoc Source | Status |
+|-----------|--------------|--------|
+| paragraph | Para, Plain | ✅ |
+| heading | Header | ✅ |
+| list | BulletList, OrderedList | ✅ |
+| codeBlock | CodeBlock | ✅ |
+| blockquote | BlockQuote | ✅ |
+| horizontalRule | HorizontalRule | ✅ |
+| table | Table | ✅ |
+| math | DisplayMath | ✅ |
+| image | Image | ✅ |
+| figure | Figure | ✅ Container with image children + figcaption |
+| definitionList | DefinitionList | ✅ Core definitionItem/definitionTerm/definitionDescription |
+| admonition | Div (.note/.warning/...) | ✅ variant + optional title |
 
-**cdx-pandoc implementation**:
-- **Inline cross-references**: Use link marks with `href: "#section-3"` (standard approach)
-- **Block-level cross-references**: Reader supports `semantic:ref` blocks, converting them to Pandoc Links
+### 2.2 Semantic Extension Blocks ✅ ALL COMPLETED
 
-**Status**: ✅ Internal links work via link marks. Reader support for `semantic:ref` blocks added in `lib/reader_blocks.lua`. Note: `semantic:ref` is primarily for block-level standalone references; inline refs use standard link marks.
+| Block Type | Pandoc Source | Status |
+|-----------|--------------|--------|
+| semantic:term | DefinitionList inside .glossary Div | ✅ |
+| semantic:measurement | Span .measurement (sentinel) | ✅ |
+| semantic:footnote | Note | ✅ |
+| semantic:bibliography | Div#refs (citeproc) | ✅ |
+| semantic:ref | Link (internal) | ✅ Reader-side |
+| semantic:glossary | — | Deferred (auto-generated container) |
 
----
+### 2.3 Academic Extension Blocks ✅ ALL COMPLETED
 
-### 2.2 semantic:term (Glossary Definition) ✅ COMPLETED
-
-**cdx-core spec**:
-```json
-{
-  "type": "semantic:term",
-  "id": "term-crdt",
-  "term": "CRDT",
-  "definition": "Conflict-free Replicated Data Type",
-  "see": ["term-eventual-consistency"]
-}
-```
-
-**cdx-pandoc implementation**:
-```json
-{
-  "type": "semantic:term",
-  "id": "term-crdt",
-  "term": "CRDT",
-  "definition": "Conflict-free Replicated Data Type - a data structure...",
-  "see": ["term-eventual-consistency"]
-}
-```
-
-**Status**: ✅ Implemented in `lib/blocks.lua`. Pandoc DefinitionList is converted to semantic:term blocks:
-- Auto-generates `id` from term text (e.g., "term-crdt")
-- Extracts "See also:" references into `see` array
-- Reader converts back to DefinitionList with "See also:" appended
+| Block Type | Pandoc Source | Status |
+|-----------|--------------|--------|
+| academic:theorem | Div (.theorem/.lemma/.proposition/.corollary/.definition/.conjecture/.remark/.example) | ✅ |
+| academic:proof | Div (.proof) | ✅ of, method attributes |
+| academic:exercise | Div (.exercise) | ✅ difficulty, nested .hint/.solution |
+| academic:exercise-set | Div (.exercise-set) | ✅ title, preamble, exercises |
+| academic:algorithm | Div (.algorithm) | ✅ title, pseudocode lines |
+| academic:abstract | Div (.abstract) | ✅ keywords from nested .keywords Div |
+| academic:equation-group | DisplayMath with aligned LaTeX | ✅ Auto-detected align/gather/split |
 
 ---
 
-### 2.3 semantic:glossary (Glossary Block) (DEFERRED)
+## 3. Round-Trip Fidelity
 
-**cdx-core spec**:
-```json
-{
-  "type": "semantic:glossary",
-  "title": "Glossary of Terms",
-  "sort": "alphabetical"
-}
-```
+The reader (`cdx-reader.lua`) converts Codex JSON back to Pandoc AST. The following documents what survives round-trip for each block/mark type.
 
-**cdx-pandoc current**: Not implemented (placeholder block, reader skips)
+### 3.1 Core Blocks
 
-**Note**: This is an auto-generated container block that collects semantic:term entries. Not typically needed for Pandoc round-trip.
+| Block Type | Write → Read Fidelity | Notes |
+|-----------|----------------------|-------|
+| paragraph | Lossless | Text nodes with marks fully preserved |
+| heading | Lossless | Level, ID, and inline content preserved |
+| list | Lossless | Ordered/unordered, start number, nesting |
+| codeBlock | Lossless | Language attribute preserved |
+| blockquote | Lossless | Nested content preserved |
+| horizontalRule | Lossless | |
+| table | Near-lossless | Column alignment defaults to AlignDefault |
+| math (display) | Lossless | LaTeX content preserved |
+| image | Lossless | src, alt, title preserved |
+| figure | Near-lossless | Image + caption survive; subfigure labels lost |
+| definitionList | Lossless | Term/description structure preserved |
+| admonition | Near-lossless | variant → Div class; title → inserted Header |
 
----
+### 3.2 Academic Extension Blocks
 
-### 2.4 semantic:measurement ✅ COMPLETED
+| Block Type | Write → Read Fidelity | Notes |
+|-----------|----------------------|-------|
+| academic:theorem | Lossless | variant, id, number, title → Div attributes |
+| academic:proof | Lossless | of, method → Div attributes |
+| academic:exercise | Lossless | difficulty → attribute; hints, solutions → nested Divs with visibility |
+| academic:exercise-set | Lossless | title → attribute; preamble + exercises → nested Divs |
+| academic:algorithm | Lossless | title → attribute; pseudocode → CodeBlock with `algorithm` class |
+| academic:abstract | Lossless | Content + keywords → nested .keywords Div |
+| academic:equation-group | Near-lossless | Reconstructed `\begin{align}...\end{align}` environment; line labels not preserved |
 
-**cdx-core spec**:
-```json
-{
-  "type": "semantic:measurement",
-  "value": 42.5,
-  "unit": "kg",
-  "schema": { "@type": "QuantitativeValue", "unitCode": "KGM" }
-}
-```
+### 3.3 Inline Marks
 
-**cdx-pandoc implementation**:
-```json
-{
-  "type": "semantic:measurement",
-  "value": 42.5,
-  "unit": "kg",
-  "schema": { "@type": "QuantitativeValue", "value": 42.5, "unitText": "kg" }
-}
-```
+| Mark Type | Write → Read Fidelity | Notes |
+|----------|----------------------|-------|
+| bold, italic, code, strikethrough, underline, superscript, subscript | Lossless | |
+| link | Lossless | href and title preserved |
+| math (inline) | Lossless | LaTeX content preserved as InlineMath |
+| footnote | Lossless | Resolved against semantic:footnote blocks |
+| citation | Lossless | refs, locator, prefix, suffix, suppressAuthor |
+| entity | Lossless | uri, entityType, source → Span attributes |
+| glossary | Lossless | ref → Span attribute |
+| theorem-ref | Near-lossless | target preserved as Link; format string lost |
+| equation-ref | Near-lossless | target preserved as Link; format string lost |
+| algorithm-ref | Near-lossless | target preserved as Link; line ref and format lost |
 
-**Status**: ✅ Implemented in `lib/inlines.lua` and `lib/blocks.lua`. Measurements are generated from Pandoc Spans with `.measurement` class:
-- `[42.5 kg]{.measurement value="42.5" unit="kg"}`
-- Auto-extracts value/unit from text if attributes not provided
-- Generates schema.org QuantitativeValue metadata
-- Reader converts back to Span with measurement class and attributes
+### 3.4 Known Losses
 
----
-
-## 3. Bibliography - Gaps
-
-### 3.1 Full CSL JSON Structure ✅ COMPLETED
-
-**cdx-core spec** (bibliography.json):
-```json
-{
-  "version": "0.1",
-  "style": "apa",
-  "entries": [
-    {
-      "id": "smith2024",
-      "type": "article-journal",
-      "title": "Advances in Document Processing",
-      "author": [{ "family": "Smith", "given": "John" }],
-      "issued": { "year": 2024 },
-      "container-title": "Journal of Digital Documents",
-      "volume": 15,
-      "DOI": "10.1234/jdd.2024.001"
-    }
-  ]
-}
-```
-
-**cdx-pandoc implementation**:
-```json
-{
-  "type": "semantic:bibliography",
-  "style": "apa",
-  "entries": [
-    {
-      "id": "smith2024",
-      "type": "article-journal",
-      "title": "Advances in Document Processing",
-      "author": [{ "family": "Smith", "given": "John" }],
-      "issued": { "year": 2024, "month": 3, "day": 15 },
-      "container-title": "Journal of Digital Documents",
-      "volume": "15",
-      "DOI": "10.1234/jdd.2024.001",
-      "renderedText": "Smith, John. 2024. \"Advances in Document Processing.\" ..."
-    }
-  ]
-}
-```
-
-**Status**: ✅ Implemented in `lib/bibliography.lua`. CSL metadata is extracted from `doc.meta.references`:
-- Full author information (family/given or literal for organizations)
-- Issued dates (year, month, day from date-parts)
-- DOI, ISBN, URL, volume, issue, page, publisher, etc.
-- Entry type mapped to CSL types (article-journal, book, report, etc.)
-- Style detected from `csl` or `citation-style` metadata fields
-- Falls back to rendered text only if CSL metadata not available
+- **`semantic:bibliography`**: Skipped on read (no Pandoc equivalent for CSL entry blocks)
+- **`semantic:glossary`**: Skipped on read (auto-generated container)
+- **Academic ref format strings**: `"Theorem {number}"` → plain Link text (format not round-tripped)
+- **Equation group line labels**: Individual equation labels within aligned environments not preserved
+- **Subfigure labels**: `label="a"` on subfigures not preserved through round-trip
+- **Schema.org metadata on measurements**: `schema` field on `semantic:measurement` lost on read
 
 ---
 
-## 4. Metadata - Gaps
-
-### 4.1 JSON-LD Metadata ✅ COMPLETED
-
-**cdx-core spec** (metadata/jsonld.json):
-```json
-{
-  "@context": "https://schema.org/",
-  "@type": "ScholarlyArticle",
-  "name": "A Study on Document Formats",
-  "author": { "@type": "Person", "name": "Jane Doe" },
-  "datePublished": "2025-01-15"
-}
-```
-
-**cdx-pandoc implementation**:
-```json
-{
-  "@context": "https://schema.org/",
-  "@type": "Article",
-  "name": "Document Title",
-  "author": { "@type": "Person", "name": "Author Name" },
-  "datePublished": "2025-01-15",
-  "description": "Abstract text",
-  "keywords": "keyword1, keyword2",
-  "inLanguage": "en"
-}
-```
-
-**Status**: ✅ Implemented in `lib/metadata.lua`. JSON-LD is generated from Dublin Core metadata with:
-- `@type` mapped from DC type (Text → Article, Book, Report, etc.)
-- `name`, `author`, `datePublished`, `description`, `keywords`, `inLanguage`, `publisher`, `license`
-- DOI/ISBN identifier support
-- Manifest updated to reference `metadata/jsonld.json`
-
----
-
-### 4.2 ORCID Support ✅ COMPLETED
-
-**cdx-core spec**:
-```json
-{
-  "author": {
-    "@type": "Person",
-    "@id": "https://orcid.org/0000-0002-1825-0097",
-    "name": "Jane Smith"
-  }
-}
-```
-
-**cdx-pandoc implementation**:
-```yaml
-# Input (Pandoc YAML)
-author:
-  - name: Jane Smith
-    orcid: 0000-0002-1825-0097
-    affiliation: University of Example
-```
-
-```json
-// Output (Dublin Core)
-{
-  "creator": ["Jane Smith"],
-  "creators": [{
-    "name": "Jane Smith",
-    "orcid": "0000-0002-1825-0097",
-    "affiliation": "University of Example"
-  }]
-}
-
-// Output (JSON-LD)
-{
-  "author": {
-    "@type": "Person",
-    "@id": "https://orcid.org/0000-0002-1825-0097",
-    "name": "Jane Smith",
-    "affiliation": { "@type": "Organization", "name": "University of Example" }
-  }
-}
-```
-
-**Status**: ✅ Implemented in `lib/metadata.lua`. Structured author metadata extracted:
-- ORCID identifiers (normalized, URL prefix stripped)
-- Affiliation as organization
-- Email address
-- Dublin Core `creator` for backwards compatibility, `creators` for structured data
-
----
-
-## 5. Reader - Gaps
-
-### 5.1 Citation Marks ✅ COMPLETED
-
-**Status**: ✅ Implemented in `lib/reader_inlines.lua`. Citation marks are converted to Pandoc `Cite` elements with proper mode (NormalCitation/SuppressAuthor), prefix, and suffix.
-
-### 5.2 Footnote Marks ✅ COMPLETED
-
-**Status**: ✅ Implemented in `lib/reader_inlines.lua`. Footnote marks are converted to Pandoc `Note` elements by resolving against pre-processed footnote blocks.
-
-### 5.3 Cross-References ✅ COMPLETED
-
-**Status**: ✅ Implemented in `lib/reader_blocks.lua`. `semantic:ref` blocks are converted to Pandoc Link elements with the target URL.
-
-### 5.4 Glossary Terms ✅ COMPLETED
-
-**Status**: ✅ Implemented in `lib/reader_blocks.lua`. `semantic:term` blocks are converted to Pandoc DefinitionList elements with "See also:" references appended to definitions.
-
----
-
-## 6. Priority Implementation Roadmap
-
-### Phase 1: Core Academic Features ✅ COMPLETED
-
-1. ✅ **Footnote marks** - Generate `Mark::Footnote` with number/id instead of superscript
-2. ✅ **Citation marks** - Convert Pandoc Cite to citation marks on text (not blocks)
-3. ✅ **Bibliography preservation** - Extract full CSL metadata from YAML references
-4. ✅ **Reader: citations** - Restore citation marks to Pandoc Cite elements
-
-### Phase 2: Cross-References & Metadata ✅ COMPLETED
-
-5. ✅ **Cross-references** - Internal links use link marks; reader supports semantic:ref blocks
-6. ✅ **Reader: cross-refs** - Convert semantic:ref back to Pandoc links
-7. ✅ **JSON-LD metadata** - Generate schema.org metadata from Dublin Core
-
-### Phase 3: Advanced Semantic Features ✅ COMPLETED
-
-8. ✅ **Glossary support** - Definition lists → semantic:term; Span .glossary → glossary marks
-9. ✅ **Entity linking** - Span .entity attributes → entity marks with Wikidata URIs
-10. ✅ **Measurements** - Span .measurement → semantic:measurement with schema.org metadata
-
----
-
-## 7. Test Coverage Gaps
-
-Current tests cover:
-- Basic formatting, lists, tables, code blocks
-- Simple citations and footnotes
-- Math (inline/display)
-- Images
-
-Missing test coverage:
-- [ ] Complex nested citations with locators
-- [ ] Multi-paragraph footnotes with citations inside
-- [ ] Cross-references to figures/tables/equations
-- [ ] Bibliography round-trip with full metadata
-- [ ] Definition lists as glossary terms
-- [ ] Mixed inline citations on same text span
-
----
-
-## 8. Compatibility Notes
+## 4. Compatibility Notes
 
 ### Pandoc Extensions Required
 - `--citeproc` for bibliography processing
 - `+footnotes` for footnote syntax
-- `+definition_lists` for glossary terms
+- `+definition_lists` for definition list / glossary terms
+- `+fenced_divs` for academic blocks, admonitions, glossary containers
 
 ### cdx-core Version Alignment
 - Current cdx-pandoc targets cdx-core spec v0.1
@@ -453,18 +248,44 @@ Missing test coverage:
 - Citation mark format aligned as of 2026-01-29 (marks on text nodes)
 - Bibliography CSL format aligned as of 2026-01-30
 - ORCID support added as of 2026-01-30
+- Definition lists, figures, inline math marks aligned as of 2026-02-01
+- Academic extension (codex.academic) aligned as of 2026-02-02
+- Dynamic extension tracking added as of 2026-02-02
 
 ---
 
-## Summary Table
+## 5. Test Coverage
+
+27 integration test inputs covering:
+- Basic formatting, lists, tables, code blocks, nested structures
+- Citations, footnotes, bibliography with CSL metadata
+- Math (inline marks + display blocks + equation groups)
+- Images, figures with captions and subfigures
+- Definition lists (core) and glossary terms (semantic)
+- Entity linking, measurements, cross-references
+- Admonitions (note, warning, tip, danger, important, caution)
+- Theorems (8 variants), proofs, exercises, algorithms, abstracts
+- Academic cross-references
+- Academic kitchen sink (all types combined)
+- Edge cases: empty documents, no metadata, ORCID, state handling
+
+Unit tests: 73 tests across JSON encoding and utility functions.
+
+---
+
+## 6. Summary Table
 
 | Feature | cdx-core | cdx-pandoc | Status |
 |---------|----------|------------|--------|
 | Basic formatting | Full | Full | ✅ Done |
 | Lists/tables | Full | Full | ✅ Done |
 | Code blocks | Full | Full | ✅ Done |
-| Math | Full | Full | ✅ Done |
+| Math (inline marks) | Full | Full | ✅ Done |
+| Math (display blocks) | Full | Full | ✅ Done |
 | Images | Full | Full | ✅ Done |
+| Figures + captions | Full | Full | ✅ Done |
+| Definition lists | Full | Full | ✅ Done |
+| Admonitions | Full | Full | ✅ Done |
 | Footnote marks | Mark::Footnote | Mark::Footnote | ✅ Done |
 | Footnote blocks | Full | Full | ✅ Done |
 | Citation marks | mark on text | mark on text | ✅ Done |
@@ -475,3 +296,22 @@ Missing test coverage:
 | Entity linking | Full | entity marks | ✅ Done |
 | Measurements | Full | semantic:measurement | ✅ Done |
 | ORCID | Author identifiers | @id in JSON-LD | ✅ Done |
+| Theorems (8 variants) | Full | academic:theorem | ✅ Done |
+| Proofs | Full | academic:proof | ✅ Done |
+| Exercises | Full | academic:exercise | ✅ Done |
+| Exercise sets | Full | academic:exercise-set | ✅ Done |
+| Algorithms | Full | academic:algorithm | ✅ Done |
+| Abstracts | Full | academic:abstract | ✅ Done |
+| Equation groups | Full | academic:equation-group | ✅ Done |
+| Academic cross-refs | Full | theorem-ref/equation-ref/algorithm-ref | ✅ Done |
+| Extension tracking | Full | Dynamic manifest.extensions | ✅ Done |
+
+### Not Supported
+
+| Feature | Reason |
+|---------|--------|
+| SVG blocks | No natural Pandoc mapping |
+| Barcode blocks | No natural Pandoc mapping |
+| Signature blocks | No natural Pandoc mapping |
+| Symbol footnotes | Pandoc doesn't distinguish footnote styles |
+| semantic:glossary container | Auto-generated; not needed for round-trip |

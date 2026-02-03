@@ -6,7 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- **Academic extension** (`codex.academic`): theorems (8 variants), proofs, exercises with hints/solutions, exercise sets, algorithms, abstracts with keywords, equation groups
+- Academic cross-reference marks: `theorem-ref`, `equation-ref`, `algorithm-ref` for typed internal links
+- Admonition blocks from fenced Divs (note, warning, tip, danger, important, caution)
+- Figure container blocks with `figcaption` children and subfigure support
+- Core `definitionList` / `definitionItem` / `definitionTerm` / `definitionDescription` blocks
+- Inline math as `math` mark on text nodes (no longer splits paragraphs)
+- Auto-detection of aligned LaTeX environments (align, gather, split) → `academic:equation-group`
+- Dynamic extension tracking in manifest `extensions` field
+- `make validate-schema` target for spec schema validation
+- Academic kitchen sink integration test (`tests/inputs/academic-full.md`)
+- New `lib/academic.lua` and `lib/reader_academic.lua` modules
+
 ### Changed
+- Refactored Div handler into structured dispatch (`div_block()`) with extension points
+- Replaced if/elseif dispatch chains with handler tables in `blocks.lua` and `reader_blocks.lua`
+- Definition lists outside `.glossary` Divs now produce core `definitionList` (not `semantic:term`)
+- Figures produce `figure` containers instead of flattened `image` blocks
+- Inline math produces `math` mark instead of `math_sentinel` paragraph splits
+- Updated documentation: README, GAP_ANALYSIS, CHANGELOG
+
+### Fixed
 - Fixed README inaccuracies about reader behavior and citation output format
 - Removed duplicated project structure from CONTRIBUTING.md
 
