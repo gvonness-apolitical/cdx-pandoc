@@ -44,9 +44,15 @@ local inlines = load_lib("inlines")
 local blocks = load_lib("blocks")
 local metadata = load_lib("metadata")
 local bibliography = load_lib("bibliography")
+local academic = load_lib("academic")
 
 -- Initialize blocks module with inlines reference
 blocks.set_inlines(inlines)
+
+-- Initialize academic module
+academic.set_inlines(inlines)
+academic.set_blocks(blocks)
+blocks.set_academic(academic)
 
 -- Spec version
 local CODEX_VERSION = "0.1"

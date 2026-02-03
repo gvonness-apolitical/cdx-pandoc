@@ -6,6 +6,9 @@ local M = {}
 -- Inlines module (will be set by init)
 local inlines = nil
 
+-- Academic module (will be set by init, optional)
+local academic = nil
+
 -- Bibliography context (set by codex.lua before conversion)
 local bib_context = {
     csl_entries = {},
@@ -15,6 +18,11 @@ local bib_context = {
 -- Set the inlines module reference
 function M.set_inlines(inlines_module)
     inlines = inlines_module
+end
+
+-- Set the academic module reference (optional)
+function M.set_academic(academic_module)
+    academic = academic_module
 end
 
 -- Set bibliography context (CSL entries and style)
@@ -169,6 +177,14 @@ function M.div_block(block)
         end
     end
 
+    -- Academic extension Divs
+    if academic then
+        local academic_type = academic.classify_div(classes)
+        if academic_type then
+            return academic.convert_div(block, academic_type)
+        end
+    end
+
     -- Fallback: unwrap Div contents
     return {
         multi = true,
@@ -281,6 +297,13 @@ end
 -- Convert a sentinel node to its target block(s)
 function M.convert_sentinel(node)
     if node.type == "math_sentinel" then
+        -- Check for aligned LaTeX environments → equation group
+        if academic and node.mathtype == "DisplayMath" then
+            local eq_group = academic.convert_equation_group(node.text)
+            if eq_group then
+                return {eq_group}
+            end
+        end
         return {{
             type = "math",
             display = (node.mathtype == "DisplayMath"),
