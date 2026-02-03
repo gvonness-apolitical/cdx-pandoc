@@ -73,6 +73,9 @@ local function marks_equal(m1, m2)
         if m1.type == "glossary" then
             return m1.ref == m2.ref
         end
+        if m1.type == "math" then
+            return m1.format == m2.format
+        end
     end
     return false
 end
@@ -215,12 +218,20 @@ inline_handlers.Image = function(inline, marks, ctx)
 end
 
 inline_handlers.Math = function(inline, marks, ctx)
-    return {{
-        type = "math_sentinel",
-        mathtype = inline.mathtype,
-        text = inline.text,
-        value = ""
-    }}
+    if inline.mathtype == "DisplayMath" then
+        -- DisplayMath remains a sentinel → block-level math block
+        return {{
+            type = "math_sentinel",
+            mathtype = inline.mathtype,
+            text = inline.text,
+            value = ""
+        }}
+    else
+        -- InlineMath → text node with math mark (stays inside paragraph)
+        local new_marks = deep_copy(marks)
+        table.insert(new_marks, {type = "math", format = "latex"})
+        return {M.text_node(inline.text, new_marks)}
+    end
 end
 
 inline_handlers.RawInline = function(inline, marks, ctx)
