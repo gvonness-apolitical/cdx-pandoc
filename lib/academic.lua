@@ -7,6 +7,9 @@ local M = {}
 -- Module references (set by init)
 local blocks = nil
 
+-- Extension tracker function (set by codex.lua)
+local track_extension = function() end
+
 -- Helper: check if class list contains a class
 local function has_class_in(classes, class_name)
     if not classes then return false end
@@ -22,6 +25,10 @@ end
 
 function M.set_blocks(mod)
     blocks = mod
+end
+
+function M.set_extension_tracker(tracker)
+    track_extension = tracker or function() end
 end
 
 -- Theorem variant set
@@ -415,6 +422,7 @@ end
 function M.convert_equation_group(text)
     local env = M.detect_equation_group(text)
     if not env then return nil end
+    track_extension("codex.academic")
 
     -- Extract lines from the environment (split on \\)
     -- First, extract the content between \begin{env} and \end{env}
@@ -445,6 +453,7 @@ end
 -- @param academic_type The classified type string
 -- @return Codex block
 function M.convert_div(block, academic_type)
+    track_extension("codex.academic")
     if theorem_variants[academic_type] then
         return M.convert_theorem(block, academic_type)
     elseif academic_type == "proof" then

@@ -9,6 +9,9 @@ local inlines = nil
 -- Academic module (will be set by init, optional)
 local academic = nil
 
+-- Extension tracker function (set by codex.lua)
+local track_extension = function() end
+
 -- Bibliography context (set by codex.lua before conversion)
 local bib_context = {
     csl_entries = {},
@@ -23,6 +26,11 @@ end
 -- Set the academic module reference (optional)
 function M.set_academic(academic_module)
     academic = academic_module
+end
+
+-- Set the extension tracker function
+function M.set_extension_tracker(tracker)
+    track_extension = tracker or function() end
 end
 
 -- Set bibliography context (CSL entries and style)
@@ -313,6 +321,7 @@ function M.convert_sentinel(node)
     elseif node.type == "image_sentinel" then
         return {{type = "image", src = node.src, alt = node.alt, title = node.title}}
     elseif node.type == "measurement_sentinel" then
+        track_extension("codex.semantic")
         local measurement = {
             type = "semantic:measurement",
             value = node.value,
@@ -649,6 +658,7 @@ end
 -- Convert a glossary Div containing DefinitionList to semantic:term blocks
 -- Glossary terms get IDs and "see also" reference extraction
 function M.glossary_div(block)
+    track_extension("codex.semantic")
     local terms = {}
 
     for _, child in ipairs(block.content) do
@@ -923,6 +933,9 @@ end
 
 -- Convert accumulated footnotes to semantic:footnote blocks
 function M.convert_footnotes(footnotes)
+    if #footnotes > 0 then
+        track_extension("codex.semantic")
+    end
     local result = {}
     for _, fn in ipairs(footnotes) do
         local footnote_block = {
@@ -946,6 +959,7 @@ end
 -- Convert citeproc #refs Div to a bibliography block
 -- Uses CSL entries from bib_context when available, falls back to rendered text
 function M.bibliography_from_refs(block)
+    track_extension("codex.semantic")
     local entries = {}
     for _, child in ipairs(block.content) do
         if child.t == "Div" then
