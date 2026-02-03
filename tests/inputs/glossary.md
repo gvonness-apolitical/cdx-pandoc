@@ -9,6 +9,7 @@ This document tests glossary term definitions.
 
 ## Definitions
 
+::: {.glossary}
 CRDT
 :   Conflict-free Replicated Data Type - a data structure that can be replicated across multiple computers. See also: eventual consistency.
 
@@ -17,6 +18,7 @@ Eventual Consistency
 
 API
 :   Application Programming Interface - a set of protocols and tools for building software.
+:::
 
 ## Usage
 

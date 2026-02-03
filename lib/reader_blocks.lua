@@ -78,6 +78,16 @@ function M.convert_block(block)
     elseif btype == "semantic:footnote" then
         -- Footnotes are pre-processed and handled via inline references
         return nil
+    elseif btype == "figure" then
+        return M.figure_block(block)
+    elseif btype == "definitionList" then
+        return M.definition_list(block)
+    elseif btype == "definitionItem" or btype == "definitionTerm" or btype == "definitionDescription" then
+        -- Sub-block types handled by their parent converter
+        return nil
+    elseif btype == "figcaption" then
+        -- Sub-block type handled by figure converter
+        return nil
     elseif btype == "semantic:ref" then
         return M.semantic_ref(block)
     elseif btype == "semantic:term" then
@@ -258,6 +268,93 @@ function M.image_block(block)
 
     local img = pandoc.Image(alt_inlines, src, title)
     return pandoc.Figure(pandoc.Plain({img}))
+end
+
+-- Figure block → Pandoc Figure with caption reconstruction
+function M.figure_block(block)
+    local id = block.id or ""
+    local children = block.children or {}
+
+    -- Separate image/subfigure children from figcaption
+    local content_inlines = {}
+    local caption_inlines = {}
+
+    for _, child in ipairs(children) do
+        if child.type == "image" then
+            local src = child.src or ""
+            local alt = child.alt or ""
+            local title = child.title or ""
+            local alt_il = {}
+            if alt ~= "" then
+                alt_il = {pandoc.Str(alt)}
+            end
+            local img = pandoc.Image(alt_il, src, title)
+            table.insert(content_inlines, img)
+        elseif child.type == "figcaption" then
+            caption_inlines = reader_inlines.convert(child.children or {})
+        elseif child.type == "figure" then
+            -- Subfigure: extract image from its children
+            for _, sub_child in ipairs(child.children or {}) do
+                if sub_child.type == "image" then
+                    local src = sub_child.src or ""
+                    local alt = sub_child.alt or ""
+                    local title = sub_child.title or ""
+                    local alt_il = {}
+                    if alt ~= "" then
+                        alt_il = {pandoc.Str(alt)}
+                    end
+                    local img = pandoc.Image(alt_il, src, title)
+                    table.insert(content_inlines, img)
+                end
+            end
+        end
+    end
+
+    -- Build caption
+    local caption = nil
+    if #caption_inlines > 0 then
+        caption = pandoc.Blocks({pandoc.Plain(caption_inlines)})
+    end
+
+    -- Build figure content
+    local content_block = pandoc.Plain(content_inlines)
+
+    if caption then
+        return pandoc.Figure(content_block, caption, pandoc.Attr(id))
+    else
+        return pandoc.Figure(content_block, {}, pandoc.Attr(id))
+    end
+end
+
+-- Definition list block → Pandoc DefinitionList
+function M.definition_list(block)
+    local items = {}
+
+    for _, item in ipairs(block.children or {}) do
+        if item.type == "definitionItem" then
+            local term_inlines = {}
+            local definitions = {}
+
+            for _, child in ipairs(item.children or {}) do
+                if child.type == "definitionTerm" then
+                    term_inlines = reader_inlines.convert(child.children or {})
+                elseif child.type == "definitionDescription" then
+                    local def_blocks = M.convert(child.children or {})
+                    table.insert(definitions, def_blocks)
+                end
+            end
+
+            if #term_inlines > 0 then
+                table.insert(items, {term_inlines, definitions})
+            end
+        end
+    end
+
+    if #items > 0 then
+        return pandoc.DefinitionList(items)
+    end
+
+    return nil
 end
 
 -- Semantic reference block (cross-references)
