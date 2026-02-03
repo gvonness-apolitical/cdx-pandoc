@@ -76,6 +76,9 @@ local function marks_equal(m1, m2)
         if m1.type == "math" then
             return m1.format == m2.format
         end
+        if m1.type == "theorem-ref" or m1.type == "equation-ref" or m1.type == "algorithm-ref" then
+            return m1.target == m2.target
+        end
     end
     return false
 end
@@ -194,11 +197,53 @@ inline_handlers.Code = function(inline, marks, ctx)
     return {M.text_node(inline.text, new_marks)}
 end
 
+-- Academic cross-reference prefix patterns
+local theorem_ref_prefixes = {
+    ["thm-"] = true, ["lem-"] = true, ["prop-"] = true, ["cor-"] = true,
+    ["def-"] = true, ["conj-"] = true, ["rem-"] = true, ["ex-"] = true
+}
+
+local function detect_academic_ref(target)
+    if not target or not target:match("^#") then
+        return nil
+    end
+    local ref_id = target:sub(2) -- strip leading #
+    -- Theorem-like references
+    for prefix, _ in pairs(theorem_ref_prefixes) do
+        if ref_id:sub(1, #prefix) == prefix then
+            return {type = "theorem-ref", target = target}
+        end
+    end
+    -- Equation references
+    if ref_id:match("^eq%-") then
+        return {type = "equation-ref", target = target}
+    end
+    -- Algorithm references
+    if ref_id:match("^alg%-") then
+        return {type = "algorithm-ref", target = target}
+    end
+    return nil
+end
+
 inline_handlers.Link = function(inline, marks, ctx)
     local new_marks = deep_copy(marks)
+    local target = inline.target
+
+    -- Check for academic cross-reference patterns
+    local acad_mark = detect_academic_ref(target)
+    if acad_mark then
+        -- Extract format text from link content
+        local format_text = pandoc.utils.stringify(inline.content)
+        if format_text and format_text ~= "" then
+            acad_mark.format = format_text
+        end
+        table.insert(new_marks, acad_mark)
+        return M.flatten(inline.content, new_marks, ctx)
+    end
+
     local link_mark = {
         type = "link",
-        href = inline.target,
+        href = target,
     }
     if inline.title and inline.title ~= "" then
         link_mark.title = inline.title

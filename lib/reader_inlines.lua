@@ -57,6 +57,7 @@ function M.convert_node(node)
     local has_citation = nil
     local has_entity = nil
     local has_glossary = nil
+    local has_academic_ref = nil
     local other_marks = {}
 
     for _, mark in ipairs(marks) do
@@ -77,6 +78,8 @@ function M.convert_node(node)
             has_entity = mark
         elseif mark_type == "glossary" then
             has_glossary = mark
+        elseif mark_type == "theorem-ref" or mark_type == "equation-ref" or mark_type == "algorithm-ref" then
+            has_academic_ref = mark
         else
             table.insert(other_marks, mark_type)
         end
@@ -85,6 +88,12 @@ function M.convert_node(node)
     -- Handle math marks - convert to Pandoc InlineMath
     if has_math then
         return {pandoc.Math(pandoc.InlineMath, text)}
+    end
+
+    -- Handle academic cross-reference marks - convert to Pandoc Link
+    if has_academic_ref then
+        local target = has_academic_ref.target or ""
+        return {pandoc.Link({pandoc.Str(text)}, target, "")}
     end
 
     -- Handle footnote marks - convert to Pandoc Note
