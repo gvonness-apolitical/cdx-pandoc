@@ -25,9 +25,13 @@ end
 
 local reader_blocks = load_lib("reader_blocks")
 local reader_inlines = load_lib("reader_inlines")
+local reader_academic = load_lib("reader_academic")
 
 -- Initialize cross-module references
 reader_blocks.set_inlines(reader_inlines)
+reader_academic.set_reader_blocks(reader_blocks)
+reader_academic.set_reader_inlines(reader_inlines)
+reader_blocks.set_academic(reader_academic)
 
 -- Reconstruct Pandoc metadata from Dublin Core
 local function reconstruct_metadata(dc)

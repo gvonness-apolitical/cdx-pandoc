@@ -4,9 +4,14 @@
 local M = {}
 
 local reader_inlines = nil
+local reader_academic = nil
 
 function M.set_inlines(mod)
     reader_inlines = mod
+end
+
+function M.set_academic(mod)
+    reader_academic = mod
 end
 
 -- Pre-process blocks to extract footnotes before main conversion
@@ -100,6 +105,13 @@ function M.convert_block(block)
         return M.semantic_measurement(block)
     elseif btype == "semantic:glossary" or btype == "semantic:bibliography" then
         -- Placeholder blocks - skip (content rendered elsewhere)
+        return nil
+    elseif btype:match("^academic:") then
+        -- Academic extension blocks
+        if reader_academic then
+            return reader_academic.convert_block(block)
+        end
+        io.stderr:write("cdx-reader: skipping academic block (no reader_academic): " .. btype .. "\n")
         return nil
     elseif btype:match("^semantic:") or btype:match("^forms:") or btype:match("^collaboration:") then
         -- Other extension blocks — silently skip
