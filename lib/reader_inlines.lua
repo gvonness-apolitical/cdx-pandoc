@@ -50,6 +50,7 @@ function M.convert_node(node)
 
     -- Categorize marks by type
     local has_code = false
+    local has_math = nil
     local has_link = nil
     local has_anchor = nil
     local has_footnote = nil
@@ -62,6 +63,8 @@ function M.convert_node(node)
         local mark_type = M.get_mark_type(mark)
         if mark_type == "code" then
             has_code = true
+        elseif mark_type == "math" then
+            has_math = mark
         elseif mark_type == "link" then
             has_link = mark
         elseif mark_type == "anchor" then
@@ -77,6 +80,11 @@ function M.convert_node(node)
         else
             table.insert(other_marks, mark_type)
         end
+    end
+
+    -- Handle math marks - convert to Pandoc InlineMath
+    if has_math then
+        return {pandoc.Math(pandoc.InlineMath, text)}
     end
 
     -- Handle footnote marks - convert to Pandoc Note
