@@ -322,6 +322,15 @@ local function dc_type_to_schema_type(dc_type)
     return mapping[dc_type] or "CreativeWork"
 end
 
+-- Simple 1:1 Dublin Core → JSON-LD field mappings
+-- Each entry is {dc_field, jsonld_field}
+local SIMPLE_JSONLD_FIELDS = {
+    {"date", "datePublished"},
+    {"description", "description"},
+    {"language", "inLanguage"},
+    {"rights", "license"},
+}
+
 -- Generate JSON-LD metadata from Dublin Core
 -- @param dublin_core Dublin Core metadata table
 -- @return JSON-LD metadata table or nil
@@ -348,18 +357,15 @@ function M.generate_jsonld(dublin_core)
                 ["@type"] = "Person",
                 name = author.name
             }
-            -- Add ORCID as @id (schema.org standard for person identifiers)
             if author.orcid then
                 author_obj["@id"] = "https://orcid.org/" .. author.orcid
             end
-            -- Add affiliation if present
             if author.affiliation then
                 author_obj.affiliation = {
                     ["@type"] = "Organization",
                     name = author.affiliation
                 }
             end
-            -- Add email if present
             if author.email then
                 author_obj.email = author.email
             end
@@ -373,7 +379,6 @@ function M.generate_jsonld(dublin_core)
     elseif terms.creator then
         -- Fallback to simple creator names
         if type(terms.creator) == "table" then
-            -- Multiple authors
             local authors = {}
             for _, name in ipairs(terms.creator) do
                 table.insert(authors, {
@@ -383,7 +388,6 @@ function M.generate_jsonld(dublin_core)
             end
             jsonld.author = authors
         else
-            -- Single author
             jsonld.author = {
                 ["@type"] = "Person",
                 name = terms.creator
@@ -391,17 +395,15 @@ function M.generate_jsonld(dublin_core)
         end
     end
 
-    -- Add date published
-    if terms.date then
-        jsonld.datePublished = terms.date
+    -- Simple 1:1 field mappings
+    for _, field in ipairs(SIMPLE_JSONLD_FIELDS) do
+        local dc_name, jsonld_name = field[1], field[2]
+        if terms[dc_name] then
+            jsonld[jsonld_name] = terms[dc_name]
+        end
     end
 
-    -- Add description/abstract
-    if terms.description then
-        jsonld.description = terms.description
-    end
-
-    -- Add keywords
+    -- Keywords (requires join for array values)
     if terms.subject then
         if type(terms.subject) == "table" then
             jsonld.keywords = table.concat(terms.subject, ", ")
@@ -410,12 +412,7 @@ function M.generate_jsonld(dublin_core)
         end
     end
 
-    -- Add language
-    if terms.language then
-        jsonld.inLanguage = terms.language
-    end
-
-    -- Add publisher
+    -- Publisher (structured object)
     if terms.publisher then
         jsonld.publisher = {
             ["@type"] = "Organization",
@@ -423,14 +420,8 @@ function M.generate_jsonld(dublin_core)
         }
     end
 
-    -- Add license/rights
-    if terms.rights then
-        jsonld.license = terms.rights
-    end
-
-    -- Add identifier (DOI, ISBN, etc.)
+    -- Identifier (DOI, ISBN, or plain)
     if terms.identifier then
-        -- Check if it's a DOI
         if terms.identifier:match("^10%.") or terms.identifier:match("doi:") then
             local doi = terms.identifier:gsub("^doi:", ""):gsub("^https?://doi%.org/", "")
             jsonld.identifier = {
@@ -439,7 +430,6 @@ function M.generate_jsonld(dublin_core)
                 value = doi
             }
         elseif terms.identifier:match("^%d%d%d%-%d") or terms.identifier:match("^ISBN") then
-            -- ISBN
             local isbn = terms.identifier:gsub("^ISBN[:%s]*", "")
             jsonld.isbn = isbn
         else
