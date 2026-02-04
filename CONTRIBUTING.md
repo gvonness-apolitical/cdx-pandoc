@@ -27,11 +27,29 @@ This project follows the [Rust Code of Conduct](https://www.rust-lang.org/polici
 ### Testing
 
 ```bash
-# Run all tests
+# Run all tests (unit + integration)
 make test
+
+# Run unit tests only
+make test-unit
+
+# Run linter
+make lint
+
+# Compare outputs against golden baselines
+make test-golden
+
+# Test round-trip fidelity (JSON → Pandoc → markdown)
+make test-reader
 
 # Test with a specific input file
 pandoc input.md -t codex.lua -o output.cdx
+```
+
+Before submitting a PR, run the full suite:
+
+```bash
+make clean && make test && make test-reader && make test-golden
 ```
 
 ## Pull Request Guidelines
