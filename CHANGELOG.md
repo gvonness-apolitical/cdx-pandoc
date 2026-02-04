@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-02-04
+
 ### Added
 - **Academic extension** (`codex.academic`): theorems (8 variants), proofs, exercises with hints/solutions, exercise sets, algorithms, abstracts with keywords, equation groups
 - Academic cross-reference marks: `theorem-ref`, `equation-ref`, `algorithm-ref` for typed internal links
@@ -16,7 +18,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Auto-detection of aligned LaTeX environments (align, gather, split) → `academic:equation-group`
 - Dynamic extension tracking in manifest `extensions` field
 - `make validate-schema` target for spec schema validation
+- `make test-golden` target for golden output baseline comparison
+- `make lint` target for local luacheck execution
 - Academic kitchen sink integration test (`tests/inputs/academic-full.md`)
+- Golden output baselines for all 27 integration tests
+- Unit tests for bibliography, inlines, metadata, and shared utilities (270 total assertions)
 - New `lib/academic.lua` and `lib/reader_academic.lua` modules
 
 ### Changed
@@ -25,10 +31,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Definition lists outside `.glossary` Divs now produce core `definitionList` (not `semantic:term`)
 - Figures produce `figure` containers instead of flattened `image` blocks
 - Inline math produces `math` mark instead of `math_sentinel` paragraph splits
-- Updated documentation: README, GAP_ANALYSIS, CHANGELOG
+- Consolidated `has_class()` into shared `lib/utils.lua`; extracted `insert_converted()`, `generate_term_id()`, `extract_block_attr()` helpers
+- Defined extension ID constants (`EXT_SEMANTIC`, `EXT_ACADEMIC`) in `lib/utils.lua`
+- Simplified `bibliography.extract_entry()` and `metadata.generate_jsonld()` with table-driven field mappings
 
 ### Fixed
+- Fixed `bibliography.extract_date()` crash on raw number date-parts (accessed `.t` on number value)
 - Fixed README inaccuracies about reader behavior and citation output format
+- Removed dead code: unused `set_inlines()` stubs, orphaned `detect_latex_env()` function
 - Removed duplicated project structure from CONTRIBUTING.md
 
 ## [0.4.0] - 2025-01-28
