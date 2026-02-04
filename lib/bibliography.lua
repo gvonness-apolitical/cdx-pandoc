@@ -137,6 +137,22 @@ function M.extract_date(date_val)
     return result.year and result or nil
 end
 
+-- Simple string fields to copy from CSL reference to Codex entry
+-- Each entry is {csl_field, codex_field} (codex_field defaults to csl_field)
+local SIMPLE_FIELDS = {
+    {"title"},
+    {"container-title"},
+    {"volume"},
+    {"issue"},
+    {"page"},
+    {"DOI"},
+    {"URL"},
+    {"ISBN"},
+    {"publisher"},
+    {"publisher-place"},
+    {"abstract"},
+}
+
 -- Extract a single CSL reference entry to Codex format
 -- @param ref CSL reference (MetaMap or table)
 -- @return Codex bibliography entry
@@ -166,88 +182,23 @@ function M.extract_entry(ref)
     local ref_type = get_field("type")
     entry.type = M.TYPE_MAP[ref_type] or ref_type or "other"
 
-    -- Title
-    local title = get_field("title")
-    if title then
-        entry.title = title
-    end
-
-    -- Authors
+    -- Authors and editors (structured extraction)
     local authors = M.extract_authors(ref.author)
-    if authors then
-        entry.author = authors
-    end
+    if authors then entry.author = authors end
 
-    -- Editor
     local editors = M.extract_authors(ref.editor)
-    if editors then
-        entry.editor = editors
-    end
+    if editors then entry.editor = editors end
 
-    -- Issued date
+    -- Issued date (structured extraction)
     local issued = M.extract_date(ref.issued)
-    if issued then
-        entry.issued = issued
-    end
+    if issued then entry.issued = issued end
 
-    -- Container title (journal, book title, etc.)
-    local container = get_field("container-title")
-    if container then
-        entry["container-title"] = container
-    end
-
-    -- Volume
-    local volume = get_field("volume")
-    if volume then
-        entry.volume = volume
-    end
-
-    -- Issue
-    local issue = get_field("issue")
-    if issue then
-        entry.issue = issue
-    end
-
-    -- Page
-    local page = get_field("page")
-    if page then
-        entry.page = page
-    end
-
-    -- DOI
-    local doi = get_field("DOI")
-    if doi then
-        entry.DOI = doi
-    end
-
-    -- URL
-    local url = get_field("URL")
-    if url then
-        entry.URL = url
-    end
-
-    -- ISBN
-    local isbn = get_field("ISBN")
-    if isbn then
-        entry.ISBN = isbn
-    end
-
-    -- Publisher
-    local publisher = get_field("publisher")
-    if publisher then
-        entry.publisher = publisher
-    end
-
-    -- Publisher place
-    local place = get_field("publisher-place")
-    if place then
-        entry["publisher-place"] = place
-    end
-
-    -- Abstract
-    local abstract = get_field("abstract")
-    if abstract then
-        entry.abstract = abstract
+    -- Simple string fields
+    for _, field in ipairs(SIMPLE_FIELDS) do
+        local csl_name = field[1]
+        local codex_name = field[2] or csl_name
+        local val = get_field(csl_name)
+        if val then entry[codex_name] = val end
     end
 
     return entry
