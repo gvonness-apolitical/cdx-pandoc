@@ -262,7 +262,7 @@ function M.convert_sentinel(node)
     if node.type == "math_sentinel" then
         -- Check for aligned LaTeX environments → equation group
         if academic and node.mathtype == "DisplayMath" then
-            local eq_group = academic.convert_equation_group(node.text)
+            local eq_group = academic.equation_group(node.text)
             if eq_group then
                 return {eq_group}
             end
@@ -671,6 +671,28 @@ function M.glossary_div(block)
     }
 end
 
+-- Extract a figcaption block from a Pandoc Figure caption, or nil
+local function extract_figcaption(caption)
+    if not caption or not caption.long then return nil end
+
+    local cap_inlines = {}
+    for _, cap_block in ipairs(caption.long) do
+        local cap_content = cap_block.content or cap_block.c
+        if cap_content then
+            for _, inline in ipairs(cap_content) do
+                table.insert(cap_inlines, inline)
+            end
+        end
+    end
+
+    if #cap_inlines == 0 then return nil end
+
+    return {
+        type = "figcaption",
+        children = inlines.convert(cap_inlines)
+    }
+end
+
 -- Convert Figure to figure container with image child and optional figcaption
 function M.figure(block)
     local attr = block.attr or {}
@@ -685,71 +707,38 @@ function M.figure(block)
         result.id = identifier
     end
 
-    -- Check for subfigure Divs (structured figure with subfigures)
+    -- Single pass: collect subfigures from content, tracking whether any were found
     local has_subfigures = false
-    if block.content then
-        for _, child in ipairs(block.content) do
-            local ctag = child.t or child.tag
-            if ctag == "Div" then
-                local cclasses = (child.attr and child.attr.classes) or (child.attr and child.attr[2]) or {}
-                if has_class(cclasses, "subfigure") then
-                    has_subfigures = true
-                    break
-                end
-            end
-        end
-    end
-
-    if has_subfigures then
-        -- Process subfigures
-        for _, child in ipairs(block.content) do
-            local ctag = child.t or child.tag
-            if ctag == "Div" then
-                local cclasses = (child.attr and child.attr.classes) or (child.attr and child.attr[2]) or {}
+    for _, child in ipairs(block.content or {}) do
+        local ctag = child.t or child.tag
+        if ctag == "Div" then
+            local cclasses = (child.attr and child.attr.classes) or (child.attr and child.attr[2]) or {}
+            if has_class(cclasses, "subfigure") then
                 local cattrs = (child.attr and child.attr.attributes) or (child.attr and child.attr[3]) or {}
-                if has_class(cclasses, "subfigure") then
-                    local subfig = M.extract_subfigure(child, cattrs)
-                    if subfig then
-                        table.insert(result.children, subfig)
-                    end
+                local subfig = M.extract_subfigure(child, cattrs)
+                if subfig then
+                    table.insert(result.children, subfig)
                 end
-            end
-        end
-    else
-        -- Standard figure: extract image from content
-        if block.content and #block.content > 0 then
-            local first = block.content[1]
-            if first.t == "Plain" or first.t == "Para" then
-                local content = first.content or first.c
-                if content and #content > 0 then
-                    local img = content[1]
-                    if img.t == "Image" then
-                        local image_block = M.image(img)
-                        table.insert(result.children, image_block)
-                    end
-                end
+                has_subfigures = true
             end
         end
     end
 
-    -- Extract caption from Figure container
-    if block.caption and block.caption.long then
-        local cap_inlines = {}
-        for _, cap_block in ipairs(block.caption.long) do
-            local cap_content = cap_block.content or cap_block.c
-            if cap_content then
-                for _, inline in ipairs(cap_content) do
-                    table.insert(cap_inlines, inline)
-                end
+    -- Standard figure: extract image from first content block
+    if not has_subfigures and block.content and #block.content > 0 then
+        local first = block.content[1]
+        if first.t == "Plain" or first.t == "Para" then
+            local content = first.content or first.c
+            if content and #content > 0 and content[1].t == "Image" then
+                table.insert(result.children, M.image(content[1]))
             end
         end
-        if #cap_inlines > 0 then
-            local figcaption = {
-                type = "figcaption",
-                children = inlines.convert(cap_inlines)
-            }
-            table.insert(result.children, figcaption)
-        end
+    end
+
+    -- Extract caption
+    local figcaption = extract_figcaption(block.caption)
+    if figcaption then
+        table.insert(result.children, figcaption)
     end
 
     -- If we ended up with no children, fall back to converting content as blocks

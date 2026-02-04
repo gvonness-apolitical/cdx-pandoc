@@ -41,7 +41,10 @@ local academic_classes = {
 -- @param classes Array of CSS classes
 -- @return academic block type string or nil
 function M.classify_div(classes)
-    if not classes then return nil end
+    if not classes or #classes == 0 then
+        io.stderr:write("Warning: academic.classify_div() called with nil/empty classes\n")
+        return nil
+    end
     for _, cls in ipairs(classes) do
         if academic_classes[cls] then
             return cls
@@ -52,7 +55,7 @@ end
 
 -- Convert a theorem Div to academic:theorem block
 -- Input: ::: {.theorem #thm-1 title="Maximum Principle"} ... :::
-function M.convert_theorem(block, variant)
+function M.theorem(block, variant)
     local attr = extract_block_attr(block)
     local id = attr.id
     local attributes = attr.attributes
@@ -84,7 +87,7 @@ end
 
 -- Convert a proof Div to academic:proof block
 -- Input: ::: {.proof of="thm-max" method="contradiction"} ... :::
-function M.convert_proof(block)
+function M.proof(block)
     local attr = extract_block_attr(block)
     local attributes = attr.attributes
 
@@ -107,7 +110,7 @@ end
 -- Convert an exercise Div to academic:exercise block
 -- Input: ::: {.exercise #ex-1 difficulty="medium"} ... :::
 -- Nested Divs: .hint, .solution
-function M.convert_exercise(block)
+function M.exercise(block)
     local attr = extract_block_attr(block)
     local id = attr.id
     local attributes = attr.attributes
@@ -166,7 +169,7 @@ end
 
 -- Convert an exercise-set Div to academic:exercise-set block
 -- Input: ::: {.exercise-set #exercises-ch2 title="Chapter 2 Exercises"} ... :::
-function M.convert_exercise_set(block)
+function M.exercise_set(block)
     local attr = extract_block_attr(block)
     local id = attr.id
     local attributes = attr.attributes
@@ -179,7 +182,7 @@ function M.convert_exercise_set(block)
         if tag == "Div" then
             local child_attr = extract_block_attr(child)
             if has_class(child_attr.classes, "exercise") then
-                table.insert(exercises, M.convert_exercise(child))
+                table.insert(exercises, M.exercise(child))
             else
                 -- Non-exercise Div → preamble content
                 insert_converted(preamble, blocks.convert_block(child))
@@ -213,7 +216,7 @@ end
 -- Convert an algorithm Div to academic:algorithm block
 -- Input: ::: {.algorithm #alg-sort title="QuickSort"} ... :::
 -- The Div may contain a CodeBlock with class "algorithm" for pseudocode
-function M.convert_algorithm(block)
+function M.algorithm(block)
     local attr = extract_block_attr(block)
     local id = attr.id
     local attributes = attr.attributes
@@ -284,7 +287,7 @@ end
 
 -- Convert an abstract Div to academic:abstract block
 -- Input: ::: {.abstract} ... ::: with optional ::: {.keywords} ... ::: inside
-function M.convert_abstract(block)
+function M.abstract(block)
     local body_blocks = {}
     local keywords = nil
 
@@ -347,7 +350,7 @@ end
 -- Convert a DisplayMath with aligned environment to academic:equation-group
 -- @param text LaTeX source
 -- @return equation-group block or nil
-function M.convert_equation_group(text)
+function M.equation_group(text)
     local env = M.detect_equation_group(text)
     if not env then return nil end
     track_extension(utils.EXT_ACADEMIC)
@@ -383,17 +386,17 @@ end
 function M.convert_div(block, academic_type)
     track_extension(utils.EXT_ACADEMIC)
     if theorem_variants[academic_type] then
-        return M.convert_theorem(block, academic_type)
+        return M.theorem(block, academic_type)
     elseif academic_type == "proof" then
-        return M.convert_proof(block)
+        return M.proof(block)
     elseif academic_type == "exercise" then
-        return M.convert_exercise(block)
+        return M.exercise(block)
     elseif academic_type == "exercise-set" then
-        return M.convert_exercise_set(block)
+        return M.exercise_set(block)
     elseif academic_type == "algorithm" then
-        return M.convert_algorithm(block)
+        return M.algorithm(block)
     elseif academic_type == "abstract" then
-        return M.convert_abstract(block)
+        return M.abstract(block)
     elseif academic_type == "equation-group" then
         -- Explicit equation-group Div wrapper
         local body = blocks.convert(block.content)
@@ -402,6 +405,7 @@ function M.convert_div(block, academic_type)
             children = body
         }
     end
+    io.stderr:write("Warning: Unknown academic type: " .. tostring(academic_type) .. "\n")
     return nil
 end
 
