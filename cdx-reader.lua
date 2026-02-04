@@ -6,12 +6,15 @@
 --   pandoc -f cdx-reader.lua output.json -o document.tex
 --   pandoc -f cdx-reader.lua output.json -o document.html
 
--- Dynamically find and load library modules
+-- Get the directory containing this script
+local script_dir = PANDOC_SCRIPT_FILE and (PANDOC_SCRIPT_FILE:match("(.*/)" ) or "") or ""
+
+-- Load library modules
 local function load_lib(name)
     local paths = {
+        script_dir .. "lib/" .. name .. ".lua",
         "lib/" .. name .. ".lua",
         "cdx-pandoc/lib/" .. name .. ".lua",
-        PANDOC_SCRIPT_FILE and (PANDOC_SCRIPT_FILE:match("(.*/)" ) or "") .. "lib/" .. name .. ".lua",
     }
     for _, path in ipairs(paths) do
         local f = io.open(path, "r")

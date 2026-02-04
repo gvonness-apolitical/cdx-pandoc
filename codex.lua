@@ -8,34 +8,22 @@
 -- that can be unpacked into a Codex directory structure and packaged.
 
 -- Get the directory containing this script
-local script_path = PANDOC_SCRIPT_FILE or ""
-local script_dir = script_path:match("(.*/)")
-if not script_dir then
-    -- Try current directory
-    script_dir = "./"
-end
+local script_dir = PANDOC_SCRIPT_FILE and (PANDOC_SCRIPT_FILE:match("(.*/)" ) or "") or ""
 
 -- Load library modules
 local function load_lib(name)
     local paths = {
         script_dir .. "lib/" .. name .. ".lua",
         "lib/" .. name .. ".lua",
-        name .. ".lua",
+        "cdx-pandoc/lib/" .. name .. ".lua",
     }
-
     for _, path in ipairs(paths) do
         local f = io.open(path, "r")
         if f then
             f:close()
-            local chunk, err = loadfile(path)
-            if chunk then
-                return chunk()
-            else
-                io.stderr:write("Error loading " .. path .. ": " .. (err or "unknown") .. "\n")
-            end
+            return dofile(path)
         end
     end
-
     error("Cannot find library: " .. name)
 end
 
