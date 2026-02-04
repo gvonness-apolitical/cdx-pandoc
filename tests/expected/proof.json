@@ -1,0 +1,144 @@
+{
+  "content": {
+    "blocks": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Proofs"
+          }
+        ],
+        "id": "proofs",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "The sum of two even numbers is even."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "id": "thm-even",
+        "type": "academic:theorem",
+        "variant": "theorem"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "Let "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "a = 2m"
+              },
+              {
+                "type": "text",
+                "value": " and "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "b = 2n"
+              },
+              {
+                "type": "text",
+                "value": ". Then "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "a + b = 2(m+n)"
+              },
+              {
+                "type": "text",
+                "value": ", which is even."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "method": "direct",
+        "of": "thm-even",
+        "type": "academic:proof"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "This is a proof without attribution."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "type": "academic:proof"
+      }
+    ],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": "Unknown",
+      "format": "application/vnd.codex+json",
+      "title": "Proof Test",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": {
+      "@type": "Person",
+      "name": "Unknown"
+    },
+    "name": "Proof Test"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "extensions": [
+      {
+        "id": "codex.academic",
+        "required": false,
+        "version": "0.1"
+      }
+    ],
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "content": {
+    "blocks": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "This paper presents a novel approach to document formatting. It demonstrates semantic block types for academic content."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "keywords": [
+          "machine learning",
+          "document formats",
+          "semantic web"
+        ],
+        "type": "academic:abstract"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Introduction"
+          }
+        ],
+        "id": "introduction",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "The rest of the document follows here."
+          }
+        ],
+        "type": "paragraph"
+      }
+    ],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": "Unknown",
+      "format": "application/vnd.codex+json",
+      "title": "Abstract Test",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": {
+      "@type": "Person",
+      "name": "Unknown"
+    },
+    "name": "Abstract Test"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "extensions": [
+      {
+        "id": "codex.academic",
+        "required": false,
+        "version": "0.1"
+      }
+    ],
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}

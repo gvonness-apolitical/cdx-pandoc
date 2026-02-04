@@ -1,0 +1,137 @@
+{
+  "content": {
+    "blocks": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Introduction"
+          }
+        ],
+        "id": "introduction",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "This is a statement with a footnote"
+          },
+          {
+            "marks": [
+              {
+                "id": "fn-1",
+                "number": 1,
+                "type": "footnote"
+              }
+            ],
+            "type": "text",
+            "value": "1"
+          },
+          {
+            "type": "text",
+            "value": "."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Another reference"
+          },
+          {
+            "marks": [
+              {
+                "id": "fn-2",
+                "number": 2,
+                "type": "footnote"
+              }
+            ],
+            "type": "text",
+            "value": "2"
+          },
+          {
+            "type": "text",
+            "value": "."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "content": "This is the first footnote content.",
+        "id": "fn-1",
+        "number": 1,
+        "type": "semantic:footnote"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "This is the second footnote with "
+              },
+              {
+                "marks": [
+                  "bold"
+                ],
+                "type": "text",
+                "value": "formatting"
+              },
+              {
+                "type": "text",
+                "value": "."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "id": "fn-2",
+        "number": 2,
+        "type": "semantic:footnote"
+      }
+    ],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": "Unknown",
+      "format": "application/vnd.codex+json",
+      "title": "Footnote Test",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": {
+      "@type": "Person",
+      "name": "Unknown"
+    },
+    "name": "Footnote Test"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "extensions": [
+      {
+        "id": "codex.semantic",
+        "required": false,
+        "version": "0.1"
+      }
+    ],
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}

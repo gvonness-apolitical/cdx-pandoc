@@ -1,0 +1,152 @@
+{
+  "content": {
+    "blocks": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Admonition Examples"
+          }
+        ],
+        "id": "admonition-examples",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "This is a simple note."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "type": "admonition",
+        "variant": "note"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "This operation is "
+              },
+              {
+                "marks": [
+                  "bold"
+                ],
+                "type": "text",
+                "value": "destructive"
+              },
+              {
+                "type": "text",
+                "value": " and cannot be undone."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "title": "Be Careful",
+        "type": "admonition",
+        "variant": "warning"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "Use keyboard shortcuts to speed up your workflow."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "title": "Pro Tip",
+        "type": "admonition",
+        "variant": "tip"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "Do not run this in production."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "type": "admonition",
+        "variant": "danger"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "Read the documentation before proceeding."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "type": "admonition",
+        "variant": "important"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "Check your input values carefully."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "type": "admonition",
+        "variant": "caution"
+      }
+    ],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": "Unknown",
+      "format": "application/vnd.codex+json",
+      "title": "Admonitions Test",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": {
+      "@type": "Person",
+      "name": "Unknown"
+    },
+    "name": "Admonitions Test"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}

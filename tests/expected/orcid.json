@@ -1,0 +1,138 @@
+{
+  "content": {
+    "blocks": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Introduction"
+          }
+        ],
+        "id": "introduction",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "This document demonstrates support for ORCID (Open Researcher and Contributor ID) identifiers in author metadata."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Authors"
+          }
+        ],
+        "id": "authors",
+        "level": 2,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "The authors of this document have ORCID identifiers that are preserved in the output metadata."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Conclusion"
+          }
+        ],
+        "id": "conclusion",
+        "level": 2,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "ORCID support enables better author disambiguation and linking to researcher profiles."
+          }
+        ],
+        "type": "paragraph"
+      }
+    ],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": [
+        "Jane Smith",
+        "John Doe",
+        "Alice Johnson"
+      ],
+      "creators": [
+        {
+          "affiliation": "University of Example",
+          "email": "jane.smith@example.edu",
+          "name": "Jane Smith",
+          "orcid": "0000-0002-1825-0097"
+        },
+        {
+          "name": "John Doe",
+          "orcid": "0000-0001-2345-6789"
+        },
+        {
+          "name": "Alice Johnson"
+        }
+      ],
+      "date": "2024-06-15",
+      "description": "This document tests ORCID identifier extraction from author metadata.",
+      "format": "application/vnd.codex+json",
+      "title": "ORCID Metadata Test",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": [
+      {
+        "@id": "https://orcid.org/0000-0002-1825-0097",
+        "@type": "Person",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "University of Example"
+        },
+        "email": "jane.smith@example.edu",
+        "name": "Jane Smith"
+      },
+      {
+        "@id": "https://orcid.org/0000-0001-2345-6789",
+        "@type": "Person",
+        "name": "John Doe"
+      },
+      {
+        "@type": "Person",
+        "name": "Alice Johnson"
+      }
+    ],
+    "datePublished": "2024-06-15",
+    "description": "This document tests ORCID identifier extraction from author metadata.",
+    "name": "ORCID Metadata Test"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}

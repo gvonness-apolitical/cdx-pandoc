@@ -1,0 +1,37 @@
+{
+  "content": {
+    "blocks": [],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": "Unknown",
+      "format": "application/vnd.codex+json",
+      "title": "Empty Document",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": {
+      "@type": "Person",
+      "name": "Unknown"
+    },
+    "name": "Empty Document"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}

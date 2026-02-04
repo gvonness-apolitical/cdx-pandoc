@@ -1,0 +1,170 @@
+{
+  "content": {
+    "blocks": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Definitions"
+          }
+        ],
+        "id": "definitions",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Term One"
+                  }
+                ],
+                "type": "definitionTerm"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": "The first definition with "
+                      },
+                      {
+                        "marks": [
+                          "bold"
+                        ],
+                        "type": "text",
+                        "value": "bold"
+                      },
+                      {
+                        "type": "text",
+                        "value": " text."
+                      }
+                    ],
+                    "type": "paragraph"
+                  }
+                ],
+                "type": "definitionDescription"
+              }
+            ],
+            "type": "definitionItem"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Term Two"
+                  }
+                ],
+                "type": "definitionTerm"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": "The second definition."
+                      }
+                    ],
+                    "type": "paragraph"
+                  }
+                ],
+                "type": "definitionDescription"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": "An alternate definition for term two."
+                      }
+                    ],
+                    "type": "paragraph"
+                  }
+                ],
+                "type": "definitionDescription"
+              }
+            ],
+            "type": "definitionItem"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "marks": [
+                      "italic"
+                    ],
+                    "type": "text",
+                    "value": "Formatted"
+                  },
+                  {
+                    "type": "text",
+                    "value": " Term"
+                  }
+                ],
+                "type": "definitionTerm"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": "A term with inline formatting in the term itself."
+                      }
+                    ],
+                    "type": "paragraph"
+                  }
+                ],
+                "type": "definitionDescription"
+              }
+            ],
+            "type": "definitionItem"
+          }
+        ],
+        "type": "definitionList"
+      }
+    ],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": "Unknown",
+      "format": "application/vnd.codex+json",
+      "title": "Definition List Test",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": {
+      "@type": "Person",
+      "name": "Unknown"
+    },
+    "name": "Definition List Test"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}

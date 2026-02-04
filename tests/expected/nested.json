@@ -1,0 +1,316 @@
+{
+  "content": {
+    "blocks": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Nested Formatting"
+          }
+        ],
+        "id": "nested-formatting",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "This tests "
+          },
+          {
+            "marks": [
+              "bold",
+              "italic"
+            ],
+            "type": "text",
+            "value": "bold and italic"
+          },
+          {
+            "type": "text",
+            "value": " together."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Here’s a link with "
+          },
+          {
+            "marks": [
+              "bold",
+              {
+                "href": "https://example.com",
+                "type": "link"
+              }
+            ],
+            "type": "text",
+            "value": "bold text inside"
+          },
+          {
+            "type": "text",
+            "value": " and more."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Nested Lists"
+          }
+        ],
+        "id": "nested-lists",
+        "level": 2,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Outer item 1"
+                  }
+                ],
+                "type": "paragraph"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "type": "text",
+                            "value": "Inner item 1a"
+                          }
+                        ],
+                        "type": "paragraph"
+                      }
+                    ],
+                    "type": "listItem"
+                  },
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "type": "text",
+                            "value": "Inner item 1b"
+                          }
+                        ],
+                        "type": "paragraph"
+                      }
+                    ],
+                    "type": "listItem"
+                  }
+                ],
+                "ordered": false,
+                "type": "list"
+              }
+            ],
+            "type": "listItem"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Outer item 2"
+                  }
+                ],
+                "type": "paragraph"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "type": "text",
+                            "value": "Inner item 2a"
+                          }
+                        ],
+                        "type": "paragraph"
+                      },
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "children": [
+                                  {
+                                    "type": "text",
+                                    "value": "Deep item 2a-i"
+                                  }
+                                ],
+                                "type": "paragraph"
+                              }
+                            ],
+                            "type": "listItem"
+                          },
+                          {
+                            "children": [
+                              {
+                                "children": [
+                                  {
+                                    "type": "text",
+                                    "value": "Deep item 2a-ii"
+                                  }
+                                ],
+                                "type": "paragraph"
+                              }
+                            ],
+                            "type": "listItem"
+                          }
+                        ],
+                        "ordered": false,
+                        "type": "list"
+                      }
+                    ],
+                    "type": "listItem"
+                  },
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "type": "text",
+                            "value": "Inner item 2b"
+                          }
+                        ],
+                        "type": "paragraph"
+                      }
+                    ],
+                    "type": "listItem"
+                  }
+                ],
+                "ordered": false,
+                "type": "list"
+              }
+            ],
+            "type": "listItem"
+          }
+        ],
+        "ordered": false,
+        "type": "list"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Mixed Content"
+          }
+        ],
+        "id": "mixed-content",
+        "level": 2,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "A blockquote containing:"
+              }
+            ],
+            "type": "paragraph"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": "A list item"
+                      }
+                    ],
+                    "type": "paragraph"
+                  }
+                ],
+                "type": "listItem"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": "Another item with "
+                      },
+                      {
+                        "marks": [
+                          "bold"
+                        ],
+                        "type": "text",
+                        "value": "bold"
+                      }
+                    ],
+                    "type": "paragraph"
+                  }
+                ],
+                "type": "listItem"
+              }
+            ],
+            "ordered": false,
+            "type": "list"
+          },
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "And more text."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "type": "blockquote"
+      }
+    ],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": "Unknown",
+      "format": "application/vnd.codex+json",
+      "title": "Nested Formatting Test",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": {
+      "@type": "Person",
+      "name": "Unknown"
+    },
+    "name": "Nested Formatting Test"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}

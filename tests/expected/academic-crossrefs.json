@@ -1,0 +1,260 @@
+{
+  "content": {
+    "blocks": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Cross-References"
+          }
+        ],
+        "id": "cross-references",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "By "
+          },
+          {
+            "marks": [
+              {
+                "format": "Theorem 1",
+                "target": "#thm-max",
+                "type": "theorem-ref"
+              }
+            ],
+            "type": "text",
+            "value": "Theorem 1"
+          },
+          {
+            "type": "text",
+            "value": ", the maximum is on the boundary."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "See "
+          },
+          {
+            "marks": [
+              {
+                "format": "Lemma 2",
+                "target": "#lem-bound",
+                "type": "theorem-ref"
+              }
+            ],
+            "type": "text",
+            "value": "Lemma 2"
+          },
+          {
+            "type": "text",
+            "value": " and "
+          },
+          {
+            "marks": [
+              {
+                "format": "Definition 3",
+                "target": "#def-cont",
+                "type": "theorem-ref"
+              }
+            ],
+            "type": "text",
+            "value": "Definition 3"
+          },
+          {
+            "type": "text",
+            "value": " for details."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "The result follows from "
+          },
+          {
+            "marks": [
+              {
+                "format": "Proposition 4",
+                "target": "#prop-unique",
+                "type": "theorem-ref"
+              }
+            ],
+            "type": "text",
+            "value": "Proposition 4"
+          },
+          {
+            "type": "text",
+            "value": "."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "From "
+          },
+          {
+            "marks": [
+              {
+                "format": "Equation (1)",
+                "target": "#eq-euler",
+                "type": "equation-ref"
+              }
+            ],
+            "type": "text",
+            "value": "Equation (1)"
+          },
+          {
+            "type": "text",
+            "value": ", we derive the identity."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "As shown in "
+          },
+          {
+            "marks": [
+              {
+                "format": "Algorithm 1",
+                "target": "#alg-sort",
+                "type": "algorithm-ref"
+              }
+            ],
+            "type": "text",
+            "value": "Algorithm 1"
+          },
+          {
+            "type": "text",
+            "value": ", the complexity is "
+          },
+          {
+            "marks": [
+              {
+                "format": "latex",
+                "type": "math"
+              }
+            ],
+            "type": "text",
+            "value": "O(n \\log n)"
+          },
+          {
+            "type": "text",
+            "value": "."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "This is a "
+          },
+          {
+            "marks": [
+              {
+                "href": "https://example.com",
+                "type": "link"
+              }
+            ],
+            "type": "text",
+            "value": "regular link"
+          },
+          {
+            "type": "text",
+            "value": " that should not be converted."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Also see "
+          },
+          {
+            "marks": [
+              {
+                "format": "Corollary 5",
+                "target": "#cor-max",
+                "type": "theorem-ref"
+              }
+            ],
+            "type": "text",
+            "value": "Corollary 5"
+          },
+          {
+            "type": "text",
+            "value": " and "
+          },
+          {
+            "marks": [
+              {
+                "format": "Conjecture 6",
+                "target": "#conj-prime",
+                "type": "theorem-ref"
+              }
+            ],
+            "type": "text",
+            "value": "Conjecture 6"
+          },
+          {
+            "type": "text",
+            "value": "."
+          }
+        ],
+        "type": "paragraph"
+      }
+    ],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": "Unknown",
+      "format": "application/vnd.codex+json",
+      "title": "Academic Cross-References Test",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": {
+      "@type": "Person",
+      "name": "Unknown"
+    },
+    "name": "Academic Cross-References Test"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}

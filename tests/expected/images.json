@@ -1,0 +1,94 @@
+{
+  "content": {
+    "blocks": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Images"
+          }
+        ],
+        "id": "images",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "alt": "Alt text",
+            "height": 600,
+            "src": "photo.png",
+            "title": "Caption text",
+            "type": "image",
+            "width": 800
+          },
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "Alt text"
+              }
+            ],
+            "type": "figcaption"
+          }
+        ],
+        "type": "figure"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "An inline image: "
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "alt": "icon",
+        "src": "icon.svg",
+        "type": "image"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "."
+          }
+        ],
+        "type": "paragraph"
+      }
+    ],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": "Unknown",
+      "format": "application/vnd.codex+json",
+      "title": "Image Test",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": {
+      "@type": "Person",
+      "name": "Unknown"
+    },
+    "name": "Image Test"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "content": {
+    "blocks": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Introduction"
+          }
+        ],
+        "id": "introduction",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Recent advances in document processing have transformed how we create and share academic content "
+          },
+          {
+            "marks": [
+              {
+                "refs": [
+                  "smith2024"
+                ],
+                "type": "citation"
+              }
+            ],
+            "type": "text",
+            "value": "[@smith2024]"
+          },
+          {
+            "type": "text",
+            "value": "."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "As documented in "
+          },
+          {
+            "marks": [
+              {
+                "refs": [
+                  "jones2023"
+                ],
+                "type": "citation"
+              }
+            ],
+            "type": "text",
+            "value": "@jones2023"
+          },
+          {
+            "type": "text",
+            "value": ", modern publishing requires careful attention to metadata standards."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "For institutional perspectives, see "
+          },
+          {
+            "marks": [
+              {
+                "refs": [
+                  "teamproject2022"
+                ],
+                "type": "citation"
+              }
+            ],
+            "type": "text",
+            "value": "@teamproject2022"
+          },
+          {
+            "type": "text",
+            "value": " for comprehensive analysis."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "References"
+          }
+        ],
+        "id": "references",
+        "level": 1,
+        "type": "heading"
+      }
+    ],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": "Unknown",
+      "format": "application/vnd.codex+json",
+      "title": "Bibliography CSL Test",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": {
+      "@type": "Person",
+      "name": "Unknown"
+    },
+    "name": "Bibliography CSL Test"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "extensions": [
+      {
+        "id": "codex.semantic",
+        "required": false,
+        "version": "0.1"
+      }
+    ],
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}

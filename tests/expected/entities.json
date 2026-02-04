@@ -1,0 +1,197 @@
+{
+  "content": {
+    "blocks": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Famous Scientists"
+          }
+        ],
+        "id": "famous-scientists",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "This document tests entity linking with knowledge base references."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "marks": [
+              {
+                "entityType": "Person",
+                "type": "entity",
+                "uri": "https://www.wikidata.org/wiki/Q937"
+              }
+            ],
+            "type": "text",
+            "value": "Albert Einstein"
+          },
+          {
+            "type": "text",
+            "value": " developed the theory of relativity."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "marks": [
+              {
+                "entityType": "Person",
+                "source": "Wikidata",
+                "type": "entity",
+                "uri": "https://www.wikidata.org/wiki/Q7186"
+              }
+            ],
+            "type": "text",
+            "value": "Marie Curie"
+          },
+          {
+            "type": "text",
+            "value": " pioneered research on radioactivity."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "The "
+          },
+          {
+            "marks": [
+              {
+                "entityType": "Place",
+                "type": "entity",
+                "uri": "https://www.wikidata.org/wiki/Q83492"
+              }
+            ],
+            "type": "text",
+            "value": "Large Hadron Collider"
+          },
+          {
+            "type": "text",
+            "value": " is the world’s largest particle accelerator."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Measurements"
+          }
+        ],
+        "id": "measurements",
+        "level": 2,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "The experiment measured "
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "schema": {
+          "@type": "QuantitativeValue",
+          "unitText": "kg",
+          "value": 42.5
+        },
+        "type": "semantic:measurement",
+        "unit": "kg",
+        "value": 42.5
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": " of material."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Temperature reached "
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "schema": {
+          "@type": "QuantitativeValue",
+          "unitText": "°C",
+          "value": 100
+        },
+        "type": "semantic:measurement",
+        "unit": "°C",
+        "value": 100
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "."
+          }
+        ],
+        "type": "paragraph"
+      }
+    ],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": "Unknown",
+      "format": "application/vnd.codex+json",
+      "title": "Entity Linking Test",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": {
+      "@type": "Person",
+      "name": "Unknown"
+    },
+    "name": "Entity Linking Test"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "extensions": [
+      {
+        "id": "codex.semantic",
+        "required": false,
+        "version": "0.1"
+      }
+    ],
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}

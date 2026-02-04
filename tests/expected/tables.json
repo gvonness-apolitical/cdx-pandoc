@@ -1,0 +1,316 @@
+{
+  "content": {
+    "blocks": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Tables"
+          }
+        ],
+        "id": "tables",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Simple Table"
+          }
+        ],
+        "id": "simple-table",
+        "level": 2,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Header 1"
+                  }
+                ],
+                "type": "tableCell"
+              },
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Header 2"
+                  }
+                ],
+                "type": "tableCell"
+              },
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Header 3"
+                  }
+                ],
+                "type": "tableCell"
+              }
+            ],
+            "header": true,
+            "type": "tableRow"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Cell 1"
+                  }
+                ],
+                "type": "tableCell"
+              },
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Cell 2"
+                  }
+                ],
+                "type": "tableCell"
+              },
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Cell 3"
+                  }
+                ],
+                "type": "tableCell"
+              }
+            ],
+            "type": "tableRow"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Cell 4"
+                  }
+                ],
+                "type": "tableCell"
+              },
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Cell 5"
+                  }
+                ],
+                "type": "tableCell"
+              },
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Cell 6"
+                  }
+                ],
+                "type": "tableCell"
+              }
+            ],
+            "type": "tableRow"
+          }
+        ],
+        "type": "table"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Table with Formatting"
+          }
+        ],
+        "id": "table-with-formatting",
+        "level": 2,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Feature"
+                  }
+                ],
+                "type": "tableCell"
+              },
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Supported"
+                  }
+                ],
+                "type": "tableCell"
+              },
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Notes"
+                  }
+                ],
+                "type": "tableCell"
+              }
+            ],
+            "header": true,
+            "type": "tableRow"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "marks": [
+                      "bold"
+                    ],
+                    "type": "text",
+                    "value": "Bold"
+                  }
+                ],
+                "type": "tableCell"
+              },
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Yes"
+                  }
+                ],
+                "type": "tableCell"
+              },
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Works in cells"
+                  }
+                ],
+                "type": "tableCell"
+              }
+            ],
+            "type": "tableRow"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "marks": [
+                      "italic"
+                    ],
+                    "type": "text",
+                    "value": "Italic"
+                  }
+                ],
+                "type": "tableCell"
+              },
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Yes"
+                  }
+                ],
+                "type": "tableCell"
+              },
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Also works"
+                  }
+                ],
+                "type": "tableCell"
+              }
+            ],
+            "type": "tableRow"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "marks": [
+                      "code"
+                    ],
+                    "type": "text",
+                    "value": "Code"
+                  }
+                ],
+                "type": "tableCell"
+              },
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Yes"
+                  }
+                ],
+                "type": "tableCell"
+              },
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Inline code too"
+                  }
+                ],
+                "type": "tableCell"
+              }
+            ],
+            "type": "tableRow"
+          }
+        ],
+        "type": "table"
+      }
+    ],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": "Unknown",
+      "format": "application/vnd.codex+json",
+      "title": "Table Test Document",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": {
+      "@type": "Person",
+      "name": "Unknown"
+    },
+    "name": "Table Test Document"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}
