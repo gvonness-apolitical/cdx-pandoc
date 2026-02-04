@@ -40,6 +40,7 @@ local function load_lib(name)
 end
 
 local json = load_lib("json")
+local utils = load_lib("utils")
 local inlines = load_lib("inlines")
 local blocks = load_lib("blocks")
 local metadata = load_lib("metadata")
@@ -147,7 +148,7 @@ function Writer(doc, opts)
     local citation_refs = inlines.get_citation_refs()
     local has_citations = next(citation_refs) ~= nil
     if has_citations or has_footnotes then
-        track_extension("codex.semantic")
+        track_extension(utils.EXT_SEMANTIC)
     end
 
     -- Build extensions list from tracker
