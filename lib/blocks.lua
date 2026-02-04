@@ -1,6 +1,12 @@
 -- lib/blocks.lua
 -- Convert Pandoc blocks to Codex block structures
 
+local utils = dofile((PANDOC_SCRIPT_FILE and (PANDOC_SCRIPT_FILE:match("(.*/)" ) or "") or "") .. "lib/utils.lua")
+local has_class = utils.has_class
+local insert_converted = utils.insert_converted
+local generate_term_id = utils.generate_term_id
+local extract_block_attr = utils.extract_block_attr
+
 local M = {}
 
 -- Inlines module (will be set by init)
@@ -54,17 +60,7 @@ function M.convert(blocks)
     local result = {}
 
     for _, block in ipairs(blocks) do
-        local converted = M.convert_block(block)
-        if converted then
-            if converted.multi then
-                -- Some conversions return multiple blocks
-                for _, b in ipairs(converted.blocks) do
-                    table.insert(result, b)
-                end
-            else
-                table.insert(result, converted)
-            end
-        end
+        insert_converted(result, M.convert_block(block))
     end
 
     return result
@@ -122,15 +118,6 @@ function M.convert_block(block)
     return nil
 end
 
--- Check if a class list contains a specific class
-local function has_class(classes, class_name)
-    if not classes then return false end
-    for _, c in ipairs(classes) do
-        if c == class_name then return true end
-    end
-    return false
-end
-
 -- Admonition variant set
 local admonition_classes = {
     note = true, warning = true, tip = true,
@@ -140,10 +127,10 @@ local admonition_classes = {
 -- Process Div blocks with structured dispatch
 -- Routes to bibliography, glossary, admonitions, or fallback unwrap
 function M.div_block(block)
-    local attr = block.attr or {}
-    local id = attr.identifier or (attr[1] or "")
-    local classes = attr.classes or (attr[2] or {})
-    local attributes = attr.attributes or (attr[3] or {})
+    local attr = extract_block_attr(block)
+    local id = attr.id
+    local classes = attr.classes
+    local attributes = attr.attributes
 
     -- Bibliography Div from citeproc
     if id == "refs" then
@@ -194,16 +181,7 @@ function M.admonition(block, variant, attributes)
         if i == 1 and tag == "Header" and not title then
             title = pandoc.utils.stringify(child.content)
         else
-            local converted = M.convert_block(child)
-            if converted then
-                if converted.multi then
-                    for _, b in ipairs(converted.blocks) do
-                        table.insert(body_blocks, b)
-                    end
-                else
-                    table.insert(body_blocks, converted)
-                end
-            end
+            insert_converted(body_blocks, M.convert_block(child))
         end
     end
 
@@ -298,7 +276,7 @@ function M.convert_sentinel(node)
     elseif node.type == "image_sentinel" then
         return {{type = "image", src = node.src, alt = node.alt, title = node.title}}
     elseif node.type == "measurement_sentinel" then
-        track_extension("codex.semantic")
+        track_extension(utils.EXT_SEMANTIC)
         local measurement = {
             type = "semantic:measurement",
             value = node.value,
@@ -635,7 +613,7 @@ end
 -- Convert a glossary Div containing DefinitionList to semantic:term blocks
 -- Glossary terms get IDs and "see also" reference extraction
 function M.glossary_div(block)
-    track_extension("codex.semantic")
+    track_extension(utils.EXT_SEMANTIC)
     local terms = {}
 
     for _, child in ipairs(block.content) do
@@ -646,7 +624,7 @@ function M.glossary_div(block)
                 local definitions = entry[2]
 
                 local term_text = pandoc.utils.stringify(term_inlines)
-                local term_id = "term-" .. term_text:lower():gsub("%s+", "-"):gsub("[^%w%-]", "")
+                local term_id = generate_term_id(term_text)
 
                 local def_parts = {}
                 for _, def in ipairs(definitions or {}) do
@@ -662,8 +640,7 @@ function M.glossary_div(block)
                     for ref in see_match:gmatch("([^,;]+)") do
                         local ref_trimmed = ref:match("^%s*(.-)%s*$")
                         if ref_trimmed and ref_trimmed ~= "" then
-                            local ref_id = "term-" .. ref_trimmed:lower():gsub("%s+", "-"):gsub("[^%w%-]", "")
-                            table.insert(see_refs, ref_id)
+                            table.insert(see_refs, generate_term_id(ref_trimmed))
                         end
                     end
                     definition = definition:gsub(see_pattern .. "%.?%s*", "")
@@ -684,16 +661,7 @@ function M.glossary_div(block)
             end
         else
             -- Non-DefinitionList content in glossary Div — convert normally
-            local converted = M.convert_block(child)
-            if converted then
-                if converted.multi then
-                    for _, b in ipairs(converted.blocks) do
-                        table.insert(terms, b)
-                    end
-                else
-                    table.insert(terms, converted)
-                end
-            end
+            insert_converted(terms, M.convert_block(child))
         end
     end
 
@@ -911,7 +879,7 @@ end
 -- Convert accumulated footnotes to semantic:footnote blocks
 function M.convert_footnotes(footnotes)
     if #footnotes > 0 then
-        track_extension("codex.semantic")
+        track_extension(utils.EXT_SEMANTIC)
     end
     local result = {}
     for _, fn in ipairs(footnotes) do
@@ -936,7 +904,7 @@ end
 -- Convert citeproc #refs Div to a bibliography block
 -- Uses CSL entries from bib_context when available, falls back to rendered text
 function M.bibliography_from_refs(block)
-    track_extension("codex.semantic")
+    track_extension(utils.EXT_SEMANTIC)
     local entries = {}
     for _, child in ipairs(block.content) do
         if child.t == "Div" then

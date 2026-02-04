@@ -29,14 +29,8 @@ function M.reset_context()
     M._default_context = M.new_context()
 end
 
--- Check if a class list contains a specific class
-function M.has_class(classes, class_name)
-    if not classes then return false end
-    for _, c in ipairs(classes) do
-        if c == class_name then return true end
-    end
-    return false
-end
+-- Check if a class list contains a specific class (delegates to utils)
+M.has_class = utils.has_class
 
 -- Check if two marks are equal
 local function marks_equal(m1, m2)
@@ -378,7 +372,7 @@ inline_handlers.Span = function(inline, marks, ctx)
             glossary_mark.ref = attributes.ref
         else
             local text = pandoc.utils.stringify(inline.content)
-            glossary_mark.ref = "term-" .. text:lower():gsub("%s+", "-"):gsub("[^%w%-]", "")
+            glossary_mark.ref = utils.generate_term_id(text)
         end
         table.insert(new_marks, glossary_mark)
         has_semantic_mark = true

@@ -2,6 +2,11 @@
 -- Writer-side academic extension block conversion
 -- Converts Pandoc Divs/RawBlocks to academic:* Codex blocks
 
+local utils = dofile((PANDOC_SCRIPT_FILE and (PANDOC_SCRIPT_FILE:match("(.*/)" ) or "") or "") .. "lib/utils.lua")
+local has_class = utils.has_class
+local insert_converted = utils.insert_converted
+local extract_block_attr = utils.extract_block_attr
+
 local M = {}
 
 -- Module references (set by init)
@@ -9,15 +14,6 @@ local blocks = nil
 
 -- Extension tracker function (set by codex.lua)
 local track_extension = function() end
-
--- Helper: check if class list contains a class
-local function has_class_in(classes, class_name)
-    if not classes then return false end
-    for _, c in ipairs(classes) do
-        if c == class_name then return true end
-    end
-    return false
-end
 
 function M.set_blocks(mod)
     blocks = mod
@@ -57,9 +53,9 @@ end
 -- Convert a theorem Div to academic:theorem block
 -- Input: ::: {.theorem #thm-1 title="Maximum Principle"} ... :::
 function M.convert_theorem(block, variant)
-    local attr = block.attr or {}
-    local id = attr.identifier or (attr[1] or "")
-    local attributes = attr.attributes or (attr[3] or {})
+    local attr = extract_block_attr(block)
+    local id = attr.id
+    local attributes = attr.attributes
 
     local result = {
         type = "academic:theorem",
@@ -89,8 +85,8 @@ end
 -- Convert a proof Div to academic:proof block
 -- Input: ::: {.proof of="thm-max" method="contradiction"} ... :::
 function M.convert_proof(block)
-    local attr = block.attr or {}
-    local attributes = attr.attributes or (attr[3] or {})
+    local attr = extract_block_attr(block)
+    local attributes = attr.attributes
 
     local result = {
         type = "academic:proof",
@@ -112,9 +108,9 @@ end
 -- Input: ::: {.exercise #ex-1 difficulty="medium"} ... :::
 -- Nested Divs: .hint, .solution
 function M.convert_exercise(block)
-    local attr = block.attr or {}
-    local id = attr.identifier or (attr[1] or "")
-    local attributes = attr.attributes or (attr[3] or {})
+    local attr = extract_block_attr(block)
+    local id = attr.id
+    local attributes = attr.attributes
 
     local body_blocks = {}
     local hints = {}
@@ -123,43 +119,24 @@ function M.convert_exercise(block)
     for _, child in ipairs(block.content or {}) do
         local tag = child.t or child.tag
         if tag == "Div" then
-            local cclasses = (child.attr and child.attr.classes) or (child.attr and child.attr[2]) or {}
-            local cattrs = (child.attr and child.attr.attributes) or (child.attr and child.attr[3]) or {}
-            if has_class_in(cclasses, "hint") then
+            local child_attr = extract_block_attr(child)
+            if has_class(child_attr.classes, "hint") then
                 table.insert(hints, {
                     children = blocks.convert(child.content)
                 })
-            elseif has_class_in(cclasses, "solution") then
+            elseif has_class(child_attr.classes, "solution") then
                 solution = {
                     children = blocks.convert(child.content)
                 }
-                if cattrs.visibility then
-                    solution.visibility = cattrs.visibility
+                if child_attr.attributes.visibility then
+                    solution.visibility = child_attr.attributes.visibility
                 end
             else
                 -- Other Div inside exercise — convert normally
-                local converted = blocks.convert_block(child)
-                if converted then
-                    if converted.multi then
-                        for _, b in ipairs(converted.blocks) do
-                            table.insert(body_blocks, b)
-                        end
-                    else
-                        table.insert(body_blocks, converted)
-                    end
-                end
+                insert_converted(body_blocks, blocks.convert_block(child))
             end
         else
-            local converted = blocks.convert_block(child)
-            if converted then
-                if converted.multi then
-                    for _, b in ipairs(converted.blocks) do
-                        table.insert(body_blocks, b)
-                    end
-                else
-                    table.insert(body_blocks, converted)
-                end
-            end
+            insert_converted(body_blocks, blocks.convert_block(child))
         end
     end
 
@@ -190,9 +167,9 @@ end
 -- Convert an exercise-set Div to academic:exercise-set block
 -- Input: ::: {.exercise-set #exercises-ch2 title="Chapter 2 Exercises"} ... :::
 function M.convert_exercise_set(block)
-    local attr = block.attr or {}
-    local id = attr.identifier or (attr[1] or "")
-    local attributes = attr.attributes or (attr[3] or {})
+    local attr = extract_block_attr(block)
+    local id = attr.id
+    local attributes = attr.attributes
 
     local exercises = {}
     local preamble = {}
@@ -200,34 +177,16 @@ function M.convert_exercise_set(block)
     for _, child in ipairs(block.content or {}) do
         local tag = child.t or child.tag
         if tag == "Div" then
-            local cclasses = (child.attr and child.attr.classes) or (child.attr and child.attr[2]) or {}
-            if has_class_in(cclasses, "exercise") then
+            local child_attr = extract_block_attr(child)
+            if has_class(child_attr.classes, "exercise") then
                 table.insert(exercises, M.convert_exercise(child))
             else
                 -- Non-exercise Div → preamble content
-                local converted = blocks.convert_block(child)
-                if converted then
-                    if converted.multi then
-                        for _, b in ipairs(converted.blocks) do
-                            table.insert(preamble, b)
-                        end
-                    else
-                        table.insert(preamble, converted)
-                    end
-                end
+                insert_converted(preamble, blocks.convert_block(child))
             end
         else
             -- Non-Div content → preamble
-            local converted = blocks.convert_block(child)
-            if converted then
-                if converted.multi then
-                    for _, b in ipairs(converted.blocks) do
-                        table.insert(preamble, b)
-                    end
-                else
-                    table.insert(preamble, converted)
-                end
-            end
+            insert_converted(preamble, blocks.convert_block(child))
         end
     end
 
@@ -255,9 +214,9 @@ end
 -- Input: ::: {.algorithm #alg-sort title="QuickSort"} ... :::
 -- The Div may contain a CodeBlock with class "algorithm" for pseudocode
 function M.convert_algorithm(block)
-    local attr = block.attr or {}
-    local id = attr.identifier or (attr[1] or "")
-    local attributes = attr.attributes or (attr[3] or {})
+    local attr = extract_block_attr(block)
+    local id = attr.id
+    local attributes = attr.attributes
 
     local lines = {}
     local body_blocks = {}
@@ -267,8 +226,8 @@ function M.convert_algorithm(block)
     for _, child in ipairs(block.content or {}) do
         local tag = child.t or child.tag
         if tag == "CodeBlock" then
-            local cclasses = (child.attr and child.attr.classes) or (child.attr and child.attr[2]) or {}
-            if has_class_in(cclasses, "algorithm") then
+            local child_attr = extract_block_attr(child)
+            if has_class(child_attr.classes, "algorithm") then
                 -- Parse pseudocode lines
                 for line in child.text:gmatch("[^\n]+") do
                     table.insert(lines, line)
@@ -277,16 +236,7 @@ function M.convert_algorithm(block)
                 table.insert(body_blocks, blocks.convert_block(child))
             end
         else
-            local converted = blocks.convert_block(child)
-            if converted then
-                if converted.multi then
-                    for _, b in ipairs(converted.blocks) do
-                        table.insert(body_blocks, b)
-                    end
-                else
-                    table.insert(body_blocks, converted)
-                end
-            end
+            insert_converted(body_blocks, blocks.convert_block(child))
         end
     end
 
@@ -341,8 +291,8 @@ function M.convert_abstract(block)
     for _, child in ipairs(block.content or {}) do
         local tag = child.t or child.tag
         if tag == "Div" then
-            local cclasses = (child.attr and child.attr.classes) or (child.attr and child.attr[2]) or {}
-            if has_class_in(cclasses, "keywords") then
+            local child_attr = extract_block_attr(child)
+            if has_class(child_attr.classes, "keywords") then
                 -- Extract keywords from paragraph text
                 local kw_text = pandoc.utils.stringify(child)
                 keywords = {}
@@ -353,28 +303,10 @@ function M.convert_abstract(block)
                     end
                 end
             else
-                local converted = blocks.convert_block(child)
-                if converted then
-                    if converted.multi then
-                        for _, b in ipairs(converted.blocks) do
-                            table.insert(body_blocks, b)
-                        end
-                    else
-                        table.insert(body_blocks, converted)
-                    end
-                end
+                insert_converted(body_blocks, blocks.convert_block(child))
             end
         else
-            local converted = blocks.convert_block(child)
-            if converted then
-                if converted.multi then
-                    for _, b in ipairs(converted.blocks) do
-                        table.insert(body_blocks, b)
-                    end
-                else
-                    table.insert(body_blocks, converted)
-                end
-            end
+            insert_converted(body_blocks, blocks.convert_block(child))
         end
     end
 
@@ -418,7 +350,7 @@ end
 function M.convert_equation_group(text)
     local env = M.detect_equation_group(text)
     if not env then return nil end
-    track_extension("codex.academic")
+    track_extension(utils.EXT_ACADEMIC)
 
     -- Extract lines from the environment (split on \\)
     -- First, extract the content between \begin{env} and \end{env}
@@ -449,7 +381,7 @@ end
 -- @param academic_type The classified type string
 -- @return Codex block
 function M.convert_div(block, academic_type)
-    track_extension("codex.academic")
+    track_extension(utils.EXT_ACADEMIC)
     if theorem_variants[academic_type] then
         return M.convert_theorem(block, academic_type)
     elseif academic_type == "proof" then
