@@ -19,10 +19,6 @@ local function has_class_in(classes, class_name)
     return false
 end
 
-function M.set_inlines(_mod)
-    -- Reserved for future use (e.g. inline-level academic marks)
-end
-
 function M.set_blocks(mod)
     blocks = mod
 end
@@ -476,26 +472,5 @@ function M.convert_div(block, academic_type)
     end
     return nil
 end
-
--- Detect LaTeX theorem-like environments from RawBlock
--- @param text Raw LaTeX text
--- @return type string and content, or nil
-local latex_env_map = {
-    theorem = "theorem", lemma = "lemma", proposition = "proposition",
-    corollary = "corollary", definition = "definition", conjecture = "conjecture",
-    remark = "remark", example = "example", proof = "proof"
-}
-
-function M.detect_latex_env(text)
-    if not text then return nil end
-    for env, variant in pairs(latex_env_map) do
-        local content = text:match("\\begin{" .. env .. "}(.-)\\end{" .. env .. "}")
-        if content then
-            return variant, content
-        end
-    end
-    return nil
-end
-
 
 return M
