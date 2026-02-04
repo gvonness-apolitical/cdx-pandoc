@@ -9,7 +9,7 @@ TEST_INPUTS := $(wildcard tests/inputs/*.md)
 TEST_OUTPUTS := $(patsubst tests/inputs/%.md,tests/outputs/%.json,$(TEST_INPUTS))
 TEST_CDX := $(patsubst tests/inputs/%.md,tests/outputs/%.cdx,$(TEST_INPUTS))
 
-.PHONY: all test clean test-json test-cdx test-reader test-unit help check-deps validate-schema
+.PHONY: all test clean test-json test-cdx test-reader test-unit help check-deps validate-schema lint
 
 all: test
 
@@ -21,6 +21,7 @@ help:
 	@echo "  test-unit    Run Lua unit tests"
 	@echo "  test-cdx     Run full pipeline tests (creates .cdx files)"
 	@echo "  test-reader  Test round-trip (JSON → Pandoc → markdown)"
+	@echo "  lint         Run luacheck linter"
 	@echo "  validate-schema Validate against spec schemas"
 	@echo "  clean        Remove generated files"
 	@echo "  check-deps   Check for required dependencies"
@@ -111,6 +112,10 @@ validate-schema: test-json
 		echo "  OK"; \
 	done
 	@echo "Schema validation complete."
+
+# Lint Lua files
+lint:
+	luacheck codex.lua cdx-reader.lua lib/
 
 # Clean generated files
 clean:

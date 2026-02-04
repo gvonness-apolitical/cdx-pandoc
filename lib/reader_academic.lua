@@ -11,9 +11,6 @@ function M.set_reader_blocks(mod)
     reader_blocks = mod
 end
 
-function M.set_reader_inlines(_mod)
-    -- Reserved for future use (e.g. inline-level academic marks)
-end
 
 -- Convert an academic:* block to Pandoc block(s)
 function M.convert_block(block)

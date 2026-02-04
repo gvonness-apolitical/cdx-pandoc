@@ -57,7 +57,6 @@ blocks.set_inlines(inlines)
 blocks.set_extension_tracker(track_extension)
 
 -- Initialize academic module
-academic.set_inlines(inlines)
 academic.set_blocks(blocks)
 academic.set_extension_tracker(track_extension)
 blocks.set_academic(academic)
