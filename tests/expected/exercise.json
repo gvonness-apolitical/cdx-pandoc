@@ -1,0 +1,188 @@
+{
+  "content": {
+    "blocks": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Exercises"
+          }
+        ],
+        "id": "exercises",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "Find the derivative of "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "f(x) = x^2 + 1"
+              },
+              {
+                "type": "text",
+                "value": "."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "difficulty": "medium",
+        "hints": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Use the power rule."
+                  }
+                ],
+                "type": "paragraph"
+              }
+            ]
+          }
+        ],
+        "id": "ex-1",
+        "solution": {
+          "children": [
+            {
+              "children": [
+                {
+                  "marks": [
+                    {
+                      "format": "latex",
+                      "type": "math"
+                    }
+                  ],
+                  "type": "text",
+                  "value": "f'(x) = 2x"
+                }
+              ],
+              "type": "paragraph"
+            }
+          ],
+          "visibility": "hidden"
+        },
+        "type": "academic:exercise"
+      },
+      {
+        "exercises": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Compute "
+                  },
+                  {
+                    "marks": [
+                      {
+                        "format": "latex",
+                        "type": "math"
+                      }
+                    ],
+                    "type": "text",
+                    "value": "\\int x \\, dx"
+                  },
+                  {
+                    "type": "text",
+                    "value": "."
+                  }
+                ],
+                "type": "paragraph"
+              }
+            ],
+            "difficulty": "easy",
+            "id": "ex-2-1",
+            "type": "academic:exercise"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Compute "
+                  },
+                  {
+                    "marks": [
+                      {
+                        "format": "latex",
+                        "type": "math"
+                      }
+                    ],
+                    "type": "text",
+                    "value": "\\int \\frac{1}{1+x^4} \\, dx"
+                  },
+                  {
+                    "type": "text",
+                    "value": "."
+                  }
+                ],
+                "type": "paragraph"
+              }
+            ],
+            "difficulty": "hard",
+            "id": "ex-2-2",
+            "type": "academic:exercise"
+          }
+        ],
+        "id": "exercises-ch2",
+        "title": "Chapter 2 Exercises",
+        "type": "academic:exercise-set"
+      }
+    ],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": "Unknown",
+      "format": "application/vnd.codex+json",
+      "title": "Exercise Test",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": {
+      "@type": "Person",
+      "name": "Unknown"
+    },
+    "name": "Exercise Test"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "extensions": [
+      {
+        "id": "codex.academic",
+        "required": false,
+        "version": "0.1"
+      }
+    ],
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}

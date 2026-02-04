@@ -1,0 +1,567 @@
+{
+  "content": {
+    "blocks": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "This document tests all academic block types interacting together, including theorems, proofs, exercises, algorithms, and cross-references."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "keywords": [
+          "mathematics",
+          "testing",
+          "academic blocks"
+        ],
+        "type": "academic:abstract"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Theorems and Proofs"
+          }
+        ],
+        "id": "theorems-and-proofs",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "Every continuous function on a closed interval "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "[a,b]"
+              },
+              {
+                "type": "text",
+                "value": " attains its maximum."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "id": "thm-fund",
+        "title": "Fundamental Theorem",
+        "type": "academic:theorem",
+        "variant": "theorem"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "Suppose "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "f"
+              },
+              {
+                "type": "text",
+                "value": " does not attain its maximum. Then for every "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "x \\in [a,b]"
+              },
+              {
+                "type": "text",
+                "value": ", there exists "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "y"
+              },
+              {
+                "type": "text",
+                "value": " with "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "f(y) > f(x)"
+              },
+              {
+                "type": "text",
+                "value": ". This contradicts compactness."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "method": "contradiction",
+        "of": "thm-fund",
+        "type": "academic:proof"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "If "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "f"
+              },
+              {
+                "type": "text",
+                "value": " is continuous on "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "[a,b]"
+              },
+              {
+                "type": "text",
+                "value": ", then "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "f"
+              },
+              {
+                "type": "text",
+                "value": " is bounded."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "id": "lem-helper",
+        "type": "academic:theorem",
+        "variant": "lemma"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "A set "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "K"
+              },
+              {
+                "type": "text",
+                "value": " is compact if every open cover has a finite subcover."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "id": "def-compact",
+        "title": "Compactness",
+        "type": "academic:theorem",
+        "variant": "definition"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "By "
+          },
+          {
+            "marks": [
+              {
+                "format": "Theorem 1",
+                "target": "#thm-fund",
+                "type": "theorem-ref"
+              }
+            ],
+            "type": "text",
+            "value": "Theorem 1"
+          },
+          {
+            "type": "text",
+            "value": " and "
+          },
+          {
+            "marks": [
+              {
+                "format": "Lemma 1",
+                "target": "#lem-helper",
+                "type": "theorem-ref"
+              }
+            ],
+            "type": "text",
+            "value": "Lemma 1"
+          },
+          {
+            "type": "text",
+            "value": ", the result follows."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Exercises"
+          }
+        ],
+        "id": "exercises",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "Compute the derivative of "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "f(x) = x^3 - 2x + 1"
+              },
+              {
+                "type": "text",
+                "value": "."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "difficulty": "easy",
+        "hints": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Use the power rule: "
+                  },
+                  {
+                    "marks": [
+                      {
+                        "format": "latex",
+                        "type": "math"
+                      }
+                    ],
+                    "type": "text",
+                    "value": "\\frac{d}{dx}x^n = nx^{n-1}"
+                  },
+                  {
+                    "type": "text",
+                    "value": "."
+                  }
+                ],
+                "type": "paragraph"
+              }
+            ]
+          }
+        ],
+        "id": "ex-calc",
+        "solution": {
+          "children": [
+            {
+              "children": [
+                {
+                  "marks": [
+                    {
+                      "format": "latex",
+                      "type": "math"
+                    }
+                  ],
+                  "type": "text",
+                  "value": "f'(x) = 3x^2 - 2"
+                }
+              ],
+              "type": "paragraph"
+            }
+          ],
+          "visibility": "hidden"
+        },
+        "type": "academic:exercise"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Algorithms"
+          }
+        ],
+        "id": "algorithms",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "id": "alg-binary",
+        "lines": [
+          "function BinarySearch(A, target, lo, hi)",
+          "  if lo > hi then",
+          "    return NOT_FOUND",
+          "  end if",
+          "  mid ← (lo + hi) / 2",
+          "  if A[mid] = target then",
+          "    return mid",
+          "  else if A[mid] < target then",
+          "    return BinarySearch(A, target, mid+1, hi)",
+          "  else",
+          "    return BinarySearch(A, target, lo, mid-1)",
+          "  end if",
+          "end function"
+        ],
+        "title": "Binary Search",
+        "type": "academic:algorithm"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "See "
+          },
+          {
+            "marks": [
+              {
+                "format": "Algorithm 1",
+                "target": "#alg-binary",
+                "type": "algorithm-ref"
+              }
+            ],
+            "type": "text",
+            "value": "Algorithm 1"
+          },
+          {
+            "type": "text",
+            "value": " for the implementation."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Equation Groups"
+          }
+        ],
+        "id": "equation-groups",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "environment": "align",
+        "lines": [
+          "nabla",
+          "cdot",
+          "mathbf{E} &=",
+          "frac{",
+          "rho}{",
+          "epsilon_0}",
+          "nabla",
+          "cdot",
+          "mathbf{B} &= 0",
+          "nabla",
+          "times",
+          "mathbf{E} &= -",
+          "frac{",
+          "partial",
+          "mathbf{B}}{",
+          "partial t}"
+        ],
+        "type": "academic:equation-group",
+        "value": "\\begin{align}\n\\nabla \\cdot \\mathbf{E} &= \\frac{\\rho}{\\epsilon_0} \\\\\n\\nabla \\cdot \\mathbf{B} &= 0 \\\\\n\\nabla \\times \\mathbf{E} &= -\\frac{\\partial \\mathbf{B}}{\\partial t}\n\\end{align}"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "See "
+          },
+          {
+            "marks": [
+              {
+                "format": "Equation (1)",
+                "target": "#eq-maxwell",
+                "type": "equation-ref"
+              }
+            ],
+            "type": "text",
+            "value": "Equation (1)"
+          },
+          {
+            "type": "text",
+            "value": " for Maxwell’s equations."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Admonitions"
+          }
+        ],
+        "id": "admonitions",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "The series may not converge for all values of "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "x"
+              },
+              {
+                "type": "text",
+                "value": "."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "title": "Convergence",
+        "type": "admonition",
+        "variant": "warning"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "Use the ratio test to check convergence."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "type": "admonition",
+        "variant": "tip"
+      }
+    ],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": "Unknown",
+      "date": "2024-01-15",
+      "format": "application/vnd.codex+json",
+      "title": "Academic Kitchen Sink",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": {
+      "@type": "Person",
+      "name": "Unknown"
+    },
+    "datePublished": "2024-01-15",
+    "name": "Academic Kitchen Sink"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "extensions": [
+      {
+        "id": "codex.academic",
+        "required": false,
+        "version": "0.1"
+      }
+    ],
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}

@@ -9,7 +9,7 @@ TEST_INPUTS := $(wildcard tests/inputs/*.md)
 TEST_OUTPUTS := $(patsubst tests/inputs/%.md,tests/outputs/%.json,$(TEST_INPUTS))
 TEST_CDX := $(patsubst tests/inputs/%.md,tests/outputs/%.cdx,$(TEST_INPUTS))
 
-.PHONY: all test clean test-json test-cdx test-reader test-unit help check-deps validate-schema lint
+.PHONY: all test clean test-json test-cdx test-reader test-unit test-golden help check-deps validate-schema lint
 
 all: test
 
@@ -21,6 +21,7 @@ help:
 	@echo "  test-unit    Run Lua unit tests"
 	@echo "  test-cdx     Run full pipeline tests (creates .cdx files)"
 	@echo "  test-reader  Test round-trip (JSON → Pandoc → markdown)"
+	@echo "  test-golden  Compare outputs against golden baselines"
 	@echo "  lint         Run luacheck linter"
 	@echo "  validate-schema Validate against spec schemas"
 	@echo "  clean        Remove generated files"
@@ -113,6 +114,29 @@ validate-schema: test-json
 	done
 	@echo "Schema validation complete."
 
+# Compare outputs against golden baselines (strips non-deterministic fields before diff)
+test-golden: test-json
+	@echo "Comparing against golden outputs..."
+	@fail=0; for f in tests/outputs/*.json; do \
+		base=$$(basename $$f); \
+		if [ -f tests/expected/$$base ]; then \
+			$(JQ) -S 'del(.manifest.created, .manifest.modified)' $$f > $$f.sorted; \
+			diff -q $$f.sorted tests/expected/$$base > /dev/null 2>&1 || { echo "DIFF: $$base"; diff tests/expected/$$base $$f.sorted | head -20; fail=1; }; \
+			rm -f $$f.sorted; \
+		fi; \
+	done; \
+	[ $$fail -eq 0 ] && echo "All golden tests passed." || { echo "Golden test failures detected."; exit 1; }
+
+# Regenerate golden baselines from current outputs
+update-golden: test-json
+	@echo "Updating golden baselines..."
+	@mkdir -p tests/expected
+	@for f in tests/outputs/*.json; do \
+		base=$$(basename $$f); \
+		$(JQ) -S 'del(.manifest.created, .manifest.modified)' $$f > tests/expected/$$base; \
+	done
+	@echo "Golden baselines updated."
+
 # Lint Lua files
 lint:
 	luacheck codex.lua cdx-reader.lua lib/
@@ -120,7 +144,6 @@ lint:
 # Clean generated files
 clean:
 	rm -rf tests/outputs
-	rm -f tests/expected/*.json
 
 # Development: watch for changes and run tests
 watch:

@@ -1,0 +1,204 @@
+{
+  "content": {
+    "blocks": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Math Examples"
+          }
+        ],
+        "id": "math-examples",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "The equation "
+          },
+          {
+            "marks": [
+              {
+                "format": "latex",
+                "type": "math"
+              }
+            ],
+            "type": "text",
+            "value": "E = mc^2"
+          },
+          {
+            "type": "text",
+            "value": " is famous."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "display": true,
+        "format": "latex",
+        "type": "math",
+        "value": "\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Mixed: start "
+          },
+          {
+            "marks": [
+              {
+                "format": "latex",
+                "type": "math"
+              }
+            ],
+            "type": "text",
+            "value": "a + b"
+          },
+          {
+            "type": "text",
+            "value": " middle "
+          },
+          {
+            "marks": [
+              {
+                "format": "latex",
+                "type": "math"
+              }
+            ],
+            "type": "text",
+            "value": "c + d"
+          },
+          {
+            "type": "text",
+            "value": " end."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "marks": [
+              {
+                "format": "latex",
+                "type": "math"
+              }
+            ],
+            "type": "text",
+            "value": "x = 1"
+          },
+          {
+            "type": "text",
+            "value": " starts a paragraph."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "A paragraph ends with "
+          },
+          {
+            "marks": [
+              {
+                "format": "latex",
+                "type": "math"
+              }
+            ],
+            "type": "text",
+            "value": "y = 2"
+          },
+          {
+            "type": "text",
+            "value": "."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "marks": [
+              {
+                "format": "latex",
+                "type": "math"
+              }
+            ],
+            "type": "text",
+            "value": "\\alpha\\beta"
+          },
+          {
+            "type": "text",
+            "value": " consecutive math (no text between)."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "Blockquote with "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "inline"
+              },
+              {
+                "type": "text",
+                "value": " math."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "type": "blockquote"
+      }
+    ],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": "Unknown",
+      "format": "application/vnd.codex+json",
+      "title": "Math Test",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": {
+      "@type": "Person",
+      "name": "Unknown"
+    },
+    "name": "Math Test"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}

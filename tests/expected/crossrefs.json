@@ -1,0 +1,183 @@
+{
+  "content": {
+    "blocks": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Introduction"
+          }
+        ],
+        "id": "intro",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "This document tests internal cross-references."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Method"
+          }
+        ],
+        "id": "method",
+        "level": 2,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "See the "
+          },
+          {
+            "marks": [
+              {
+                "href": "#intro",
+                "type": "link"
+              }
+            ],
+            "type": "text",
+            "value": "introduction"
+          },
+          {
+            "type": "text",
+            "value": " for context."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "For results, see "
+          },
+          {
+            "marks": [
+              {
+                "href": "#results",
+                "type": "link"
+              }
+            ],
+            "type": "text",
+            "value": "Section 3"
+          },
+          {
+            "type": "text",
+            "value": "."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Results"
+          }
+        ],
+        "id": "results",
+        "level": 2,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "The results build on "
+          },
+          {
+            "marks": [
+              {
+                "href": "#method",
+                "type": "link"
+              }
+            ],
+            "type": "text",
+            "value": "the method"
+          },
+          {
+            "type": "text",
+            "value": " above."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Sub-section"
+          }
+        ],
+        "id": "results-detail",
+        "level": 3,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "More details available in "
+          },
+          {
+            "marks": [
+              {
+                "href": "#results-detail",
+                "type": "link"
+              }
+            ],
+            "type": "text",
+            "value": "results detail"
+          },
+          {
+            "type": "text",
+            "value": "."
+          }
+        ],
+        "type": "paragraph"
+      }
+    ],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": "Unknown",
+      "format": "application/vnd.codex+json",
+      "title": "Cross-Reference Test",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": {
+      "@type": "Person",
+      "name": "Unknown"
+    },
+    "name": "Cross-Reference Test"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}

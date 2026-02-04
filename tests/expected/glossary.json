@@ -1,0 +1,148 @@
+{
+  "content": {
+    "blocks": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Introduction"
+          }
+        ],
+        "id": "introduction",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "This document tests glossary term definitions."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Definitions"
+          }
+        ],
+        "id": "definitions",
+        "level": 2,
+        "type": "heading"
+      },
+      {
+        "definition": "Conflict-free Replicated Data Type - a data structure that can be replicated across multiple computers. ",
+        "id": "term-crdt",
+        "see": [
+          "term-eventual-consistency"
+        ],
+        "term": "CRDT",
+        "type": "semantic:term"
+      },
+      {
+        "definition": "A consistency model used in distributed systems. ",
+        "id": "term-eventual-consistency",
+        "see": [
+          "term-crdt"
+        ],
+        "term": "Eventual Consistency",
+        "type": "semantic:term"
+      },
+      {
+        "definition": "Application Programming Interface - a set of protocols and tools for building software.",
+        "id": "term-api",
+        "term": "API",
+        "type": "semantic:term"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Usage"
+          }
+        ],
+        "id": "usage",
+        "level": 2,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "In this document, we discuss "
+          },
+          {
+            "marks": [
+              {
+                "ref": "term-crdt",
+                "type": "glossary"
+              }
+            ],
+            "type": "text",
+            "value": "CRDT"
+          },
+          {
+            "type": "text",
+            "value": " technologies and their relationship to "
+          },
+          {
+            "marks": [
+              {
+                "ref": "term-eventual-consistency",
+                "type": "glossary"
+              }
+            ],
+            "type": "text",
+            "value": "eventual consistency"
+          },
+          {
+            "type": "text",
+            "value": "."
+          }
+        ],
+        "type": "paragraph"
+      }
+    ],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": "Unknown",
+      "format": "application/vnd.codex+json",
+      "title": "Glossary Test",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": {
+      "@type": "Person",
+      "name": "Unknown"
+    },
+    "name": "Glossary Test"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "extensions": [
+      {
+        "id": "codex.semantic",
+        "required": false,
+        "version": "0.1"
+      }
+    ],
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}

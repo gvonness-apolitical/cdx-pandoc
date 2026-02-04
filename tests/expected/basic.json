@@ -1,0 +1,355 @@
+{
+  "content": {
+    "blocks": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Introduction"
+          }
+        ],
+        "id": "introduction",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "This is a "
+          },
+          {
+            "marks": [
+              "bold"
+            ],
+            "type": "text",
+            "value": "basic"
+          },
+          {
+            "type": "text",
+            "value": " test document with "
+          },
+          {
+            "marks": [
+              "italic"
+            ],
+            "type": "text",
+            "value": "various"
+          },
+          {
+            "type": "text",
+            "value": " formatting options."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Text Formatting"
+          }
+        ],
+        "id": "text-formatting",
+        "level": 2,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Here’s some "
+          },
+          {
+            "marks": [
+              "code"
+            ],
+            "type": "text",
+            "value": "inline code"
+          },
+          {
+            "type": "text",
+            "value": " and a "
+          },
+          {
+            "marks": [
+              {
+                "href": "https://example.com",
+                "title": "Example Link",
+                "type": "link"
+              }
+            ],
+            "type": "text",
+            "value": "link to example"
+          },
+          {
+            "type": "text",
+            "value": "."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Text can be "
+          },
+          {
+            "marks": [
+              "strikethrough"
+            ],
+            "type": "text",
+            "value": "strikethrough"
+          },
+          {
+            "type": "text",
+            "value": " as well."
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Lists"
+          }
+        ],
+        "id": "lists",
+        "level": 2,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Unordered list:"
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "First item"
+                  }
+                ],
+                "type": "paragraph"
+              }
+            ],
+            "type": "listItem"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Second item with "
+                  },
+                  {
+                    "marks": [
+                      "bold"
+                    ],
+                    "type": "text",
+                    "value": "bold"
+                  }
+                ],
+                "type": "paragraph"
+              }
+            ],
+            "type": "listItem"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Third item with "
+                  },
+                  {
+                    "marks": [
+                      "italic"
+                    ],
+                    "type": "text",
+                    "value": "italic"
+                  }
+                ],
+                "type": "paragraph"
+              }
+            ],
+            "type": "listItem"
+          }
+        ],
+        "ordered": false,
+        "type": "list"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Ordered list:"
+          }
+        ],
+        "type": "paragraph"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "First numbered item"
+                  }
+                ],
+                "type": "paragraph"
+              }
+            ],
+            "type": "listItem"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Second numbered item"
+                  }
+                ],
+                "type": "paragraph"
+              }
+            ],
+            "type": "listItem"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Third numbered item"
+                  }
+                ],
+                "type": "paragraph"
+              }
+            ],
+            "type": "listItem"
+          }
+        ],
+        "ordered": true,
+        "type": "list"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Code Block"
+          }
+        ],
+        "id": "code-block",
+        "level": 2,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "def hello_world():\n    print(\"Hello, Codex!\")"
+          }
+        ],
+        "language": "python",
+        "type": "codeBlock"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Blockquote"
+          }
+        ],
+        "id": "blockquote",
+        "level": 2,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "This is a blockquote. It can span multiple lines."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "type": "blockquote"
+      },
+      {
+        "type": "horizontalRule"
+      },
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "The end."
+          }
+        ],
+        "type": "paragraph"
+      }
+    ],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": "Unknown",
+      "date": "2025-01-28",
+      "description": "A simple test document for the Codex Pandoc writer.",
+      "format": "application/vnd.codex+json",
+      "language": "en",
+      "subject": [
+        "test",
+        "codex",
+        "pandoc"
+      ],
+      "title": "Basic Test Document",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": {
+      "@type": "Person",
+      "name": "Unknown"
+    },
+    "datePublished": "2025-01-28",
+    "description": "A simple test document for the Codex Pandoc writer.",
+    "inLanguage": "en",
+    "keywords": "test, codex, pandoc",
+    "name": "Basic Test Document"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}

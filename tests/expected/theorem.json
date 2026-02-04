@@ -1,0 +1,368 @@
+{
+  "content": {
+    "blocks": [
+      {
+        "children": [
+          {
+            "type": "text",
+            "value": "Theorems"
+          }
+        ],
+        "id": "theorems",
+        "level": 1,
+        "type": "heading"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "Let "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "u"
+              },
+              {
+                "type": "text",
+                "value": " be harmonic on "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "\\Omega"
+              },
+              {
+                "type": "text",
+                "value": ". Then "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "u"
+              },
+              {
+                "type": "text",
+                "value": " attains its maximum on the boundary "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "\\partial\\Omega"
+              },
+              {
+                "type": "text",
+                "value": "."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "id": "thm-max",
+        "title": "Maximum Principle",
+        "type": "academic:theorem",
+        "variant": "theorem"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "For all "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "x \\in [0,1]"
+              },
+              {
+                "type": "text",
+                "value": ", we have "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "f(x) \\leq M"
+              },
+              {
+                "type": "text",
+                "value": "."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "id": "lem-bound",
+        "type": "academic:theorem",
+        "variant": "lemma"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "A function "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "f"
+              },
+              {
+                "type": "text",
+                "value": " is continuous at "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "a"
+              },
+              {
+                "type": "text",
+                "value": " if "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "\\lim_{x \\to a} f(x) = f(a)"
+              },
+              {
+                "type": "text",
+                "value": "."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "id": "def-cont",
+        "title": "Continuity",
+        "type": "academic:theorem",
+        "variant": "definition"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "If "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "u"
+              },
+              {
+                "type": "text",
+                "value": " is harmonic and bounded, then "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "u"
+              },
+              {
+                "type": "text",
+                "value": " is constant."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "id": "cor-max",
+        "type": "academic:theorem",
+        "variant": "corollary"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "The solution is unique."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "id": "prop-unique",
+        "type": "academic:theorem",
+        "variant": "proposition"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "There are infinitely many twin primes."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "id": "conj-prime",
+        "type": "academic:theorem",
+        "variant": "conjecture"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "This result generalizes to higher dimensions."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "id": "rem-note",
+        "type": "academic:theorem",
+        "variant": "remark"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "type": "text",
+                "value": "Consider "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "f(x) = x^2"
+              },
+              {
+                "type": "text",
+                "value": " on "
+              },
+              {
+                "marks": [
+                  {
+                    "format": "latex",
+                    "type": "math"
+                  }
+                ],
+                "type": "text",
+                "value": "[0,1]"
+              },
+              {
+                "type": "text",
+                "value": "."
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "id": "ex-simple",
+        "type": "academic:theorem",
+        "variant": "example"
+      }
+    ],
+    "version": "0.1"
+  },
+  "dublin_core": {
+    "terms": {
+      "creator": "Unknown",
+      "format": "application/vnd.codex+json",
+      "title": "Theorem Test",
+      "type": "Text"
+    },
+    "version": "1.1"
+  },
+  "jsonld": {
+    "@context": "https://schema.org/",
+    "@type": "Article",
+    "author": {
+      "@type": "Person",
+      "name": "Unknown"
+    },
+    "name": "Theorem Test"
+  },
+  "manifest": {
+    "codex": "0.1",
+    "content": {
+      "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "content/document.json"
+    },
+    "extensions": [
+      {
+        "id": "codex.academic",
+        "required": false,
+        "version": "0.1"
+      }
+    ],
+    "id": "pending",
+    "metadata": {
+      "dublinCore": "metadata/dublin-core.json",
+      "jsonLd": "metadata/jsonld.json"
+    },
+    "state": "draft"
+  }
+}
