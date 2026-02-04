@@ -66,6 +66,10 @@ test-unit:
 	@echo "Running unit tests..."
 	@$(LUA) tests/unit/test_json.lua
 	@$(LUA) tests/unit/test_lib_utils.lua
+	@$(LUA) tests/unit/test_shared_utils.lua
+	@$(LUA) tests/unit/test_bibliography.lua
+	@$(LUA) tests/unit/test_inlines.lua
+	@$(LUA) tests/unit/test_metadata.lua
 
 # Run all tests
 test: test-unit test-json
