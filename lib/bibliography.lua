@@ -97,12 +97,10 @@ function M.extract_date(date_val)
 
             if #first_date >= 1 then
                 local year = first_date[1]
-                if year.t == "MetaString" then
-                    result.year = tonumber(year.text)
-                elseif type(year) == "number" then
+                if type(year) == "number" then
                     result.year = year
-                elseif type(year) == "table" and year[1] then
-                    result.year = tonumber(meta_to_string(year))
+                elseif type(year) == "table" and year.t == "MetaString" then
+                    result.year = tonumber(year.text)
                 else
                     result.year = tonumber(meta_to_string(year))
                 end
@@ -130,7 +128,11 @@ function M.extract_date(date_val)
     if not result.year then
         local year = date_val.year
         if year then
-            result.year = tonumber(meta_to_string(year))
+            if type(year) == "number" then
+                result.year = year
+            else
+                result.year = tonumber(meta_to_string(year))
+            end
         end
     end
 
