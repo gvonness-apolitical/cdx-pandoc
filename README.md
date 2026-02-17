@@ -58,7 +58,7 @@ pandoc -f cdx-reader.lua output.json -o document.tex
 pandoc -f cdx-reader.lua output.json -o document.html
 ```
 
-The reader handles core block types (paragraphs, headings, lists, code blocks, blockquotes, tables, math, images, figures, definition lists, admonitions) and academic extension blocks (theorems, proofs, exercises, algorithms, abstracts, equation groups). Semantic blocks like `semantic:term`, `semantic:measurement`, and `semantic:ref` are converted to their closest Pandoc equivalents. Footnotes are restored via inline references. Extension blocks without equivalents (e.g., `semantic:bibliography`, `semantic:glossary`) are skipped.
+The reader handles core block types (paragraphs, headings, lists, code blocks, blockquotes, tables, math, images, figures, definition lists, admonitions, measurements) and academic extension blocks (theorems, proofs, exercises, algorithms, abstracts, equation groups). Semantic blocks like `semantic:term` and `semantic:ref` are converted to their closest Pandoc equivalents. The reader accepts both namespaced (e.g., `semantic:citation`) and legacy non-namespaced mark formats. Footnotes are restored via inline references. Extension blocks without equivalents (e.g., `semantic:bibliography`, `semantic:glossary`) are skipped.
 
 ## Features
 
@@ -77,8 +77,9 @@ The reader handles core block types (paragraphs, headings, lists, code blocks, b
 | Math (display) | math | LaTeX format, display=true |
 | Math (inline) | math mark | LaTeX format on text node |
 | DefinitionList | definitionList | Core block with term/description items |
+| Span (.measurement) | measurement | Core block: value, unit, display |
 | DefinitionList (.glossary) | semantic:term | Glossary Div context only |
-| Cite | citation mark | refs, locator, prefix, suffix, suppressAuthor |
+| Cite | semantic:citation mark | refs, locator, prefix, suffix, suppressAuthor |
 | Note | semantic:footnote | Superscript ref + block content |
 | Image | image | src, alt, title, width, height |
 | Figure | figure | Container with image children + figcaption |
@@ -101,10 +102,10 @@ The reader handles core block types (paragraphs, headings, lists, code blocks, b
 | Emph | italic |
 | Code | code |
 | Link | link (with href, title) |
-| Link (#thm-*, #lem-*, ...) | theorem-ref |
-| Link (#eq-*) | equation-ref |
-| Link (#alg-*) | algorithm-ref |
-| Math (inline) | math (format: latex) |
+| Link (#thm-*, #lem-*, ...) | academic:theorem-ref |
+| Link (#eq-*) | academic:equation-ref |
+| Link (#alg-*) | academic:algorithm-ref |
+| Math (inline) | math (format: latex, source) |
 | Strikeout | strikethrough |
 | Underline | underline |
 | Superscript | superscript |
@@ -124,7 +125,7 @@ Link text to knowledge bases (Wikidata, DBpedia, etc.):
 [Large Hadron Collider]{.entity uri="https://www.wikidata.org/wiki/Q83492" entityType="Place" source="Wikidata"}
 ```
 
-Produces an `entity` mark with `uri`, `entityType`, and optional `source` fields.
+Produces a `semantic:entity` mark with `uri`, `entityType`, and optional `source` fields.
 
 #### Glossary References
 
@@ -137,7 +138,7 @@ We discuss [CRDT]{.glossary ref="term-crdt"} technologies.
 [eventual consistency]{.glossary}
 ```
 
-Produces a `glossary` mark with `ref` field pointing to a `semantic:term` block ID.
+Produces a `semantic:glossary` mark with `ref` field pointing to a `semantic:term` block ID.
 
 #### Measurements
 
@@ -149,7 +150,7 @@ The sample weighed [42.5 kg]{.measurement value="42.5" unit="kg"}.
 Temperature reached [100 °C]{.measurement value="100" unit="°C"}.
 ```
 
-Produces a `semantic:measurement` block with `value`, `unit`, and schema.org `QuantitativeValue` metadata.
+Produces a core `measurement` block with `value`, `unit`, and `display` (the original text).
 
 ### Academic Extension Blocks
 
@@ -199,7 +200,7 @@ Admonition classes: `note`, `warning`, `tip`, `danger`, `important`, `caution`.
 
 Aligned LaTeX environments (`\begin{align}`, `\begin{gather}`, `\begin{split}`) in display math are automatically detected and converted to `academic:equation-group` blocks.
 
-Cross-references to academic blocks use standard Markdown links with `#`-prefixed IDs (e.g., `[Theorem 1](#thm-max)`). Links targeting `#thm-*`, `#lem-*`, `#eq-*`, `#alg-*`, etc. are converted to typed reference marks (`theorem-ref`, `equation-ref`, `algorithm-ref`).
+Cross-references to academic blocks use standard Markdown links with `#`-prefixed IDs (e.g., `[Theorem 1](#thm-max)`). Links targeting `#thm-*`, `#lem-*`, `#eq-*`, `#alg-*`, etc. are converted to namespaced reference marks (`academic:theorem-ref`, `academic:equation-ref`, `academic:algorithm-ref`).
 
 ### Metadata Mapping
 
@@ -237,7 +238,7 @@ The writer produces a JSON structure with three sections:
     }
   },
   "content": {
-    "version": "0.1",
+    "version": "0.7.0",
     "blocks": [...]
   },
   "dublin_core": {
@@ -363,7 +364,7 @@ Display math should use double dollar signs or the equation environment:
 $$E = mc^2$$
 ```
 
-Inline math uses single dollar signs: `$x = y$`. Inline math is preserved as a `math` mark on text nodes (stays inside the paragraph). Display math produces a block-level `math` block. Aligned LaTeX environments (`align`, `gather`, `split`) are automatically detected and converted to `academic:equation-group` blocks.
+Inline math uses single dollar signs: `$x = y$`. Inline math is preserved as a `math` mark on text nodes (stays inside the paragraph) with `format: "latex"` and `source` containing the LaTeX string. Display math produces a block-level `math` block. Aligned LaTeX environments (`align`, `gather`, `split`) are automatically detected and converted to `academic:equation-group` blocks.
 
 ### Reader round-trip loses semantic data
 
@@ -371,8 +372,8 @@ The reader converts Codex back to standard Pandoc elements. Most block types sur
 
 - **Core blocks**: paragraphs, headings, lists, tables, code, math, images, figures, definition lists, admonitions all round-trip cleanly.
 - **Academic blocks**: theorems (variant, id, title), proofs (of, method), exercises (difficulty, hints, solutions), algorithms (title, pseudocode), abstracts (keywords), and equation groups (reconstructed LaTeX environments) all survive via Pandoc Div attributes.
-- **Semantic blocks**: `semantic:term` round-trips via DefinitionList, `semantic:measurement` via Span attributes. `semantic:bibliography` and `semantic:glossary` are skipped as they have no direct Pandoc equivalent.
-- **Inline marks**: formatting, links, math, citations, footnotes, entity URIs, and academic cross-references all survive round-trip.
+- **Semantic blocks**: `semantic:term` round-trips via DefinitionList, `measurement` via Span attributes. `semantic:bibliography` and `semantic:glossary` are skipped as they have no direct Pandoc equivalent.
+- **Inline marks**: formatting, links, math, `semantic:citation`, footnotes, `semantic:entity` URIs, `semantic:glossary` references, and `academic:*-ref` cross-references all survive round-trip.
 
 ## Related Projects
 
