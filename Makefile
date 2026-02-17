@@ -9,7 +9,7 @@ TEST_INPUTS := $(wildcard tests/inputs/*.md)
 TEST_OUTPUTS := $(patsubst tests/inputs/%.md,tests/outputs/%.json,$(TEST_INPUTS))
 TEST_CDX := $(patsubst tests/inputs/%.md,tests/outputs/%.cdx,$(TEST_INPUTS))
 
-.PHONY: all test clean test-json test-cdx test-reader test-unit test-golden help check-deps validate-schema lint
+.PHONY: all test clean test-json test-cdx test-reader test-unit test-golden test-all help check-deps validate-schema lint
 
 all: test
 
@@ -17,6 +17,7 @@ help:
 	@echo "Codex Pandoc Writer"
 	@echo ""
 	@echo "Targets:"
+	@echo "  test-all     Run everything (lint + test + golden + reader + validate)"
 	@echo "  test         Run all tests (unit + JSON output)"
 	@echo "  test-unit    Run Lua unit tests"
 	@echo "  test-cdx     Run full pipeline tests (creates .cdx files)"
@@ -64,12 +65,9 @@ LUA := $(shell command -v lua5.4 2>/dev/null || command -v lua 2>/dev/null || ec
 
 test-unit:
 	@echo "Running unit tests..."
-	@$(LUA) tests/unit/test_json.lua
-	@$(LUA) tests/unit/test_lib_utils.lua
-	@$(LUA) tests/unit/test_shared_utils.lua
-	@$(LUA) tests/unit/test_bibliography.lua
-	@$(LUA) tests/unit/test_inlines.lua
-	@$(LUA) tests/unit/test_metadata.lua
+	@for f in tests/unit/test_*.lua; do \
+		$(LUA) $$f || exit 1; \
+	done
 
 # Run all tests
 test: test-unit test-json
@@ -141,9 +139,12 @@ update-golden: test-json
 	done
 	@echo "Golden baselines updated."
 
+# Run all tests (unit + integration + golden + reader + lint + validate)
+test-all: lint test test-golden test-reader validate
+
 # Lint Lua files
 lint:
-	luacheck codex.lua cdx-reader.lua lib/
+	luacheck . --no-unused-args --no-max-line-length
 
 # Clean generated files
 clean:

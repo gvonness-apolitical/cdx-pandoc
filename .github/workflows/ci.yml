@@ -45,5 +45,8 @@ jobs:
       - name: Validate JSON structure
         run: make validate
 
+      - name: Compare against golden baselines
+        run: make test-golden
+
       - name: Run reader round-trip tests
         run: make test-reader
