@@ -7,6 +7,14 @@ local deep_copy = utils.deep_copy
 
 local M = {}
 
+-- Extension tracker function (set by codex.lua)
+local track_extension = function() end
+
+-- Set the extension tracker function
+function M.set_extension_tracker(tracker)
+    track_extension = tracker or function() end
+end
+
 -- Default context (global mutable state for backward compatibility)
 M._default_context = {
     footnotes = {},
@@ -53,7 +61,7 @@ local function marks_equal(m1, m2)
         if m1.type == "footnote" then
             return m1.number == m2.number and m1.id == m2.id
         end
-        if m1.type == "citation" then
+        if m1.type == "semantic:citation" then
             -- Citations with same refs are equal for merging purposes
             if #m1.refs ~= #m2.refs then return false end
             for i, ref in ipairs(m1.refs) do
@@ -61,16 +69,16 @@ local function marks_equal(m1, m2)
             end
             return true
         end
-        if m1.type == "entity" then
+        if m1.type == "semantic:entity" then
             return m1.uri == m2.uri and m1.entityType == m2.entityType
         end
-        if m1.type == "glossary" then
+        if m1.type == "semantic:glossary" then
             return m1.ref == m2.ref
         end
         if m1.type == "math" then
-            return m1.format == m2.format
+            return m1.format == m2.format and m1.source == m2.source
         end
-        if m1.type == "theorem-ref" or m1.type == "equation-ref" or m1.type == "algorithm-ref" then
+        if m1.type == "academic:theorem-ref" or m1.type == "academic:equation-ref" or m1.type == "academic:algorithm-ref" then
             return m1.target == m2.target
         end
     end
@@ -205,16 +213,16 @@ local function detect_academic_ref(target)
     -- Theorem-like references
     for prefix, _ in pairs(theorem_ref_prefixes) do
         if ref_id:sub(1, #prefix) == prefix then
-            return {type = "theorem-ref", target = target}
+            return {type = "academic:theorem-ref", target = target}
         end
     end
     -- Equation references
     if ref_id:match("^eq%-") then
-        return {type = "equation-ref", target = target}
+        return {type = "academic:equation-ref", target = target}
     end
     -- Algorithm references
     if ref_id:match("^alg%-") then
-        return {type = "algorithm-ref", target = target}
+        return {type = "academic:algorithm-ref", target = target}
     end
     return nil
 end
@@ -226,6 +234,7 @@ inline_handlers.Link = function(inline, marks, ctx)
     -- Check for academic cross-reference patterns
     local acad_mark = detect_academic_ref(target)
     if acad_mark then
+        track_extension(utils.EXT_ACADEMIC)
         -- Extract format text from link content
         local format_text = pandoc.utils.stringify(inline.content)
         if format_text and format_text ~= "" then
@@ -268,7 +277,7 @@ inline_handlers.Math = function(inline, marks, ctx)
     else
         -- InlineMath → text node with math mark (stays inside paragraph)
         local new_marks = deep_copy(marks)
-        table.insert(new_marks, {type = "math", format = "latex"})
+        table.insert(new_marks, {type = "math", format = "latex", source = inline.text})
         return {M.text_node(inline.text, new_marks)}
     end
 end
@@ -319,7 +328,8 @@ inline_handlers.Cite = function(inline, marks, ctx)
         end
     end
 
-    local citation_mark = {type = "citation", refs = refs}
+    track_extension(utils.EXT_SEMANTIC)
+    local citation_mark = {type = "semantic:citation", refs = refs}
     if locator then citation_mark.locator = locator end
     if prefix then citation_mark.prefix = prefix end
     if suffix then citation_mark.suffix = suffix end
@@ -349,7 +359,8 @@ inline_handlers.Span = function(inline, marks, ctx)
 
     -- Entity class
     if M.has_class(classes, "entity") then
-        local entity_mark = {type = "entity"}
+        track_extension(utils.EXT_SEMANTIC)
+        local entity_mark = {type = "semantic:entity"}
         if attributes.uri then
             entity_mark.uri = attributes.uri
         end
@@ -367,7 +378,8 @@ inline_handlers.Span = function(inline, marks, ctx)
 
     -- Glossary class
     if M.has_class(classes, "glossary") then
-        local glossary_mark = {type = "glossary"}
+        track_extension(utils.EXT_SEMANTIC)
+        local glossary_mark = {type = "semantic:glossary"}
         if attributes.ref then
             glossary_mark.ref = attributes.ref
         else

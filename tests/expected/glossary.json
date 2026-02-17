@@ -77,7 +77,7 @@
             "marks": [
               {
                 "ref": "term-crdt",
-                "type": "glossary"
+                "type": "semantic:glossary"
               }
             ],
             "type": "text",
@@ -91,7 +91,7 @@
             "marks": [
               {
                 "ref": "term-eventual-consistency",
-                "type": "glossary"
+                "type": "semantic:glossary"
               }
             ],
             "type": "text",

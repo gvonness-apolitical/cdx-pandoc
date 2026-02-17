@@ -44,6 +44,7 @@ end
 -- Initialize blocks module with inlines reference
 blocks.set_inlines(inlines)
 blocks.set_extension_tracker(track_extension)
+inlines.set_extension_tracker(track_extension)
 
 -- Initialize academic module
 academic.set_blocks(blocks)

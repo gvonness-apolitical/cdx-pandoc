@@ -40,6 +40,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "a = 2m",
                     "type": "math"
                   }
                 ],
@@ -54,6 +55,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "b = 2n",
                     "type": "math"
                   }
                 ],
@@ -68,6 +70,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "a + b = 2(m+n)",
                     "type": "math"
                   }
                 ],

@@ -24,6 +24,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "f(x) = x^2 + 1",
                     "type": "math"
                   }
                 ],
@@ -63,6 +64,7 @@
                   "marks": [
                     {
                       "format": "latex",
+                      "source": "f'(x) = 2x",
                       "type": "math"
                     }
                   ],
@@ -91,6 +93,7 @@
                     "marks": [
                       {
                         "format": "latex",
+                        "source": "\\int x \\, dx",
                         "type": "math"
                       }
                     ],
@@ -121,6 +124,7 @@
                     "marks": [
                       {
                         "format": "latex",
+                        "source": "\\int \\frac{1}{1+x^4} \\, dx",
                         "type": "math"
                       }
                     ],

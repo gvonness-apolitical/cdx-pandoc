@@ -24,7 +24,7 @@
                 "refs": [
                   "smith2023"
                 ],
-                "type": "citation"
+                "type": "semantic:citation"
               }
             ],
             "type": "text",
@@ -51,7 +51,7 @@
                 ],
                 "suffix": ", pp. 42-45",
                 "suppressAuthor": true,
-                "type": "citation"
+                "type": "semantic:citation"
               }
             ],
             "type": "text",
@@ -77,7 +77,7 @@
                   "smith2023",
                   "jones2024"
                 ],
-                "type": "citation"
+                "type": "semantic:citation"
               }
             ],
             "type": "text",

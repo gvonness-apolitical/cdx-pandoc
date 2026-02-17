@@ -276,21 +276,12 @@ function M.convert_sentinel(node)
     elseif node.type == "image_sentinel" then
         return {{type = "image", src = node.src, alt = node.alt, title = node.title}}
     elseif node.type == "measurement_sentinel" then
-        track_extension(utils.EXT_SEMANTIC)
-        local measurement = {
-            type = "semantic:measurement",
+        return {{
+            type = "measurement",
             value = node.value,
-            unit = node.unit
-        }
-        -- Add schema.org QuantitativeValue if we have valid data
-        if node.value and node.unit then
-            measurement.schema = {
-                ["@type"] = "QuantitativeValue",
-                value = node.value,
-                unitText = node.unit
-            }
-        end
-        return {measurement}
+            unit = node.unit,
+            display = node.text
+        }}
     else
         return {}
     end
@@ -709,19 +700,25 @@ function M.figure(block)
 
     -- Single pass: collect subfigures from content, tracking whether any were found
     local has_subfigures = false
+    local subfigures = {}
     for _, child in ipairs(block.content or {}) do
         local ctag = child.t or child.tag
         if ctag == "Div" then
             local cclasses = (child.attr and child.attr.classes) or (child.attr and child.attr[2]) or {}
             if has_class(cclasses, "subfigure") then
                 local cattrs = (child.attr and child.attr.attributes) or (child.attr and child.attr[3]) or {}
-                local subfig = M.extract_subfigure(child, cattrs)
+                local cid = (child.attr and child.attr.identifier) or (child.attr and child.attr[1]) or ""
+                local subfig = M.extract_subfigure(child, cattrs, cid)
                 if subfig then
-                    table.insert(result.children, subfig)
+                    table.insert(subfigures, subfig)
                 end
                 has_subfigures = true
             end
         end
+    end
+
+    if has_subfigures and #subfigures > 0 then
+        result.subfigures = subfigures
     end
 
     -- Standard figure: extract image from first content block
@@ -741,8 +738,8 @@ function M.figure(block)
         table.insert(result.children, figcaption)
     end
 
-    -- If we ended up with no children, fall back to converting content as blocks
-    if #result.children == 0 then
+    -- If we ended up with no children and no subfigures, fall back to converting content as blocks
+    if #result.children == 0 and not result.subfigures then
         return {
             multi = true,
             blocks = M.convert(block.content or {})
@@ -753,17 +750,20 @@ function M.figure(block)
 end
 
 -- Extract a subfigure from a Div with .subfigure class
-function M.extract_subfigure(div, attrs)
+function M.extract_subfigure(div, attrs, div_id)
     local subfig = {
-        type = "figure",
         children = {}
     }
+
+    if div_id and div_id ~= "" then
+        subfig.id = div_id
+    end
 
     if attrs and attrs.label then
         subfig.label = attrs.label
     end
 
-    -- Extract image from subfigure Div content
+    -- Extract image and caption from subfigure Div content
     for _, child in ipairs(div.content or {}) do
         local ctag = child.t or child.tag
         if ctag == "Plain" or ctag == "Para" then
@@ -774,6 +774,27 @@ function M.extract_subfigure(div, attrs)
                         table.insert(subfig.children, M.image(inline))
                     end
                 end
+            end
+        elseif ctag == "Figure" then
+            -- Nested Figure inside subfigure Div — extract its caption and image
+            if child.content then
+                for _, fig_child in ipairs(child.content) do
+                    local ftag = fig_child.t or fig_child.tag
+                    if ftag == "Plain" or ftag == "Para" then
+                        local fc = fig_child.content or fig_child.c
+                        if fc then
+                            for _, inline in ipairs(fc) do
+                                if inline.t == "Image" then
+                                    table.insert(subfig.children, M.image(inline))
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            local sub_caption = extract_figcaption(child.caption)
+            if sub_caption then
+                table.insert(subfig.children, sub_caption)
             end
         end
     end

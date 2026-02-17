@@ -27,7 +27,7 @@
             "marks": [
               {
                 "entityType": "Person",
-                "type": "entity",
+                "type": "semantic:entity",
                 "uri": "https://www.wikidata.org/wiki/Q937"
               }
             ],
@@ -48,7 +48,7 @@
               {
                 "entityType": "Person",
                 "source": "Wikidata",
-                "type": "entity",
+                "type": "semantic:entity",
                 "uri": "https://www.wikidata.org/wiki/Q7186"
               }
             ],
@@ -72,7 +72,7 @@
             "marks": [
               {
                 "entityType": "Place",
-                "type": "entity",
+                "type": "semantic:entity",
                 "uri": "https://www.wikidata.org/wiki/Q83492"
               }
             ],
@@ -107,12 +107,8 @@
         "type": "paragraph"
       },
       {
-        "schema": {
-          "@type": "QuantitativeValue",
-          "unitText": "kg",
-          "value": 42.5
-        },
-        "type": "semantic:measurement",
+        "display": "42.5 kg",
+        "type": "measurement",
         "unit": "kg",
         "value": 42.5
       },
@@ -135,12 +131,8 @@
         "type": "paragraph"
       },
       {
-        "schema": {
-          "@type": "QuantitativeValue",
-          "unitText": "°C",
-          "value": 100
-        },
-        "type": "semantic:measurement",
+        "display": "100 °C",
+        "type": "measurement",
         "unit": "°C",
         "value": 100
       },
