@@ -14,7 +14,7 @@ This writer enables conversion from any Pandoc-supported format (Markdown, LaTeX
 
 ## Requirements
 
-- Pandoc 2.11+ (with Lua support)
+- Pandoc 3.0+ (with Lua support)
 - jq (for JSON processing)
 - sha256sum or shasum (for hashing)
 - zip (for archive creation)

@@ -49,7 +49,7 @@ pandoc input.md -t codex.lua -o output.cdx
 Before submitting a PR, run the full suite:
 
 ```bash
-make clean && make test && make test-reader && make test-golden
+make clean && make test-all
 ```
 
 ## Pull Request Guidelines
