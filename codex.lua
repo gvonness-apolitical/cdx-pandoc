@@ -53,7 +53,7 @@ blocks.set_academic(academic)
 
 -- Spec version
 local CODEX_VERSION = "0.1"
-local CONTENT_VERSION = "0.1"
+local CONTENT_VERSION = "0.7.0"
 
 -- Generate ISO 8601 timestamp
 local function iso_timestamp()
