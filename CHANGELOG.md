@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-02-17
+
+### Changed
+- **Mark namespacing**: semantic marks now use `semantic:` prefix (`semantic:citation`, `semantic:entity`, `semantic:glossary`), academic marks use `academic:` prefix (`academic:theorem-ref`, `academic:equation-ref`, `academic:algorithm-ref`). Core marks (`footnote`, `anchor`, `math`, `link`, `code`) are unchanged.
+- **Measurement** is now a core block type (`measurement`) with a `display` field containing the original text. Removed `semantic:measurement` type and `schema` (schema.org QuantitativeValue) field.
+- **Figure subfigures** moved from `children` to a dedicated `subfigures` array. Subfigure objects have `id`, `label`, and `children` fields (no `type`).
+- **Inline math** mark now includes `source` field containing the LaTeX string alongside `format: "latex"`.
+- **Content version** bumped from `0.1` to `0.7.0` to align with cdx-core serialization format.
+- Extension tracking now covers inline marks (semantic and academic), not just blocks.
+- Reader accepts both namespaced and legacy non-namespaced mark formats for backward compatibility.
+
 ## [0.5.0] - 2026-02-04
 
 ### Added
