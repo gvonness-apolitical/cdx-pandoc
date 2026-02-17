@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- Unit tests for `blocks.lua`, `academic.lua`, `reader_inlines.lua`, `reader_blocks.lua`, `reader_academic.lua` (235 new assertions, 505 total across 11 test files)
+- Golden baseline comparison (`make test-golden`) in CI pipeline
+- `make test-all` target for single-command full validation (lint + test + golden + reader + validate)
+- Wildcard test discovery in `make test-unit` (auto-discovers new test files)
+
+### Changed
+- Aligned `make lint` flags with CI (`--no-unused-args --no-max-line-length`)
+- Updated CONTRIBUTING.md pre-PR command to `make test-all`
+
+### Fixed
+- README Pandoc version requirement: corrected from 2.11+ to 3.0+
+
 ## [0.6.0] - 2026-02-17
 
 ### Changed

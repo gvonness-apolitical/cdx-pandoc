@@ -22,7 +22,7 @@ This project follows the [Rust Code of Conduct](https://www.rust-lang.org/polici
 
 - [Pandoc](https://pandoc.org/installing.html) 3.0 or later
 - Lua 5.4 (bundled with Pandoc)
-- [cdx-cli](https://github.com/gvonness-apolitical/cdx-core) (optional, for validation)
+- [cdx-cli](https://github.com/Entrolution/cdx-core) (optional, for validation)
 
 ### Testing
 
@@ -90,7 +90,7 @@ See the [Project Structure section in README.md](README.md#project-structure) fo
 
 ## Specification Reference
 
-This writer implements the [Codex Document Format Specification](https://github.com/gvonness-apolitical/codex-file-format-spec). When implementing new features:
+This writer implements the [Codex Document Format Specification](https://github.com/Entrolution/codex-file-format-spec). When implementing new features:
 
 - Reference the relevant spec section
 - Note any deviations or extensions
