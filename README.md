@@ -1,9 +1,9 @@
 # cdx-pandoc
 
-[![CI](https://github.com/gvonness-apolitical/cdx-pandoc/actions/workflows/ci.yml/badge.svg)](https://github.com/gvonness-apolitical/cdx-pandoc/actions/workflows/ci.yml)
+[![CI](https://github.com/Entrolution/cdx-pandoc/actions/workflows/ci.yml/badge.svg)](https://github.com/Entrolution/cdx-pandoc/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE-MIT)
 
-Pandoc custom writer for [Codex Document Format](https://github.com/gvonness-apolitical/codex-file-format-spec) (`.cdx`) files.
+Pandoc custom writer and reader for [Codex Document Format](https://github.com/Entrolution/codex-file-format-spec) (`.cdx`) files.
 
 ## Overview
 
@@ -377,8 +377,8 @@ The reader converts Codex back to standard Pandoc elements. Most block types sur
 
 ## Related Projects
 
-- [codex-file-format-spec](https://github.com/gvonness-apolitical/codex-file-format-spec) - Format specification
-- [cdx-core](https://github.com/gvonness-apolitical/cdx-core) - Rust library and CLI
+- [codex-file-format-spec](https://github.com/Entrolution/codex-file-format-spec) - Format specification
+- [cdx-core](https://github.com/Entrolution/cdx-core) - Rust library and CLI
 
 ## Contributing
 
