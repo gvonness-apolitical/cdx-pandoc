@@ -14,6 +14,12 @@ local mark_wrappers = {
     subscript = function(inlines) return pandoc.Subscript(inlines) end,
 }
 
+-- Strip namespace prefix for mark categorization (backward compatible)
+-- "semantic:citation" → "citation", "academic:theorem-ref" → "theorem-ref", "code" → "code"
+local function base_mark_type(mark_type)
+    return mark_type:match("^[^:]+:(.+)$") or mark_type
+end
+
 -- Footnote storage (set externally by reader_blocks)
 M._footnotes = {}
 
@@ -62,26 +68,27 @@ function M.convert_node(node)
 
     for _, mark in ipairs(marks) do
         local mark_type = M.get_mark_type(mark)
-        if mark_type == "code" then
+        local base_type = base_mark_type(mark_type)
+        if base_type == "code" then
             has_code = true
-        elseif mark_type == "math" then
+        elseif base_type == "math" then
             has_math = mark
-        elseif mark_type == "link" then
+        elseif base_type == "link" then
             has_link = mark
-        elseif mark_type == "anchor" then
+        elseif base_type == "anchor" then
             has_anchor = mark
-        elseif mark_type == "footnote" then
+        elseif base_type == "footnote" then
             has_footnote = mark
-        elseif mark_type == "citation" then
+        elseif base_type == "citation" then
             has_citation = mark
-        elseif mark_type == "entity" then
+        elseif base_type == "entity" then
             has_entity = mark
-        elseif mark_type == "glossary" then
+        elseif base_type == "glossary" then
             has_glossary = mark
-        elseif mark_type == "theorem-ref" or mark_type == "equation-ref" or mark_type == "algorithm-ref" then
+        elseif base_type == "theorem-ref" or base_type == "equation-ref" or base_type == "algorithm-ref" then
             has_academic_ref = mark
         else
-            table.insert(other_marks, mark_type)
+            table.insert(other_marks, base_type)
         end
     end
 

@@ -43,6 +43,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "[a,b]",
                     "type": "math"
                   }
                 ],
@@ -74,6 +75,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "f",
                     "type": "math"
                   }
                 ],
@@ -88,6 +90,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "x \\in [a,b]",
                     "type": "math"
                   }
                 ],
@@ -102,6 +105,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "y",
                     "type": "math"
                   }
                 ],
@@ -116,6 +120,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "f(y) > f(x)",
                     "type": "math"
                   }
                 ],
@@ -146,6 +151,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "f",
                     "type": "math"
                   }
                 ],
@@ -160,6 +166,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "[a,b]",
                     "type": "math"
                   }
                 ],
@@ -174,6 +181,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "f",
                     "type": "math"
                   }
                 ],
@@ -204,6 +212,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "K",
                     "type": "math"
                   }
                 ],
@@ -234,7 +243,7 @@
               {
                 "format": "Theorem 1",
                 "target": "#thm-fund",
-                "type": "theorem-ref"
+                "type": "academic:theorem-ref"
               }
             ],
             "type": "text",
@@ -249,7 +258,7 @@
               {
                 "format": "Lemma 1",
                 "target": "#lem-helper",
-                "type": "theorem-ref"
+                "type": "academic:theorem-ref"
               }
             ],
             "type": "text",
@@ -285,6 +294,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "f(x) = x^3 - 2x + 1",
                     "type": "math"
                   }
                 ],
@@ -313,6 +323,7 @@
                     "marks": [
                       {
                         "format": "latex",
+                        "source": "\\frac{d}{dx}x^n = nx^{n-1}",
                         "type": "math"
                       }
                     ],
@@ -338,6 +349,7 @@
                   "marks": [
                     {
                       "format": "latex",
+                      "source": "f'(x) = 3x^2 - 2",
                       "type": "math"
                     }
                   ],
@@ -394,7 +406,7 @@
               {
                 "format": "Algorithm 1",
                 "target": "#alg-binary",
-                "type": "algorithm-ref"
+                "type": "academic:algorithm-ref"
               }
             ],
             "type": "text",
@@ -452,7 +464,7 @@
               {
                 "format": "Equation (1)",
                 "target": "#eq-maxwell",
-                "type": "equation-ref"
+                "type": "academic:equation-ref"
               }
             ],
             "type": "text",
@@ -488,6 +500,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "x",
                     "type": "math"
                   }
                 ],

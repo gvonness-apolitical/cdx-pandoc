@@ -24,6 +24,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "u",
                     "type": "math"
                   }
                 ],
@@ -38,6 +39,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "\\Omega",
                     "type": "math"
                   }
                 ],
@@ -52,6 +54,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "u",
                     "type": "math"
                   }
                 ],
@@ -66,6 +69,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "\\partial\\Omega",
                     "type": "math"
                   }
                 ],
@@ -97,6 +101,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "x \\in [0,1]",
                     "type": "math"
                   }
                 ],
@@ -111,6 +116,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "f(x) \\leq M",
                     "type": "math"
                   }
                 ],
@@ -141,6 +147,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "f",
                     "type": "math"
                   }
                 ],
@@ -155,6 +162,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "a",
                     "type": "math"
                   }
                 ],
@@ -169,6 +177,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "\\lim_{x \\to a} f(x) = f(a)",
                     "type": "math"
                   }
                 ],
@@ -200,6 +209,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "u",
                     "type": "math"
                   }
                 ],
@@ -214,6 +224,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "u",
                     "type": "math"
                   }
                 ],
@@ -292,6 +303,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "f(x) = x^2",
                     "type": "math"
                   }
                 ],
@@ -306,6 +318,7 @@
                 "marks": [
                   {
                     "format": "latex",
+                    "source": "[0,1]",
                     "type": "math"
                   }
                 ],

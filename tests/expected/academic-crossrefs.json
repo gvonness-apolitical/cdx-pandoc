@@ -23,7 +23,7 @@
               {
                 "format": "Theorem 1",
                 "target": "#thm-max",
-                "type": "theorem-ref"
+                "type": "academic:theorem-ref"
               }
             ],
             "type": "text",
@@ -47,7 +47,7 @@
               {
                 "format": "Lemma 2",
                 "target": "#lem-bound",
-                "type": "theorem-ref"
+                "type": "academic:theorem-ref"
               }
             ],
             "type": "text",
@@ -62,7 +62,7 @@
               {
                 "format": "Definition 3",
                 "target": "#def-cont",
-                "type": "theorem-ref"
+                "type": "academic:theorem-ref"
               }
             ],
             "type": "text",
@@ -86,7 +86,7 @@
               {
                 "format": "Proposition 4",
                 "target": "#prop-unique",
-                "type": "theorem-ref"
+                "type": "academic:theorem-ref"
               }
             ],
             "type": "text",
@@ -110,7 +110,7 @@
               {
                 "format": "Equation (1)",
                 "target": "#eq-euler",
-                "type": "equation-ref"
+                "type": "academic:equation-ref"
               }
             ],
             "type": "text",
@@ -134,7 +134,7 @@
               {
                 "format": "Algorithm 1",
                 "target": "#alg-sort",
-                "type": "algorithm-ref"
+                "type": "academic:algorithm-ref"
               }
             ],
             "type": "text",
@@ -148,6 +148,7 @@
             "marks": [
               {
                 "format": "latex",
+                "source": "O(n \\log n)",
                 "type": "math"
               }
             ],
@@ -195,7 +196,7 @@
               {
                 "format": "Corollary 5",
                 "target": "#cor-max",
-                "type": "theorem-ref"
+                "type": "academic:theorem-ref"
               }
             ],
             "type": "text",
@@ -210,7 +211,7 @@
               {
                 "format": "Conjecture 6",
                 "target": "#conj-prime",
-                "type": "theorem-ref"
+                "type": "academic:theorem-ref"
               }
             ],
             "type": "text",
@@ -250,6 +251,13 @@
       "hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
       "path": "content/document.json"
     },
+    "extensions": [
+      {
+        "id": "codex.academic",
+        "required": false,
+        "version": "0.1"
+      }
+    ],
     "id": "pending",
     "metadata": {
       "dublinCore": "metadata/dublin-core.json",

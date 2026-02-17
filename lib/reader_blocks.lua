@@ -286,6 +286,23 @@ function M.image_block(block)
     return pandoc.Figure(pandoc.Plain({img}))
 end
 
+-- Helper: extract images from a subfigure-like object's children
+local function extract_subfigure_images(subfig, content_inlines)
+    for _, sub_child in ipairs(subfig.children or {}) do
+        if sub_child.type == "image" then
+            local src = sub_child.src or ""
+            local alt = sub_child.alt or ""
+            local title = sub_child.title or ""
+            local alt_il = {}
+            if alt ~= "" then
+                alt_il = {pandoc.Str(alt)}
+            end
+            local img = pandoc.Image(alt_il, src, title)
+            table.insert(content_inlines, img)
+        end
+    end
+end
+
 -- Figure block → Pandoc Figure with caption reconstruction
 function M.figure_block(block)
     local id = block.id or ""
@@ -309,20 +326,15 @@ function M.figure_block(block)
         elseif child.type == "figcaption" then
             caption_inlines = reader_inlines.convert(child.children or {})
         elseif child.type == "figure" then
-            -- Subfigure: extract image from its children
-            for _, sub_child in ipairs(child.children or {}) do
-                if sub_child.type == "image" then
-                    local src = sub_child.src or ""
-                    local alt = sub_child.alt or ""
-                    local title = sub_child.title or ""
-                    local alt_il = {}
-                    if alt ~= "" then
-                        alt_il = {pandoc.Str(alt)}
-                    end
-                    local img = pandoc.Image(alt_il, src, title)
-                    table.insert(content_inlines, img)
-                end
-            end
+            -- Legacy subfigure format (type = "figure" nested in children)
+            extract_subfigure_images(child, content_inlines)
+        end
+    end
+
+    -- Handle new subfigures array format
+    if block.subfigures then
+        for _, subfig in ipairs(block.subfigures) do
+            extract_subfigure_images(subfig, content_inlines)
         end
     end
 
@@ -427,14 +439,14 @@ function M.semantic_term(block)
     })
 end
 
--- Semantic measurement block -> Span with measurement class
+-- Measurement block -> Span with measurement class
 function M.semantic_measurement(block)
     local value = block.value
     local unit = block.unit or ""
 
-    -- Build display text
-    local text = ""
-    if value then
+    -- Prefer display field, fall back to constructing from value + unit
+    local text = block.display or ""
+    if text == "" and value then
         text = tostring(value)
         if unit ~= "" then
             text = text .. " " .. unit
