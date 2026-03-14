@@ -129,6 +129,11 @@ convert() {
     # Extract dublin_core section
     jq '.dublin_core' "$json_output" > "$temp_dir/cdx/metadata/dublin-core.json"
 
+    # Extract JSON-LD metadata if present
+    if jq -e '.jsonld' "$json_output" > /dev/null 2>&1; then
+        jq '.jsonld' "$json_output" > "$temp_dir/cdx/metadata/jsonld.json"
+    fi
+
     # Compute content hash
     info "Computing content hash..."
     local content_hash

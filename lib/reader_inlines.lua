@@ -117,31 +117,33 @@ function M.convert_node(node)
     if has_citation then
         local refs = has_citation.refs or {}
         local citations = {}
-        for _, ref in ipairs(refs) do
+        for i, ref in ipairs(refs) do
             -- Create citation with id and mode
             local mode = "NormalCitation"
             if has_citation.suppressAuthor then
                 mode = "SuppressAuthor"
             end
             local citation = pandoc.Citation(ref, mode)
-            -- Set prefix if present
-            if has_citation.prefix then
+            -- Set prefix on first citation only
+            if i == 1 and has_citation.prefix then
                 citation.prefix = {pandoc.Str(has_citation.prefix)}
             end
-            -- Set suffix from locator and/or suffix
-            local suffix_text = ""
-            if has_citation.locator then
-                suffix_text = "p. " .. has_citation.locator
-            end
-            if has_citation.suffix then
-                if suffix_text ~= "" then
-                    suffix_text = suffix_text .. " " .. has_citation.suffix
-                else
-                    suffix_text = has_citation.suffix
+            -- Set suffix/locator on last citation only
+            if i == #refs then
+                local suffix_text = ""
+                if has_citation.locator then
+                    suffix_text = "p. " .. has_citation.locator
                 end
-            end
-            if suffix_text ~= "" then
-                citation.suffix = {pandoc.Str(suffix_text)}
+                if has_citation.suffix then
+                    if suffix_text ~= "" then
+                        suffix_text = suffix_text .. " " .. has_citation.suffix
+                    else
+                        suffix_text = has_citation.suffix
+                    end
+                end
+                if suffix_text ~= "" then
+                    citation.suffix = {pandoc.Str(suffix_text)}
+                end
             end
             table.insert(citations, citation)
         end

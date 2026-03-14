@@ -9,7 +9,7 @@ TEST_INPUTS := $(wildcard tests/inputs/*.md)
 TEST_OUTPUTS := $(patsubst tests/inputs/%.md,tests/outputs/%.json,$(TEST_INPUTS))
 TEST_CDX := $(patsubst tests/inputs/%.md,tests/outputs/%.cdx,$(TEST_INPUTS))
 
-.PHONY: all test clean test-json test-cdx test-reader test-unit test-golden test-all help check-deps validate-schema lint
+.PHONY: all test clean test-json test-cdx test-reader test-unit test-golden test-reader-golden test-all help check-deps validate-schema lint
 
 all: test
 
@@ -138,6 +138,31 @@ update-golden: test-json
 		$(JQ) -S 'del(.manifest.created, .manifest.modified)' $$f > tests/expected/$$base; \
 	done
 	@echo "Golden baselines updated."
+
+# Compare reader round-trip outputs against golden baselines
+# Note: Pandoc Span/Div attribute ordering is non-deterministic between process
+# invocations, so this target is NOT included in test-all. Use update-reader-golden
+# to capture baselines, then run test-reader-golden in the same make invocation:
+#   make update-reader-golden && make test-reader-golden
+test-reader-golden: test-reader
+	@echo "Comparing reader round-trip against golden outputs..."
+	@fail=0; for f in tests/outputs/*.roundtrip.md; do \
+		base=$$(basename $$f); \
+		if [ -f tests/expected/$$base ]; then \
+			diff -q $$f tests/expected/$$base > /dev/null 2>&1 || { echo "DIFF: $$base"; diff tests/expected/$$base $$f | head -20; fail=1; }; \
+		fi; \
+	done; \
+	[ $$fail -eq 0 ] && echo "All reader golden tests passed." || { echo "Reader golden test failures detected."; exit 1; }
+
+# Regenerate reader round-trip golden baselines
+update-reader-golden: test-reader
+	@echo "Updating reader round-trip golden baselines..."
+	@mkdir -p tests/expected
+	@for f in tests/outputs/*.roundtrip.md; do \
+		base=$$(basename $$f); \
+		cp $$f tests/expected/$$base; \
+	done
+	@echo "Reader golden baselines updated."
 
 # Run all tests (unit + integration + golden + reader + lint + validate)
 test-all: lint test test-golden test-reader validate

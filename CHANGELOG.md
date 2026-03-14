@@ -6,18 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-03-14
+
 ### Added
 - Unit tests for `blocks.lua`, `academic.lua`, `reader_inlines.lua`, `reader_blocks.lua`, `reader_academic.lua` (235 new assertions, 505 total across 11 test files)
 - Golden baseline comparison (`make test-golden`) in CI pipeline
 - `make test-all` target for single-command full validation (lint + test + golden + reader + validate)
 - Wildcard test discovery in `make test-unit` (auto-discovers new test files)
+- Unit tests for task list checkboxes, subfigure extraction, LineBlock handler, inline edge cases (Quoted, SmallCaps, Span anchors), and reader block handler output (130 new assertions, 621 total)
+- Reader round-trip golden baselines (`make test-reader-golden`, `make update-reader-golden`)
+- Shared `THEOREM_VARIANTS` and `THEOREM_REF_PREFIXES` constants in `lib/utils.lua`
+- SECURITY.md with supported version policy
 
 ### Changed
+- **Content version** bumped from `0.7.0` to `0.7.1` to align with cdx-core v0.7.1
 - Aligned `make lint` flags with CI (`--no-unused-args --no-max-line-length`)
 - Updated CONTRIBUTING.md pre-PR command to `make test-all`
+- Consolidated theorem variant and reference prefix definitions from `academic.lua`/`inlines.lua` into shared `utils.lua` constants
+- Removed dead code: unused `caption` parameter from `blocks.image()`, unused `convert_inline`/`_handlers` exports from `inlines.lua`, `has_class` re-export from `inlines.lua`
 
 ### Fixed
 - README Pandoc version requirement: corrected from 2.11+ to 3.0+
+- Table cell complex content: now collects all child nodes from nested blocks, not just text nodes
+- Measurement sentinel: defaults to `value=0`/`unit=""` with stderr warnings for unparseable input
+- RawBlock format preservation: sets `language` field from block format (e.g., `html`, `latex`)
+- Citation prefix/suffix: prefix applied only to first citation, suffix/locator only to last (multi-citation fix)
 
 ## [0.6.0] - 2026-02-17
 

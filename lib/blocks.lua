@@ -83,12 +83,16 @@ block_handlers.DefinitionList = function(block) return M.definition_list(block) 
 block_handlers.Figure = function(block) return M.figure(block) end
 
 block_handlers.RawBlock = function(block)
-    return {
+    local result = {
         type = "codeBlock",
         children = {
             {type = "text", value = block.text}
         }
     }
+    if block.format and block.format ~= "" then
+        result.language = block.format
+    end
+    return result
 end
 
 block_handlers.LineBlock = function(block)
@@ -517,13 +521,11 @@ function M.table_cell(cell)
         if #blocks > 0 and blocks[1].type == "paragraph" then
             children = blocks[1].children
         else
-            -- Complex cell content - just use first text we find
+            -- Complex cell content - collect all children from converted blocks
             for _, b in ipairs(blocks) do
                 if b.children then
                     for _, c in ipairs(b.children) do
-                        if c.type == "text" then
-                            table.insert(children, c)
-                        end
+                        table.insert(children, c)
                     end
                 end
             end
@@ -807,7 +809,7 @@ function M.extract_subfigure(div, attrs, div_id)
 end
 
 -- Convert Image inline to image block (with optional dimensions)
-function M.image(img, caption)
+function M.image(img)
     local src = img.src or img.target or ""
     local alt = ""
 
@@ -837,14 +839,6 @@ function M.image(img, caption)
         if attrs.height then
             local h = tonumber(attrs.height:match("(%d+)"))
             if h then result.height = h end
-        end
-    end
-
-    -- Caption passed from outside (legacy path)
-    if caption and caption.long then
-        local cap_text = pandoc.utils.stringify(caption.long)
-        if cap_text and cap_text ~= "" then
-            result.title = cap_text
         end
     end
 

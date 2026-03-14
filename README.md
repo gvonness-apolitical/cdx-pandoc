@@ -238,7 +238,7 @@ The writer produces a JSON structure with three sections:
     }
   },
   "content": {
-    "version": "0.7.0",
+    "version": "0.7.1",
     "blocks": [...]
   },
   "dublin_core": {
@@ -379,6 +379,10 @@ The reader converts Codex back to standard Pandoc elements. Most block types sur
 
 - [codex-file-format-spec](https://github.com/Entrolution/codex-file-format-spec) - Format specification
 - [cdx-core](https://github.com/Entrolution/cdx-core) - Rust library and CLI
+
+## Security
+
+See [SECURITY.md](SECURITY.md) for the supported version policy and how to report vulnerabilities.
 
 ## Contributing
 

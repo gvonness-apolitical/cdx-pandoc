@@ -159,5 +159,230 @@ test.assert_not_nil(result[2])
 test.assert_eq("Note", result[1].t)
 test.assert_eq("Note", result[2].t)
 
+-- ============================================
+-- Tests for reader block handler output (Step 3a)
+-- Requires Pandoc stubs for constructors
+-- ============================================
+
+print("")
+print("-- reader block handler output --")
+
+-- Additional Pandoc stubs needed for handler tests
+pandoc.Header = function(level, inlines, attr)
+    return {t = "Header", level = level, content = inlines, attr = attr}
+end
+pandoc.Attr = function(id, classes, attrs)
+    return {identifier = id or "", classes = classes or {}, attributes = attrs or {}}
+end
+pandoc.CodeBlock = function(text, attr)
+    return {t = "CodeBlock", text = text, attr = attr}
+end
+pandoc.BlockQuote = function(blocks)
+    return {t = "BlockQuote", content = blocks}
+end
+pandoc.BulletList = function(items)
+    return {t = "BulletList", content = items}
+end
+pandoc.OrderedList = function(items, attrs)
+    return {t = "OrderedList", content = items, listAttributes = attrs}
+end
+pandoc.ListAttributes = function(start)
+    return {start}
+end
+pandoc.Plain = function(inlines)
+    return {t = "Plain", content = inlines}
+end
+pandoc.Math = function(mathtype, text)
+    return {t = "Math", mathtype = mathtype, text = text}
+end
+pandoc.DisplayMath = "DisplayMath"
+pandoc.InlineMath = "InlineMath"
+pandoc.Image = function(alt, src, title)
+    return {t = "Image", caption = alt, src = src, title = title}
+end
+pandoc.Figure = function(content, caption, attr)
+    return {t = "Figure", content = {content}, caption = caption, attr = attr}
+end
+pandoc.Blocks = function(blocks)
+    return blocks
+end
+pandoc.DefinitionList = function(items)
+    return {t = "DefinitionList", content = items}
+end
+pandoc.Div = function(content, attr)
+    return {t = "Div", content = content, attr = attr}
+end
+pandoc.Link = function(inlines, target, title)
+    return {t = "Link", content = inlines, target = target, title = title}
+end
+pandoc.Span = function(inlines, attr)
+    return {t = "Span", content = inlines, attr = attr}
+end
+pandoc.SimpleTable = function(caption, aligns, widths, header, rows)
+    return {caption = caption, aligns = aligns, widths = widths, header = header, rows = rows}
+end
+pandoc.utils = pandoc.utils or {}
+pandoc.utils.from_simple_table = function(simple)
+    return {t = "Table", simple = simple}
+end
+
+-- Wire up reader_inlines stub for handler tests
+local reader_inlines_stub = {
+    convert = function(nodes)
+        -- Return a simple stub inline for each text node
+        local res = {}
+        for _, node in ipairs(nodes) do
+            if node.value then
+                table.insert(res, {t = "Str", text = node.value})
+            end
+        end
+        return res
+    end
+}
+reader_blocks.set_inlines(reader_inlines_stub)
+
+test.test("paragraph handler returns Para")
+result = reader_blocks.convert_block({
+    type = "paragraph",
+    children = {{type = "text", value = "Hello world"}}
+})
+test.assert_not_nil(result)
+test.assert_eq("Para", result.t)
+
+test.test("paragraph handler with empty children returns nil")
+result = reader_blocks.convert_block({
+    type = "paragraph",
+    children = {}
+})
+test.assert_nil(result)
+
+test.test("heading handler returns Header with level")
+result = reader_blocks.convert_block({
+    type = "heading",
+    level = 2,
+    id = "sec-intro",
+    children = {{type = "text", value = "Introduction"}}
+})
+test.assert_not_nil(result)
+test.assert_eq("Header", result.t)
+test.assert_eq(2, result.level)
+test.assert_eq("sec-intro", result.attr.identifier)
+
+test.test("code_block handler returns CodeBlock")
+result = reader_blocks.convert_block({
+    type = "codeBlock",
+    language = "python",
+    children = {{type = "text", value = "print('hi')"}}
+})
+test.assert_not_nil(result)
+test.assert_eq("CodeBlock", result.t)
+test.assert_eq("print('hi')", result.text)
+test.assert_eq("python", result.attr.classes[1])
+
+test.test("code_block handler without language")
+result = reader_blocks.convert_block({
+    type = "codeBlock",
+    children = {{type = "text", value = "code"}}
+})
+test.assert_eq("CodeBlock", result.t)
+test.assert_eq(0, #result.attr.classes)
+
+test.test("blockquote handler returns BlockQuote")
+result = reader_blocks.convert_block({
+    type = "blockquote",
+    children = {{type = "paragraph", children = {{type = "text", value = "quoted"}}}}
+})
+test.assert_not_nil(result)
+test.assert_eq("BlockQuote", result.t)
+
+test.test("list handler returns BulletList for unordered")
+result = reader_blocks.convert_block({
+    type = "list",
+    ordered = false,
+    children = {
+        {type = "listItem", children = {
+            {type = "paragraph", children = {{type = "text", value = "item 1"}}}
+        }}
+    }
+})
+test.assert_not_nil(result)
+test.assert_eq("BulletList", result.t)
+
+test.test("list handler returns OrderedList for ordered")
+result = reader_blocks.convert_block({
+    type = "list",
+    ordered = true,
+    children = {
+        {type = "listItem", children = {
+            {type = "paragraph", children = {{type = "text", value = "item 1"}}}
+        }}
+    }
+})
+test.assert_not_nil(result)
+test.assert_eq("OrderedList", result.t)
+
+test.test("table_block handler returns Table")
+result = reader_blocks.convert_block({
+    type = "table",
+    children = {
+        {type = "tableRow", header = true, children = {
+            {type = "tableCell", children = {{type = "text", value = "Col1"}}}
+        }},
+        {type = "tableRow", children = {
+            {type = "tableCell", children = {{type = "text", value = "Val1"}}}
+        }}
+    }
+})
+test.assert_not_nil(result)
+test.assert_eq("Table", result.t)
+
+test.test("math_block handler returns Para with Math")
+result = reader_blocks.convert_block({
+    type = "math",
+    display = true,
+    value = "x^2 + y^2"
+})
+test.assert_not_nil(result)
+test.assert_eq("Para", result.t)
+
+test.test("image_block handler returns Figure")
+result = reader_blocks.convert_block({
+    type = "image",
+    src = "photo.png",
+    alt = "A photo"
+})
+test.assert_not_nil(result)
+test.assert_eq("Figure", result.t)
+
+test.test("definition_list handler returns DefinitionList")
+result = reader_blocks.convert_block({
+    type = "definitionList",
+    children = {
+        {type = "definitionItem", children = {
+            {type = "definitionTerm", children = {{type = "text", value = "Term"}}},
+            {type = "definitionDescription", children = {
+                {type = "paragraph", children = {{type = "text", value = "Def"}}}
+            }}
+        }}
+    }
+})
+test.assert_not_nil(result)
+test.assert_eq("DefinitionList", result.t)
+
+test.test("admonition handler returns Div with variant class")
+result = reader_blocks.convert_block({
+    type = "admonition",
+    variant = "warning",
+    children = {{type = "paragraph", children = {{type = "text", value = "Be careful!"}}}}
+})
+test.assert_not_nil(result)
+test.assert_eq("Div", result.t)
+test.assert_eq("warning", result.attr.classes[1])
+
+test.test("horizontalRule handler returns HorizontalRule")
+result = reader_blocks.convert_block({type = "horizontalRule"})
+test.assert_not_nil(result)
+test.assert_eq("HorizontalRule", result.t)
+
 print("")
 test.summary()

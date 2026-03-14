@@ -307,11 +307,16 @@
         "type": "paragraph"
       }
     ],
-    "version": "0.7.0"
+    "version": "0.7.1"
   },
   "dublin_core": {
     "terms": {
-      "creator": "Unknown",
+      "creator": "Test Author",
+      "creators": [
+        {
+          "name": "Test Author"
+        }
+      ],
       "date": "2025-01-28",
       "description": "A simple test document for the Codex Pandoc writer.",
       "format": "application/vnd.codex+json",
@@ -331,7 +336,7 @@
     "@type": "Article",
     "author": {
       "@type": "Person",
-      "name": "Unknown"
+      "name": "Test Author"
     },
     "datePublished": "2025-01-28",
     "description": "A simple test document for the Codex Pandoc writer.",

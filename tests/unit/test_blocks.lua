@@ -329,6 +329,17 @@ test.test("convert_block RawBlock")
 result = blocks.convert_block({t = "RawBlock", text = "<div>raw html</div>"})
 test.assert_eq("codeBlock", result.type)
 test.assert_eq("<div>raw html</div>", result.children[1].value)
+test.assert_nil(result.language) -- no format → no language
+
+test.test("convert_block RawBlock with format preserves language")
+result = blocks.convert_block({t = "RawBlock", text = "<b>bold</b>", format = "html"})
+test.assert_eq("codeBlock", result.type)
+test.assert_eq("html", result.language)
+test.assert_eq("<b>bold</b>", result.children[1].value)
+
+test.test("convert_block RawBlock empty format omits language")
+result = blocks.convert_block({t = "RawBlock", text = "raw", format = ""})
+test.assert_nil(result.language)
 
 test.test("convert_block CodeBlock dispatch")
 result = blocks.convert_block({
@@ -418,6 +429,169 @@ test.assert_eq("semantic:footnote", result[1].type)
 test.assert_eq(3, result[1].number)
 test.assert_nil(result[1].content) -- complex: uses children, not content
 test.assert_not_nil(result[1].children)
+
+-- ============================================
+-- Tests for table_cell() complex content (Step 1a)
+-- ============================================
+
+print("")
+print("-- table_cell complex content --")
+
+test.test("table_cell with nested block content collects all children")
+-- Simulate a cell containing a blockquote → paragraph → bold+text
+-- After convert, blockquote has children array; all should be collected
+result = blocks.table_cell({
+    contents = {
+        {t = "BlockQuote", content = {
+            {t = "Para", content = {
+                {t = "Strong", content = {
+                    {t = "Str", text = "bold"}
+                }},
+                {t = "Space"},
+                {t = "Str", text = "text"}
+            }}
+        }}
+    }
+})
+test.assert_eq("tableCell", result.type)
+-- Should have children from the blockquote's paragraph (bold+space+text merged)
+test.assert_true(#result.children > 0, "expected non-empty children for complex cell")
+
+-- ============================================
+-- Tests for task list checkboxes (Step 2a)
+-- ============================================
+
+print("")
+print("-- task list checkbox tests --")
+
+test.test("list_item checked [x]")
+result = blocks.list_item({
+    {t = "Para", content = {
+        {t = "Str", text = "[x] Done task"}
+    }}
+})
+test.assert_eq("listItem", result.type)
+test.assert_true(result.checked)
+test.assert_eq("Done task", result.children[1].children[1].value)
+
+test.test("list_item checked [X] uppercase")
+result = blocks.list_item({
+    {t = "Para", content = {
+        {t = "Str", text = "[X] Also done"}
+    }}
+})
+test.assert_true(result.checked)
+
+test.test("list_item unchecked [ ]")
+result = blocks.list_item({
+    {t = "Para", content = {
+        {t = "Str", text = "[ ] Not done"}
+    }}
+})
+test.assert_false(result.checked)
+test.assert_eq("Not done", result.children[1].children[1].value)
+
+test.test("list_item unchecked []")
+result = blocks.list_item({
+    {t = "Para", content = {
+        {t = "Str", text = "[] Empty checkbox"}
+    }}
+})
+test.assert_false(result.checked)
+
+test.test("list_item no checkbox omits checked field")
+result = blocks.list_item({
+    {t = "Para", content = {
+        {t = "Str", text = "Regular item"}
+    }}
+})
+test.assert_nil(result.checked)
+
+-- ============================================
+-- Tests for extract_subfigure() (Step 2b)
+-- ============================================
+
+print("")
+print("-- extract_subfigure tests --")
+
+-- Stub pandoc.utils.stringify for image() which calls it
+pandoc = pandoc or {}
+pandoc.utils = pandoc.utils or {}
+pandoc.utils.stringify = pandoc.utils.stringify or function(t)
+    if type(t) == "string" then return t end
+    if type(t) == "table" then
+        local parts = {}
+        for _, item in ipairs(t) do
+            if type(item) == "table" and item.text then
+                table.insert(parts, item.text)
+            elseif type(item) == "string" then
+                table.insert(parts, item)
+            end
+        end
+        return table.concat(parts)
+    end
+    return ""
+end
+
+test.test("extract_subfigure with image child")
+result = blocks.extract_subfigure(
+    {content = {
+        {t = "Plain", content = {
+            {t = "Image", src = "fig1.png", caption = {}}
+        }}
+    }},
+    {},
+    ""
+)
+test.assert_not_nil(result)
+test.assert_eq(1, #result.children)
+test.assert_eq("image", result.children[1].type)
+test.assert_eq("fig1.png", result.children[1].src)
+
+test.test("extract_subfigure with ID and label attrs")
+result = blocks.extract_subfigure(
+    {content = {
+        {t = "Plain", content = {
+            {t = "Image", src = "fig2.png", caption = {}}
+        }}
+    }},
+    {label = "(a)"},
+    "subfig-1"
+)
+test.assert_eq("subfig-1", result.id)
+test.assert_eq("(a)", result.label)
+
+test.test("extract_subfigure empty div returns nil")
+result = blocks.extract_subfigure({content = {}}, {}, "")
+test.assert_nil(result)
+
+-- ============================================
+-- Tests for LineBlock handler (Step 2c)
+-- ============================================
+
+print("")
+print("-- LineBlock handler tests --")
+
+test.test("LineBlock produces multi-block paragraphs")
+result = blocks.convert_block({
+    t = "LineBlock",
+    content = {
+        {{t = "Str", text = "Line one"}},
+        {{t = "Str", text = "Line two"}}
+    }
+})
+test.assert_true(result.multi)
+test.assert_eq(2, #result.blocks)
+test.assert_eq("paragraph", result.blocks[1].type)
+test.assert_eq("paragraph", result.blocks[2].type)
+
+test.test("LineBlock empty content produces empty blocks")
+result = blocks.convert_block({
+    t = "LineBlock",
+    content = {}
+})
+test.assert_true(result.multi)
+test.assert_eq(0, #result.blocks)
 
 print("")
 test.summary()
