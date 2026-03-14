@@ -230,13 +230,13 @@ end
 local reader_inlines_stub = {
     convert = function(nodes)
         -- Return a simple stub inline for each text node
-        local result = {}
+        local res = {}
         for _, node in ipairs(nodes) do
             if node.value then
-                table.insert(result, {t = "Str", text = node.value})
+                table.insert(res, {t = "Str", text = node.value})
             end
         end
-        return result
+        return res
     end
 }
 reader_blocks.set_inlines(reader_inlines_stub)

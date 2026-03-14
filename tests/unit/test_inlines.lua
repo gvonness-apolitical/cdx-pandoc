@@ -184,8 +184,8 @@ pandoc.utils.stringify = pandoc.utils.stringify or function(t)
 end
 
 test.test("Quoted DoubleQuote wraps content in double quotes")
-local ctx = inlines.new_context()
-local result = inlines.flatten(
+ctx = inlines.new_context()
+result = inlines.flatten(
     {{t = "Quoted", quotetype = "DoubleQuote", content = {
         {t = "Str", text = "hello"}
     }}},
