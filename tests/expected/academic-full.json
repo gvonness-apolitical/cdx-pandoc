@@ -433,22 +433,9 @@
       {
         "environment": "align",
         "lines": [
-          "nabla",
-          "cdot",
-          "mathbf{E} &=",
-          "frac{",
-          "rho}{",
-          "epsilon_0}",
-          "nabla",
-          "cdot",
-          "mathbf{B} &= 0",
-          "nabla",
-          "times",
-          "mathbf{E} &= -",
-          "frac{",
-          "partial",
-          "mathbf{B}}{",
-          "partial t}"
+          "\\nabla \\cdot \\mathbf{E} &= \\frac{\\rho}{\\epsilon_0}",
+          "\\nabla \\cdot \\mathbf{B} &= 0",
+          "\\nabla \\times \\mathbf{E} &= -\\frac{\\partial \\mathbf{B}}{\\partial t}"
         ],
         "type": "academic:equation-group",
         "value": "\\begin{align}\n\\nabla \\cdot \\mathbf{E} &= \\frac{\\rho}{\\epsilon_0} \\\\\n\\nabla \\cdot \\mathbf{B} &= 0 \\\\\n\\nabla \\times \\mathbf{E} &= -\\frac{\\partial \\mathbf{B}}{\\partial t}\n\\end{align}"
@@ -535,11 +522,16 @@
         "variant": "tip"
       }
     ],
-    "version": "0.7.0"
+    "version": "0.7.1"
   },
   "dublin_core": {
     "terms": {
-      "creator": "Unknown",
+      "creator": "Test Author",
+      "creators": [
+        {
+          "name": "Test Author"
+        }
+      ],
       "date": "2024-01-15",
       "format": "application/vnd.codex+json",
       "title": "Academic Kitchen Sink",
@@ -552,7 +544,7 @@
     "@type": "Article",
     "author": {
       "@type": "Person",
-      "name": "Unknown"
+      "name": "Test Author"
     },
     "datePublished": "2024-01-15",
     "name": "Academic Kitchen Sink"

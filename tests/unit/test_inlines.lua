@@ -160,15 +160,110 @@ inlines.reset_context()
 test.assert_eq(0, inlines._default_context.footnote_counter)
 
 -- ============================================
--- Tests for has_class (re-export)
+-- Tests for Quoted handler (Step 2d)
 -- ============================================
 
 print("")
-print("-- has_class re-export tests --")
+print("-- Quoted handler tests --")
 
-test.test("has_class via inlines module")
-test.assert_true(inlines.has_class({"foo", "bar"}, "bar"))
-test.assert_false(inlines.has_class({"foo"}, "baz"))
+-- Provide pandoc.utils.stringify stub for the Span handler
+pandoc = pandoc or {}
+pandoc.utils = pandoc.utils or {}
+pandoc.utils.stringify = pandoc.utils.stringify or function(t)
+    if type(t) == "string" then return t end
+    if type(t) == "table" then
+        local parts = {}
+        for _, item in ipairs(t) do
+            if type(item) == "table" and item.text then
+                table.insert(parts, item.text)
+            end
+        end
+        return table.concat(parts)
+    end
+    return ""
+end
+
+test.test("Quoted DoubleQuote wraps content in double quotes")
+local ctx = inlines.new_context()
+local result = inlines.flatten(
+    {{t = "Quoted", quotetype = "DoubleQuote", content = {
+        {t = "Str", text = "hello"}
+    }}},
+    nil,
+    ctx
+)
+-- Should produce: " hello "
+test.assert_eq(3, #result)
+test.assert_eq('"', result[1].value)
+test.assert_eq("hello", result[2].value)
+test.assert_eq('"', result[3].value)
+
+test.test("Quoted SingleQuote wraps content in single quotes")
+ctx = inlines.new_context()
+result = inlines.flatten(
+    {{t = "Quoted", quotetype = "SingleQuote", content = {
+        {t = "Str", text = "word"}
+    }}},
+    nil,
+    ctx
+)
+test.assert_eq(3, #result)
+test.assert_eq("'", result[1].value)
+test.assert_eq("word", result[2].value)
+test.assert_eq("'", result[3].value)
+
+-- ============================================
+-- Tests for SmallCaps handler (Step 2d)
+-- ============================================
+
+print("")
+print("-- SmallCaps handler tests --")
+
+test.test("SmallCaps passes through content unchanged")
+ctx = inlines.new_context()
+result = inlines.flatten(
+    {{t = "SmallCaps", content = {
+        {t = "Str", text = "SMALL CAPS"}
+    }}},
+    nil,
+    ctx
+)
+test.assert_eq(1, #result)
+test.assert_eq("SMALL CAPS", result[1].value)
+test.assert_nil(result[1].marks) -- no marks added
+
+-- ============================================
+-- Tests for Span with anchor-only ID (Step 2d)
+-- ============================================
+
+print("")
+print("-- Span anchor tests --")
+
+test.test("Span with ID produces anchor mark")
+ctx = inlines.new_context()
+result = inlines.flatten(
+    {{t = "Span", attr = {identifier = "my-anchor", classes = {}, attributes = {}},
+      content = {{t = "Str", text = "target"}}}},
+    nil,
+    ctx
+)
+test.assert_eq(1, #result)
+test.assert_eq("target", result[1].value)
+test.assert_not_nil(result[1].marks)
+test.assert_eq("anchor", result[1].marks[1].type)
+test.assert_eq("my-anchor", result[1].marks[1].id)
+
+test.test("Span with empty ID and no classes passes through")
+ctx = inlines.new_context()
+result = inlines.flatten(
+    {{t = "Span", attr = {identifier = "", classes = {}, attributes = {}},
+      content = {{t = "Str", text = "plain"}}}},
+    nil,
+    ctx
+)
+test.assert_eq(1, #result)
+test.assert_eq("plain", result[1].value)
+test.assert_nil(result[1].marks) -- no marks
 
 print("")
 test.summary()

@@ -4,6 +4,7 @@
 -- Load shared utilities
 local utils = dofile((PANDOC_SCRIPT_FILE and (PANDOC_SCRIPT_FILE:match("(.*/)" ) or "") or "") .. "lib/utils.lua")
 local deep_copy = utils.deep_copy
+local has_class = utils.has_class
 
 local M = {}
 
@@ -36,9 +37,6 @@ end
 function M.reset_context()
     M._default_context = M.new_context()
 end
-
--- Check if a class list contains a specific class (delegates to utils)
-M.has_class = utils.has_class
 
 -- Check if two marks are equal
 local function marks_equal(m1, m2)
@@ -199,11 +197,8 @@ inline_handlers.Code = function(inline, marks, ctx)
     return {M.text_node(inline.text, new_marks)}
 end
 
--- Academic cross-reference prefix patterns
-local theorem_ref_prefixes = {
-    ["thm-"] = true, ["lem-"] = true, ["prop-"] = true, ["cor-"] = true,
-    ["def-"] = true, ["conj-"] = true, ["rem-"] = true, ["ex-"] = true
-}
+-- Academic cross-reference prefix patterns (from shared constants)
+local theorem_ref_prefixes = utils.THEOREM_REF_PREFIXES
 
 local function detect_academic_ref(target)
     if not target or not target:match("^#") then
@@ -358,7 +353,7 @@ inline_handlers.Span = function(inline, marks, ctx)
     local has_semantic_mark = false
 
     -- Entity class
-    if M.has_class(classes, "entity") then
+    if has_class(classes, "entity") then
         track_extension(utils.EXT_SEMANTIC)
         local entity_mark = {type = "semantic:entity"}
         if attributes.uri then
@@ -377,7 +372,7 @@ inline_handlers.Span = function(inline, marks, ctx)
     end
 
     -- Glossary class
-    if M.has_class(classes, "glossary") then
+    if has_class(classes, "glossary") then
         track_extension(utils.EXT_SEMANTIC)
         local glossary_mark = {type = "semantic:glossary"}
         if attributes.ref then
@@ -391,10 +386,18 @@ inline_handlers.Span = function(inline, marks, ctx)
     end
 
     -- Measurement class
-    if M.has_class(classes, "measurement") then
+    if has_class(classes, "measurement") then
         local text = pandoc.utils.stringify(inline.content)
         local value = tonumber(attributes.value) or tonumber(text:match("([%d%.]+)"))
         local unit = attributes.unit or text:match("%d+%.?%d*%s*(%a+)")
+        if not value then
+            io.stderr:write("Warning: measurement missing parseable value: " .. text .. "\n")
+            value = 0
+        end
+        if not unit then
+            io.stderr:write("Warning: measurement missing parseable unit: " .. text .. "\n")
+            unit = ""
+        end
         return {{
             type = "measurement_sentinel",
             value = value,
@@ -451,12 +454,6 @@ convert_inline = function(inline, marks, ctx)
     end
     return {}
 end
-
--- Export convert_inline as module function
-M.convert_inline = convert_inline
-
--- Expose handlers table for testing
-M._handlers = inline_handlers
 
 -- Check if a node is a sentinel (non-text node that needs block-level handling)
 local function is_sentinel(node)

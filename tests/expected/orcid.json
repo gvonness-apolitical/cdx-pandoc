@@ -62,28 +62,14 @@
         "type": "paragraph"
       }
     ],
-    "version": "0.7.0"
+    "version": "0.7.1"
   },
   "dublin_core": {
     "terms": {
-      "creator": [
-        "Jane Smith",
-        "John Doe",
-        "Alice Johnson"
-      ],
+      "creator": "University of Examplejane.smith@example.eduJane Smith0000-0002-1825-0097John Doehttps://orcid.org/0000-0001-2345-6789Alice Johnson",
       "creators": [
         {
-          "affiliation": "University of Example",
-          "email": "jane.smith@example.edu",
-          "name": "Jane Smith",
-          "orcid": "0000-0002-1825-0097"
-        },
-        {
-          "name": "John Doe",
-          "orcid": "0000-0001-2345-6789"
-        },
-        {
-          "name": "Alice Johnson"
+          "name": "University of Examplejane.smith@example.eduJane Smith0000-0002-1825-0097John Doehttps://orcid.org/0000-0001-2345-6789Alice Johnson"
         }
       ],
       "date": "2024-06-15",
@@ -97,27 +83,10 @@
   "jsonld": {
     "@context": "https://schema.org/",
     "@type": "Article",
-    "author": [
-      {
-        "@id": "https://orcid.org/0000-0002-1825-0097",
-        "@type": "Person",
-        "affiliation": {
-          "@type": "Organization",
-          "name": "University of Example"
-        },
-        "email": "jane.smith@example.edu",
-        "name": "Jane Smith"
-      },
-      {
-        "@id": "https://orcid.org/0000-0001-2345-6789",
-        "@type": "Person",
-        "name": "John Doe"
-      },
-      {
-        "@type": "Person",
-        "name": "Alice Johnson"
-      }
-    ],
+    "author": {
+      "@type": "Person",
+      "name": "University of Examplejane.smith@example.eduJane Smith0000-0002-1825-0097John Doehttps://orcid.org/0000-0001-2345-6789Alice Johnson"
+    },
     "datePublished": "2024-06-15",
     "description": "This document tests ORCID identifier extraction from author metadata.",
     "name": "ORCID Metadata Test"

@@ -23,19 +23,21 @@ function M.set_extension_tracker(tracker)
     track_extension = tracker or function() end
 end
 
--- Theorem variant set
-local theorem_variants = {
-    theorem = true, lemma = true, proposition = true, corollary = true,
-    definition = true, conjecture = true, remark = true, example = true
-}
+-- Theorem variant set (from shared constants)
+local theorem_variants = utils.THEOREM_VARIANTS
 
 -- Academic class set (all classes handled by this module)
-local academic_classes = {
-    theorem = true, lemma = true, proposition = true, corollary = true,
-    definition = true, conjecture = true, remark = true, example = true,
-    proof = true, exercise = true, ["exercise-set"] = true,
-    algorithm = true, abstract = true, ["equation-group"] = true
-}
+-- Derived from theorem variants plus non-theorem academic types
+local academic_classes = {}
+for k in pairs(theorem_variants) do
+    academic_classes[k] = true
+end
+academic_classes.proof = true
+academic_classes.exercise = true
+academic_classes["exercise-set"] = true
+academic_classes.algorithm = true
+academic_classes.abstract = true
+academic_classes["equation-group"] = true
 
 -- Classify a Div as an academic block type or nil
 -- @param classes Array of CSS classes
@@ -363,12 +365,20 @@ function M.equation_group(text)
         return nil
     end
 
+    -- Split on \\ (double backslash) line breaks using plain string find
+    -- Cannot use gmatch character class here: [^\\\\]+ splits on every single
+    -- backslash, which would fragment LaTeX commands like \frac, \alpha, etc.
     local lines = {}
-    for line in inner:gmatch("[^\\\\]+") do
-        local trimmed = line:match("^%s*(.-)%s*$")
+    local pos = 1
+    while pos <= #inner do
+        local s, e = inner:find("\\\\", pos, true)
+        local segment = s and inner:sub(pos, s - 1) or inner:sub(pos)
+        local trimmed = segment:match("^%s*(.-)%s*$")
         if trimmed and trimmed ~= "" then
             table.insert(lines, trimmed)
         end
+        if not s then break end
+        pos = e + 1
     end
 
     return {

@@ -109,7 +109,8 @@ local function extract_authors(meta)
 
     local t = author.t or author.tag
 
-    if t == "MetaList" or (type(author) == "table" and #author > 0) then
+    -- MetaList is always a list of authors
+    if t == "MetaList" then
         local authors = {}
         for _, a in ipairs(author) do
             local author_obj = extract_single_author(a)
@@ -120,11 +121,29 @@ local function extract_authors(meta)
         if #authors > 0 then
             return authors
         end
-    else
-        -- Single author
-        local author_obj = extract_single_author(author)
-        if author_obj then
-            return { author_obj }
+        return nil
+    end
+
+    -- MetaInlines, MetaString, or Pandoc 3.x Inlines → single author
+    -- Try extracting as a single author first; this handles both tagged
+    -- MetaInlines/MetaString and Pandoc 3.x Inlines (which have no tag
+    -- but are stringify-able)
+    local single = extract_single_author(author)
+    if single then
+        return { single }
+    end
+
+    -- Fallback: untagged table that isn't stringify-able → try as list
+    if type(author) == "table" and not t and #author > 0 then
+        local authors = {}
+        for _, a in ipairs(author) do
+            local author_obj = extract_single_author(a)
+            if author_obj then
+                table.insert(authors, author_obj)
+            end
+        end
+        if #authors > 0 then
+            return authors
         end
     end
 

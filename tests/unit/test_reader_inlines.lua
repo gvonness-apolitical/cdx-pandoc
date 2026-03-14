@@ -110,5 +110,73 @@ test.test("set_footnotes nil gives empty table")
 reader_inlines.set_footnotes(nil)
 test.assert_not_nil(reader_inlines._footnotes)
 
+-- ============================================
+-- Tests for citation prefix/suffix placement (Step 1d)
+-- ============================================
+
+print("")
+print("-- citation prefix/suffix placement --")
+
+-- Additional stubs for convert_node citation path
+pandoc.Str = function(text) return {t = "Str", text = text} end
+pandoc.Code = function(text) return {t = "Code", text = text} end
+pandoc.Link = function(content, target, title) return {t = "Link", content = content, target = target, title = title} end
+pandoc.Span = function(content, attr) return {t = "Span", content = content, attr = attr} end
+pandoc.Attr = function(id, classes, attrs)
+    return {identifier = id or "", classes = classes or {}, attributes = attrs or {}}
+end
+pandoc.Citation = function(id, mode)
+    return {id = id, mode = mode, prefix = {}, suffix = {}}
+end
+pandoc.Cite = function(content, citations)
+    return {t = "Cite", content = content, citations = citations}
+end
+pandoc.Math = function(mathtype, text) return {t = "Math", mathtype = mathtype, text = text} end
+pandoc.InlineMath = "InlineMath"
+
+test.test("citation prefix only on first ref, suffix only on last")
+local cite_node = {
+    type = "text",
+    value = "Smith; Jones 2020",
+    marks = {{
+        type = "semantic:citation",
+        refs = {"smith2020", "jones2020"},
+        prefix = "see",
+        suffix = "ch. 3",
+        locator = "42"
+    }}
+}
+local result = reader_inlines.convert_node(cite_node)
+test.assert_eq(1, #result)
+test.assert_eq("Cite", result[1].t)
+local citations = result[1].citations
+test.assert_eq(2, #citations)
+-- First citation should have prefix
+test.assert_eq("Str", citations[1].prefix[1].t)
+test.assert_eq("see", citations[1].prefix[1].text)
+-- First citation should NOT have suffix (it goes on last)
+test.assert_eq(0, #citations[1].suffix)
+-- Last citation should have suffix (locator + suffix combined)
+test.assert_eq("Str", citations[2].suffix[1].t)
+test.assert_contains(citations[2].suffix[1].text, "42")
+
+test.test("single citation gets both prefix and suffix")
+cite_node = {
+    type = "text",
+    value = "Smith 2020",
+    marks = {{
+        type = "semantic:citation",
+        refs = {"smith2020"},
+        prefix = "cf.",
+        locator = "10"
+    }}
+}
+result = reader_inlines.convert_node(cite_node)
+local cites = result[1].citations
+test.assert_eq(1, #cites)
+-- Single citation is both first and last, so gets both prefix and suffix
+test.assert_eq("cf.", cites[1].prefix[1].text)
+test.assert_contains(cites[1].suffix[1].text, "10")
+
 print("")
 test.summary()

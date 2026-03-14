@@ -280,11 +280,16 @@
         "type": "table"
       }
     ],
-    "version": "0.7.0"
+    "version": "0.7.1"
   },
   "dublin_core": {
     "terms": {
-      "creator": "Unknown",
+      "creator": "Test Author",
+      "creators": [
+        {
+          "name": "Test Author"
+        }
+      ],
       "format": "application/vnd.codex+json",
       "title": "Table Test Document",
       "type": "Text"
@@ -296,7 +301,7 @@
     "@type": "Article",
     "author": {
       "@type": "Person",
-      "name": "Unknown"
+      "name": "Test Author"
     },
     "name": "Table Test Document"
   },

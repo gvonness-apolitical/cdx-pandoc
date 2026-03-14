@@ -188,7 +188,8 @@ function M.convert_list_item(item)
     for _, child in ipairs(item.children or {}) do
         local converted = M.convert_block(child)
         if converted then
-            if type(converted) == "table" and converted.tag then
+            -- Pandoc elements are userdata with t/tag accessors, not plain tables
+            if converted.t or converted.tag then
                 table.insert(blocks, converted)
             elseif type(converted) == "table" and #converted > 0 then
                 for _, b in ipairs(converted) do

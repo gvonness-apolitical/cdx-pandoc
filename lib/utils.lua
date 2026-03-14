@@ -1,5 +1,8 @@
 -- lib/utils.lua
 -- Shared utility functions for Codex Pandoc writer
+-- NOTE: Each module that requires utils.lua uses dofile() rather than require()
+-- because Pandoc custom writers don't support Lua's package.path/require system.
+-- This means utils.lua is re-executed per module, but the overhead is negligible.
 
 local M = {}
 
@@ -43,6 +46,18 @@ end
 -- Extension ID constants
 M.EXT_SEMANTIC = "codex.semantic"
 M.EXT_ACADEMIC = "codex.academic"
+
+-- Theorem variant types (shared between writer and reader)
+M.THEOREM_VARIANTS = {
+    theorem = true, lemma = true, proposition = true, corollary = true,
+    definition = true, conjecture = true, remark = true, example = true
+}
+
+-- Theorem cross-reference prefix patterns (shared between writer and reader)
+M.THEOREM_REF_PREFIXES = {
+    ["thm-"] = true, ["lem-"] = true, ["prop-"] = true, ["cor-"] = true,
+    ["def-"] = true, ["conj-"] = true, ["rem-"] = true, ["ex-"] = true
+}
 
 -- Check if a class list contains a specific class
 -- @param classes Array of CSS class strings

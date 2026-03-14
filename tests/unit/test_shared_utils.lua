@@ -160,5 +160,34 @@ test.assert_eq("codex.semantic", utils.EXT_SEMANTIC)
 test.test("EXT_ACADEMIC constant")
 test.assert_eq("codex.academic", utils.EXT_ACADEMIC)
 
+-- ============================================
+-- Tests for theorem variant constants (Step 4d)
+-- ============================================
+
+print("")
+print("-- theorem variant constants --")
+
+test.test("THEOREM_VARIANTS contains all 8 variants")
+local expected_variants = {"theorem", "lemma", "proposition", "corollary",
+    "definition", "conjecture", "remark", "example"}
+for _, v in ipairs(expected_variants) do
+    test.assert_true(utils.THEOREM_VARIANTS[v], "THEOREM_VARIANTS missing: " .. v)
+end
+
+test.test("THEOREM_VARIANTS does not contain non-variants")
+test.assert_nil(utils.THEOREM_VARIANTS["proof"])
+test.assert_nil(utils.THEOREM_VARIANTS["exercise"])
+
+test.test("THEOREM_REF_PREFIXES contains all 8 prefixes")
+local expected_prefixes = {"thm-", "lem-", "prop-", "cor-",
+    "def-", "conj-", "rem-", "ex-"}
+for _, p in ipairs(expected_prefixes) do
+    test.assert_true(utils.THEOREM_REF_PREFIXES[p], "THEOREM_REF_PREFIXES missing: " .. p)
+end
+
+test.test("THEOREM_REF_PREFIXES does not contain non-prefixes")
+test.assert_nil(utils.THEOREM_REF_PREFIXES["eq-"])
+test.assert_nil(utils.THEOREM_REF_PREFIXES["alg-"])
+
 print("")
 test.summary()

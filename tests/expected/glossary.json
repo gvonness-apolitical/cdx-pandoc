@@ -105,11 +105,16 @@
         "type": "paragraph"
       }
     ],
-    "version": "0.7.0"
+    "version": "0.7.1"
   },
   "dublin_core": {
     "terms": {
-      "creator": "Unknown",
+      "creator": "Test Author",
+      "creators": [
+        {
+          "name": "Test Author"
+        }
+      ],
       "format": "application/vnd.codex+json",
       "title": "Glossary Test",
       "type": "Text"
@@ -121,7 +126,7 @@
     "@type": "Article",
     "author": {
       "@type": "Person",
-      "name": "Unknown"
+      "name": "Test Author"
     },
     "name": "Glossary Test"
   },
